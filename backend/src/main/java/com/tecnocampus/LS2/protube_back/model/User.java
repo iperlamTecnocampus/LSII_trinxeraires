@@ -39,7 +39,7 @@ public class User {
     @ManyToMany(mappedBy = "subscribedTo")
     private Set<User> subscribers = new HashSet<>();
 
-    @OneToMany(mappedBy = "uploader", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "author", cascade = CascadeType.REMOVE)
     private Set<Video> videos = new HashSet<>();
 
     @PrePersist
