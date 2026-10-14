@@ -9,7 +9,7 @@ import java.util.UUID;
 public record CreateVideoDTO(
         String title,
         String description,
-        UUID author,
-        List<Long> categories
+        VideoUserDTO author,
+        List<CategoryDTO> categories
 ) {
 }
