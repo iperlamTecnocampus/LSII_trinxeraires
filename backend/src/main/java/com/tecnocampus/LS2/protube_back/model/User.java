@@ -42,6 +42,9 @@ public class User {
     @OneToMany(mappedBy = "author", cascade = CascadeType.REMOVE)
     private Set<Video> videos = new HashSet<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private Set<Video> likedVideos = new HashSet<>();
+
     public User() {
 
     }
@@ -127,5 +130,13 @@ public class User {
 
     public void setVideos(Set<Video> videos) {
         this.videos = videos;
+    }
+
+    public Set<Video> getLikedVideos() {
+        return likedVideos;
+    }
+
+    public void setLikedVideos(Set<Video> likedVideos) {
+        this.likedVideos = likedVideos;
     }
 }
