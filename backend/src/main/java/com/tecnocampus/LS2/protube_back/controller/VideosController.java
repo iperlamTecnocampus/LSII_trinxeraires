@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/videos")
@@ -18,7 +19,7 @@ public class VideosController {
     VideoService videoService;
 
     @GetMapping("")
-    public ResponseEntity<List<String>> getVideos() {
+    public ResponseEntity<List<UUID>> getVideos() {
         return ResponseEntity.ok().body(videoService.getVideos());
 
     }
