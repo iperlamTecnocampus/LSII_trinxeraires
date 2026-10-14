@@ -143,6 +143,7 @@ def grab_videos():
             sys.stdout.flush()
             grab_video(video, id)
         except FileNotFoundError as e:
+            print(e)
             print(f"Error with video: {video} -- Skipped")
 
     print(f"Picking your videos... done")
