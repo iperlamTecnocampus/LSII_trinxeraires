@@ -42,6 +42,10 @@ public class User {
     @OneToMany(mappedBy = "author", cascade = CascadeType.REMOVE)
     private Set<Video> videos = new HashSet<>();
 
+    public User() {
+
+    }
+
     @PrePersist
     void onCreate() {
         if (this.joinDate == null) this.joinDate = LocalDate.now();
@@ -53,4 +57,75 @@ public class User {
         this.email = email;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public LocalDate getJoinDate() {
+        return joinDate;
+    }
+
+    public void setJoinDate(LocalDate joinDate) {
+        this.joinDate = joinDate;
+    }
+
+    public String getPictureFid() {
+        return pictureFid;
+    }
+
+    public void setPictureFid(String pictureFid) {
+        this.pictureFid = pictureFid;
+    }
+
+    public Set<User> getSubscribedTo() {
+        return subscribedTo;
+    }
+
+    public void setSubscribedTo(Set<User> subscribedTo) {
+        this.subscribedTo = subscribedTo;
+    }
+
+    public Set<User> getSubscribers() {
+        return subscribers;
+    }
+
+    public void setSubscribers(Set<User> subscribers) {
+        this.subscribers = subscribers;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Set<Video> getVideos() {
+        return videos;
+    }
+
+    public void setVideos(Set<Video> videos) {
+        this.videos = videos;
+    }
 }

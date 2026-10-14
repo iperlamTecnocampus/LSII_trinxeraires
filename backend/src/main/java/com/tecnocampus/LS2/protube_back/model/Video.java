@@ -52,6 +52,10 @@ public class Video {
     @OneToMany(mappedBy = "video", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<View> views = new HashSet<>();
 
+    public Video() {
+
+    }
+
     @PrePersist
     void onCreate() {
         if (this.uploadedAt == null) this.uploadedAt = LocalDateTime.now();
@@ -64,4 +68,87 @@ public class Video {
         this.categories = categories;
     }
 
+    public User getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(User author) {
+        this.author = author;
+    }
+
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<Category> categories) {
+        this.categories = categories;
+    }
+
+    public Set<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(Set<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Set<Like> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Set<Like> likes) {
+        this.likes = likes;
+    }
+
+    public String getThumbnailFid() {
+        return thumbnailFid;
+    }
+
+    public void setThumbnailFid(String thumbnailFid) {
+        this.thumbnailFid = thumbnailFid;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public LocalDateTime getUploadedAt() {
+        return uploadedAt;
+    }
+
+    public void setUploadedAt(LocalDateTime uploadedAt) {
+        this.uploadedAt = uploadedAt;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public String getVideoFid() {
+        return videoFid;
+    }
+
+    public void setVideoFid(String videoFid) {
+        this.videoFid = videoFid;
+    }
+
+    public Set<View> getViews() {
+        return views;
+    }
+
+    public void setViews(Set<View> views) {
+        this.views = views;
+    }
 }
