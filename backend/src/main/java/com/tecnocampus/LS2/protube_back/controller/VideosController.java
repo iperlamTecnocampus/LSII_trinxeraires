@@ -3,10 +3,7 @@ package com.tecnocampus.LS2.protube_back.controller;
 import com.tecnocampus.LS2.protube_back.services.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,9 +15,14 @@ public class VideosController {
     @Autowired
     VideoService videoService;
 
-    @GetMapping("")
+    @GetMapping("/getAllVideos")
     public ResponseEntity<List<UUID>> getVideos() {
         return ResponseEntity.ok().body(videoService.getVideos());
 
+    }
+
+    @GetMapping("/getVideoById/{id}")
+    public ResponseEntity<UUID> getVideoById(@PathVariable UUID id) {
+        return ResponseEntity.ok().body(videoService.getVideoById(id));
     }
 }

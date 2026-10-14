@@ -15,7 +15,13 @@ public class VideoService {
         return repository.findAll().stream().map(video -> video.getUuid()).toList();
     }
 
-    public UUID getVideoById(String id) {
-       return repository.findById(id).get().getUuid();
+    public UUID getVideoById(UUID id) {
+        return repository.findById(id).get().getUuid();
     }
+
+    public void deleteVideoById(UUID id) {
+        repository.deleteById(id);
+    }
+
+
 }
