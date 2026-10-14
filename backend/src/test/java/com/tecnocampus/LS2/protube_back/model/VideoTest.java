@@ -17,7 +17,7 @@ class VideoTest {
     @Test
     void constructorSetsFieldsAndInitializesRelations() throws Exception {
         User author = new User("alice", "alice@example.com");
-        Set<Category> categories = Set.of(new Category("music", "Music"));
+        Set<Category> categories = Set.of(new Category(111l, "Music"));
         Video video = new Video("Title", "Description", author, categories);
 
         assertEquals("Title", fieldValue(video, "title"));
