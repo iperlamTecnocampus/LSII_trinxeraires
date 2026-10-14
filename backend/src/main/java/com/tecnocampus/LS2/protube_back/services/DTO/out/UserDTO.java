@@ -1,6 +1,7 @@
 package com.tecnocampus.LS2.protube_back.services.DTO.out;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 public record UserDTO(
@@ -10,9 +11,9 @@ public record UserDTO(
         String description,
         String email,
         LocalDate joinDate,
-        Set<UserDTO> subscribedTo,
+        List<UserDTO> subscribedTo,
         Long suscribers,
-        Set<VideoInfoDTO> vi
+        List<VideoInfoDTO> video
 
 ) {
 }
