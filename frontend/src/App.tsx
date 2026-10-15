@@ -2,7 +2,7 @@ import './App.css';
 import { useAllVideos } from './useAllVideos';
 import { BrowserRouter, Routes, Route, Link } from 'react-router';
 import { Home } from './pages/Home';
-import { Layout } from './components/Layout'
+import { Layout } from './components/Layout';
 
 function App() {
   return (
