@@ -9,7 +9,7 @@ export function VideoCard() {
       to="/"
     >
       <AspectRatio ratio={16 / 9} className="w-full">
-        <img src="https://picsum.photos/640/360" alt="Video thumbnail" loading="lazy" />
+        <img className="rounded-md" src="https://picsum.photos/640/360" alt="Video thumbnail" loading="lazy" />
       </AspectRatio>
       <div className="flex flex-row gap-2">
         <Avatar>
