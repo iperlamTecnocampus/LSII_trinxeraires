@@ -1,11 +1,11 @@
 import { ReactNode, useState } from 'react';
 import { Button } from "@/components/ui/button"
+import { VideoGrid } from '../components/VideoGrid';
 
 export function Home() {
   return (
-    <div>
-        <h1>Home</h1>
-        <Button>Test button</Button>
+    <div className='flex flex-col'>
+        <VideoGrid />
     </div>
   );
 }
