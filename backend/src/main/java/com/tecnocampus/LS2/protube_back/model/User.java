@@ -139,4 +139,24 @@ public class User {
     public void setLikedVideos(Set<Video> likedVideos) {
         this.likedVideos = likedVideos;
     }
+
+    public void addSubscription(User channel) {
+        this.subscribedTo.add(channel);
+        channel.getSubscribers().add(this);
+    }
+
+    public void removeSubscription(User channel) {
+        this.subscribedTo.remove(channel);
+        channel.getSubscribers().remove(this);
+    }
+
+    public void addLikedVideo(Video video) {
+        this.likedVideos.add(video);
+        video.addLike(new Like(this, video));
+    }
+
+    public void removeLikedVideo(Video video) {
+        this.likedVideos.remove(video);
+        video.getLikes().removeIf(like -> like.getUser().equals(this));
+    }
 }

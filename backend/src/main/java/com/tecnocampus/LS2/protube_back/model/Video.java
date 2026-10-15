@@ -151,4 +151,24 @@ public class Video {
     public void setViews(Set<View> views) {
         this.views = views;
     }
+
+    public void addLike(Like like) {
+        this.likes.add(like);
+        like.setVideo(this);
+    }
+
+    public void removeLike(Like like) {
+        this.likes.remove(like);
+        like.setVideo(null);
+    }
+
+    public void addComment(Comment comment) {
+        this.comments.add(comment);
+        comment.setVideo(this);
+    }
+
+    public void removeComment(Comment comment) {
+        this.comments.remove(comment);
+        comment.setVideo(null);
+    }
 }
