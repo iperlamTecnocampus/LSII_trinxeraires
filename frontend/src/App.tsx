@@ -2,20 +2,19 @@ import './App.css';
 import { useAllVideos } from './useAllVideos';
 import { BrowserRouter, Routes, Route, Link } from 'react-router';
 import { Home } from './pages/Home';
+import { Layout } from './components/Layout';
 
 function App() {
   return (
     <BrowserRouter>
       {/* Navigation */}
-      <nav>
-        <Link to="/">Home</Link> | <Link to="/about">About</Link> | <Link to="/contact">Contact</Link>
-      </nav>
-
-      {/* Routes */}
-      <Routes>
-        <Route index element={<Home />} />
-        <Route path="/about" element={<Home />} />
-      </Routes>
+      <Layout>
+        {/* Routes */}
+        <Routes>
+          <Route index element={<Home />} />
+          <Route path="/about" element={<Home />} />
+        </Routes>
+      </Layout>
     </BrowserRouter>
   );
 }
