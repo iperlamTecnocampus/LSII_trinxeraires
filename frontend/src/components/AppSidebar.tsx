@@ -10,7 +10,7 @@ import {
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Separator } from "@/components/ui/separator";
+import { Separator } from '@/components/ui/separator';
 import { Link, useLocation } from 'react-router';
 
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -42,13 +42,13 @@ function MenuItem({ path, icon, title, key }: { key: string; path: string; icon:
   );
 }
 
-function Subscription({ profilePicture, name, username }: { profilePicture: string; username: string, name: string }) {
+function Subscription({ profilePicture, name, username }: { profilePicture: string; username: string; name: string }) {
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton render={<Link to={"user/" + username}/>} className="h-12">
+      <SidebarMenuButton render={<Link to={'user/' + username} />} className="h-12">
         <div className="flex flex-row gap-2 items-center">
           <Avatar>
-            <AvatarImage src={profilePicture} alt={"@" + username} />
+            <AvatarImage src={profilePicture} alt={'@' + username} />
             <AvatarFallback>US</AvatarFallback>
           </Avatar>
           <span>{name}</span>
@@ -75,19 +75,17 @@ export function AppSidebar() {
         </div>
         <SidebarGroup>
           <SidebarMenu>
-
             <SidebarMenuItem>
-              <SidebarMenuButton render={<Link to="subscriptions"/>}>
+              <SidebarMenuButton render={<Link to="subscriptions" />}>
                 Subscriptions <HugeiconsIcon icon={ChevronRightIcon} strokeWidth={2}></HugeiconsIcon>
               </SidebarMenuButton>
             </SidebarMenuItem>
 
-            <Subscription profilePicture='https://picsum.photos/256' name="Channel name" username="channelname"/>
-            <Subscription profilePicture='https://picsum.photos/256' name="Channel name" username="channelname"/>
-            <Subscription profilePicture='https://picsum.photos/256' name="Channel name" username="channelname"/>
-            <Subscription profilePicture='https://picsum.photos/256' name="Channel name" username="channelname"/>
-            <Subscription profilePicture='https://picsum.photos/256' name="Channel name" username="channelname"/>
-            
+            <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
+            <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
+            <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
+            <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
+            <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

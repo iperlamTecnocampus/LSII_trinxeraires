@@ -1,7 +1,7 @@
 import { ReactNode, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { VideoGrid } from '../components/VideoGrid';
-import { CategoryList } from '../components/CategoryList'
+import { CategoryList } from '../components/CategoryList';
 
 export function Home() {
   return (
