@@ -46,13 +46,13 @@ public class VideoService {
         return videoMapper.toDTO(video);
     }
 
-    public VideoInfoDTO creatreVideo(CreateVideoDTO dto) {
+    public VideoInfoDTO createVideo(CreateVideoDTO dto) {
         Video video = videoMapper.toEntity(dto);
         repository.save(video);
         return videoMapper.toDTO(video);
     }
 
-    //edit tittle and description
+    //edit title and description
     public VideoInfoDTO editVideo(UUID id, EditVideoDTO dto) {
         Video video = repository.findById(id).orElseThrow(() -> new RuntimeException("Video not found"));
         video.setTitle(dto.title() != null ? dto.title() : video.getTitle());
