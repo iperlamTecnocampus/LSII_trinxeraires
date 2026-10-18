@@ -1,9 +1,9 @@
 package com.tecnocampus.LS2.protube_back.controller;
 
 import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateVideoDTO;
+import com.tecnocampus.LS2.protube_back.services.DTO.in.EditVideoDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoInfoDTO;
 import com.tecnocampus.LS2.protube_back.services.VideoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +15,11 @@ import java.util.UUID;
 @RequestMapping("/api/videos")
 public class VideosController {
 
-    @Autowired
-    VideoService videoService;
+    private final VideoService videoService;
 
+    public VideosController(VideoService videoService) {
+        this.videoService = videoService;
+    }
     @GetMapping("/getAllVideos")
     public ResponseEntity<List<UUID>> getVideos() {
         return ResponseEntity.ok().body(videoService.getVideos());
@@ -44,4 +46,10 @@ public class VideosController {
     public VideoInfoDTO createVideo(@RequestBody CreateVideoDTO dto) {
         return videoService.createVideo(dto);
     }
+
+    @PutMapping("/editVideo/{id}")
+    public VideoInfoDTO editVideo(@PathVariable UUID id, @RequestBody EditVideoDTO dto) {
+        return videoService.editVideo(id, dto);
+    }
+
 }
