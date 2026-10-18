@@ -20,31 +20,33 @@ public class UserService {
     }
 
     //like a video
-    public void likeVideo(String userName, UUID videoId) {
+    public boolean likeVideo(String userName, UUID videoId) {
         User user = userRepository.findById(userName).orElseThrow(() -> new RuntimeException("User not found"));
         Video video = videoRepository.findById(videoId).orElseThrow(() -> new RuntimeException("Video not found"));
         user.addLikedVideo(video);
         userRepository.save(user);
         videoRepository.save(video);
-
+        return userRepository.hasLiked(userName, videoId);
     }
 
-    public void commentVideo(String userName, UUID videoId, String comment) {
+    public boolean commentVideo(String userName, UUID videoId, String comment) {
         User user = userRepository.findById(userName).orElseThrow(() -> new RuntimeException("User not found"));
         Video video = videoRepository.findById(videoId).orElseThrow(() -> new RuntimeException("Video not found"));
         Comment newComment = new Comment(comment, user, video);
         video.addComment(newComment);
 
         videoRepository.save(video);
+        return videoRepository.existCommentByIdAndVideoId(newComment.getId(), video.getUuid());
     }
 
     //suscribe to a user
-    public void subscribeToUser(String subscriberUsername, String subscribedUsername) {
+    public boolean subscribeToUser(String subscriberUsername, String subscribedUsername) {
         User subscriber = userRepository.findById(subscriberUsername).orElseThrow(() -> new RuntimeException("Subscriber user not found"));
         User subscribed = userRepository.findById(subscribedUsername).orElseThrow(() -> new RuntimeException("Subscribed user not found"));
         subscriber.addSubscription(subscribed);
         userRepository.save(subscriber);
         userRepository.save(subscribed);
+        return userRepository.isSubscribed(subscriberUsername, subscribedUsername);
     }
 
 }
