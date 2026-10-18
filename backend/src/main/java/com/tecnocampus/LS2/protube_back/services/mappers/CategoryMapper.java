@@ -2,7 +2,9 @@ package com.tecnocampus.LS2.protube_back.services.mappers;
 
 import com.tecnocampus.LS2.protube_back.model.Category;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.CategoryDTO;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CategoryMapper {
     public CategoryDTO toDTO(Category category) {
         if(category == null) return null;
