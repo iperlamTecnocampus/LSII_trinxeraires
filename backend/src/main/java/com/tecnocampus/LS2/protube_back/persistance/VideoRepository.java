@@ -9,6 +9,6 @@ import java.util.UUID;
 
 public interface VideoRepository extends JpaRepository<Video, UUID> {
 
-    @Query("select count(v) > 0 from Video v join v.comments c where v.id = :videoId and c.id = :commentId")
+    @Query("select count(v) > 0 from Video v join Comment c where v.uuid = :videoId and c.id = :commentId")
     boolean existCommentByIdAndVideoId(@Param("commentId") Long commentId, @Param("videoId") UUID videoId);
 }
