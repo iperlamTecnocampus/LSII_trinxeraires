@@ -67,6 +67,11 @@ public class Video {
         this.author = author;
         this.categories = categories;
     }
+    public Video(String title, String description, User author) {
+        this.title = title;
+        this.description = description;
+        this.author = author;
+    }
 
     public User getAuthor() {
         return author;
