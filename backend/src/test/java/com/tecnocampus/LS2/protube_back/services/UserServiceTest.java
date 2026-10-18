@@ -46,15 +46,15 @@ class UserServiceTest {
 
             User user = new User(username, "john@example.com");
             Video video = new Video();
-
-            when(userRepository.findById(username)).thenReturn(Optional.of(user));
+            when(userRepository.findById("johndoe")).thenReturn(Optional.of(user));
             when(videoRepository.findById(videoId)).thenReturn(Optional.of(video));
+            when(userRepository.hasLiked(username, videoId)).thenReturn(true);
 
             // Act
-            userService.likeVideo(username, videoId);
+            boolean like = userService.likeVideo(username, videoId);
 
             // Assert
-            assertTrue(user.getLikedVideos().contains(video));
+            assertTrue(like);
             assertEquals(1, video.getLikes().size());
 
             verify(userRepository, times(1)).save(user);
