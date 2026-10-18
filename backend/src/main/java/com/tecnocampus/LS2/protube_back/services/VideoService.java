@@ -5,6 +5,7 @@ import com.tecnocampus.LS2.protube_back.persistance.VideoRepository;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateVideoDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.EditVideoDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoInfoDTO;
+import com.tecnocampus.LS2.protube_back.services.exceptions.VideoNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.mappers.CategoryMapper;
 import com.tecnocampus.LS2.protube_back.services.mappers.CommentMapper;
 import com.tecnocampus.LS2.protube_back.services.mappers.VideoMapper;
@@ -32,7 +33,7 @@ public class VideoService {
     }
 
     public UUID getVideoById(UUID id) {
-        Video video = repository.findById(id).orElseThrow(() -> new RuntimeException("Video not found"));
+        Video video = repository.findById(id).orElseThrow(() -> new VideoNotFoundException("Video not found"));
         return video.getUuid();
     }
 
@@ -42,7 +43,7 @@ public class VideoService {
 
     //fetch info video
     public VideoInfoDTO getVideoInfo(UUID id) {
-        Video video = repository.findById(id).orElseThrow(() -> new RuntimeException("Video not found"));
+        Video video = repository.findById(id).orElseThrow(() -> new VideoNotFoundException("Video not found"));
         return videoMapper.toDTO(video);
     }
 
@@ -54,7 +55,7 @@ public class VideoService {
 
     //edit title and description
     public VideoInfoDTO editVideo(UUID id, EditVideoDTO dto) {
-        Video video = repository.findById(id).orElseThrow(() -> new RuntimeException("Video not found"));
+        Video video = repository.findById(id).orElseThrow(() -> new VideoNotFoundException("Video not found"));
         video.setTitle(dto.title() != null ? dto.title() : video.getTitle());
         video.setDescription(dto.description() != null ? dto.description() : video.getDescription());
         repository.save(video);
