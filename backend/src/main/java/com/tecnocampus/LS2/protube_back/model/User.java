@@ -43,7 +43,7 @@ public class User {
     private Set<Video> videos = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    private Set<Video> likedVideos = new HashSet<>();
+    private Set<Like> likedVideos = new HashSet<>();
 
     public User() {
 
@@ -132,11 +132,11 @@ public class User {
         this.videos = videos;
     }
 
-    public Set<Video> getLikedVideos() {
+    public Set<Like> getLikedVideos() {
         return likedVideos;
     }
 
-    public void setLikedVideos(Set<Video> likedVideos) {
+    public void setLikedVideos(Set<Like> likedVideos) {
         this.likedVideos = likedVideos;
     }
 
@@ -151,12 +151,13 @@ public class User {
     }
 
     public void addLikedVideo(Video video) {
-        this.likedVideos.add(video);
-        video.addLike(new Like(this, video));
+        Like like = new Like(this, video);
+        this.likedVideos.add(like);
+        video.addLike(like);
+        System.out.println(like);
     }
 
     public void removeLikedVideo(Video video) {
-        this.likedVideos.remove(video);
         video.getLikes().removeIf(like -> like.getUser().equals(this));
     }
 }
