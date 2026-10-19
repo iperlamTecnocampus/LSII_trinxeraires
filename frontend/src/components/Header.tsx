@@ -23,12 +23,8 @@ function AvatarMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <Link to="/profile">Your channel</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Link to="/settings">Settings</Link>
-          </DropdownMenuItem>
+          <DropdownMenuItem render={<Link to="/profile" />}> Your channel</DropdownMenuItem>
+          <DropdownMenuItem render={<Link to="/settings" />}> Settings</DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

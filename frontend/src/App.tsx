@@ -1,8 +1,9 @@
 import './App.css';
 import { useAllVideos } from './useAllVideos';
-import { BrowserRouter, Routes, Route, Link } from 'react-router';
+import { BrowserRouter, Routes, Route } from 'react-router';
 import { Home } from './pages/Home';
 import { Layout } from './components/Layout';
+import { Profile } from './pages/Profile';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Routes>
           <Route index element={<Home />} />
           <Route path="/about" element={<Home />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </Layout>
     </BrowserRouter>
