@@ -27,10 +27,8 @@ public class UserService {
     public boolean likeVideo(String userName, UUID videoId) {
         User user = userRepository.findById(userName).orElseThrow(() -> new UserNotFoundException("User not found"));
         Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException("Video not found"));
-        System.out.println("########################################################################");
 
         user.addLikedVideo(video);
-        System.out.println("########################################################################");
 
         userRepository.save(user);
         videoRepository.save(video);
