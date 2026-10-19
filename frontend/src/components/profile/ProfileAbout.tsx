@@ -17,9 +17,7 @@ interface ProfileAboutProps {
   profile: UserProfile;
 }
 
-export function ProfileAbout({
-  profile,
-}: ProfileAboutProps) {
+export function ProfileAbout({ profile }: ProfileAboutProps) {
   const details = [
     {
       icon: AtIcon,
@@ -71,39 +69,21 @@ export function ProfileAbout({
     <div className="grid gap-10 lg:grid-cols-[1fr_320px]">
       <div className="space-y-8">
         <section>
-          <h2 className="mb-3 text-lg font-bold">
-            Description
-          </h2>
+          <h2 className="mb-3 text-lg font-bold">Description</h2>
 
-          <p className="max-w-prose leading-relaxed text-muted-foreground">
-            {profile.longDescription}
-          </p>
+          <p className="max-w-prose leading-relaxed text-muted-foreground">{profile.longDescription}</p>
         </section>
 
         <section>
-          <h2 className="mb-3 text-lg font-bold">
-            Details
-          </h2>
+          <h2 className="mb-3 text-lg font-bold">Details</h2>
 
           <ul className="space-y-3">
             {details.map((detail) => (
-              <li
-                key={detail.label}
-                className="flex items-center gap-3 text-sm"
-              >
-                <HugeiconsIcon
-                  icon={detail.icon}
-                  size={18}
-                  className="text-muted-foreground"
-                />
+              <li key={detail.label} className="flex items-center gap-3 text-sm">
+                <HugeiconsIcon icon={detail.icon} size={18} className="text-muted-foreground" />
 
                 {detail.href ? (
-                  <a
-                    href={detail.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-primary hover:underline"
-                  >
+                  <a href={detail.href} target="_blank" rel="noreferrer" className="text-primary hover:underline">
                     {detail.label}
                   </a>
                 ) : (
@@ -116,30 +96,18 @@ export function ProfileAbout({
       </div>
 
       <aside>
-        <h2 className="mb-3 text-lg font-bold">
-          Stats
-        </h2>
+        <h2 className="mb-3 text-lg font-bold">Stats</h2>
 
         <ul className="divide-y divide-border rounded-2xl border bg-card">
           {stats.map((stat) => (
-            <li
-              key={stat.label}
-              className="flex items-center gap-3 px-4 py-3.5"
-            >
+            <li key={stat.label} className="flex items-center gap-3 px-4 py-3.5">
               <span className="flex size-9 items-center justify-center rounded-full bg-primary/15 text-primary">
-                <HugeiconsIcon
-                  icon={stat.icon}
-                  size={18}
-                />
+                <HugeiconsIcon icon={stat.icon} size={18} />
               </span>
 
-              <span className="flex-1 text-sm text-muted-foreground">
-                {stat.label}
-              </span>
+              <span className="flex-1 text-sm text-muted-foreground">{stat.label}</span>
 
-              <span className="font-bold">
-                {formatCount(stat.value)}
-              </span>
+              <span className="font-bold">{formatCount(stat.value)}</span>
             </li>
           ))}
         </ul>

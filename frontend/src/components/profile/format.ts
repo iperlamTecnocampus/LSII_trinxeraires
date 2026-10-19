@@ -13,13 +13,8 @@ export function formatDate(iso: string): string {
   });
 }
 
-export function timeAgo(
-  iso: string,
-  now = new Date('2026-10-15')
-): string {
-  const days = Math.floor(
-    (now.getTime() - new Date(iso).getTime()) / 86400000
-  );
+export function timeAgo(iso: string, now = new Date('2026-10-15')): string {
+  const days = Math.floor((now.getTime() - new Date(iso).getTime()) / 86400000);
 
   if (days < 1) return 'today';
 

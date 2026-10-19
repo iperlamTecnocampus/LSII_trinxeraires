@@ -12,8 +12,8 @@ export default {
   },
 
   moduleNameMapper: {
-  '^@/(.*)$': '<rootDir>/src/$1',
-},
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
 
   collectCoverage: true,
   coverageReporters: ['json', 'html'],

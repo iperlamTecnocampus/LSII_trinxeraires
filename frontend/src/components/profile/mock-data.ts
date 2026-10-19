@@ -1,10 +1,7 @@
 import avatar from '@/assets/profile-avatar.jpg';
 import banner from '@/assets/profile-banner.jpg';
 
-import type {
-  ProfileActivity,
-  UserProfile,
-} from './types';
+import type { ProfileActivity, UserProfile } from './types';
 
 export const mockProfile: UserProfile = {
   id: 'u_1',

@@ -7,13 +7,7 @@ import { VideoGrid } from '../VideoGrid';
 import fetchMock from 'jest-fetch-mock';
 
 jest.mock('react-router', () => ({
-  Link: ({
-    children,
-    to,
-  }: {
-    children: ReactNode;
-    to: string;
-  }) => <a href={to}>{children}</a>,
+  Link: ({ children, to }: { children: ReactNode; to: string }) => <a href={to}>{children}</a>,
 }));
 
 describe('this component', () => {
@@ -29,4 +23,3 @@ describe('this component', () => {
     expect(asFragment()).toMatchSnapshot();
   });
 });
-

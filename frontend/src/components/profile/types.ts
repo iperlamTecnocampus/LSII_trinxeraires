@@ -15,11 +15,7 @@ export interface UserProfile {
   website?: string;
 }
 
-export type ActivityType =
-  | 'upload'
-  | 'update'
-  | 'milestone'
-  | 'comment';
+export type ActivityType = 'upload' | 'update' | 'milestone' | 'comment';
 
 export interface ProfileActivity {
   id: string;
