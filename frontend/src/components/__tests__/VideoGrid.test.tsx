@@ -1,8 +1,20 @@
 import { act, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import VideoGrid from '../VideoGrid';
+import type { ReactNode } from 'react';
+
+import { VideoGrid } from '../VideoGrid';
 import fetchMock from 'jest-fetch-mock';
+
+jest.mock('react-router', () => ({
+  Link: ({
+    children,
+    to,
+  }: {
+    children: ReactNode;
+    to: string;
+  }) => <a href={to}>{children}</a>,
+}));
 
 describe('this component', () => {
   beforeEach(() => {
@@ -17,3 +29,4 @@ describe('this component', () => {
     expect(asFragment()).toMatchSnapshot();
   });
 });
+
