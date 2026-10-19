@@ -1,14 +1,21 @@
 import './App.css';
 import { useAllVideos } from './useAllVideos';
+import { BrowserRouter, Routes, Route, Link } from 'react-router';
+import { Home } from './pages/Home';
+import { Layout } from './components/Layout';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src="/protube-logo-removebg-preview.png" className="App-logo" alt="logo" />
-        <ContentApp />
-      </header>
-    </div>
+    <BrowserRouter>
+      {/* Navigation */}
+      <Layout>
+        {/* Routes */}
+        <Routes>
+          <Route index element={<Home />} />
+          <Route path="/about" element={<Home />} />
+        </Routes>
+      </Layout>
+    </BrowserRouter>
   );
 }
 

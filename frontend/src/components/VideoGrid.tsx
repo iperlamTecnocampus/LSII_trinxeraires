@@ -1,26 +1,11 @@
-import { useState, useEffect } from 'react';
-import { getEnv } from '../utils/Env';
+import { VideoCard } from './VideoCard';
 
-const VideoGrid = () => {
-  const [someData, setSomeData] = useState([]);
-
-  useEffect(() => {
-    fetch(getEnv().API_BASE_URL + '/someEndpoint')
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        setSomeData(data);
-      });
-  }, []);
-
+export function VideoGrid() {
   return (
-    <ul className="row g-4">
-      {someData?.map((entity) => (
-        <li key={entity}>{entity}</li>
+    <div className="flex flex-row flex-wrap w-full gap-2 justify-center-safe">
+      {Array.from({ length: 8 }, (_, i) => (
+        <VideoCard />
       ))}
-    </ul>
+    </div>
   );
-};
-
-export default VideoGrid;
+}

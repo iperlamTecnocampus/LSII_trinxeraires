@@ -1,5 +1,10 @@
 {
   "files": ["vite.config.ts"],
   "exclude": ["node_modules", "dist"],
-  "extends": ["./tsconfig.app.json", "./tsconfig.node.json", "./tsconfig.configs.json"]
+  "extends": ["./tsconfig.app.json", "./tsconfig.node.json", "./tsconfig.configs.json"],
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
 }
