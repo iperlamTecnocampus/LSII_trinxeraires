@@ -13,7 +13,7 @@ class CategoryTest {
 
     @Test
     void constructorSetsIdAndNameAndInitializesVideos() throws Exception {
-        Category category = new Category("music", "Music");
+        Category category = new Category(111l, "Music");
 
         assertEquals("music", fieldValue(category, "id"));
         assertEquals("Music", fieldValue(category, "name"));

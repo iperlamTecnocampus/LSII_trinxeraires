@@ -24,6 +24,10 @@ public class View {
     @JoinColumn(name = "video_uuid", nullable = false)
     private Video video;
 
+    public View() {
+
+    }
+
     @PrePersist
     void onCreate() {
         if (timestamp == null) timestamp = LocalDateTime.now();
@@ -34,4 +38,31 @@ public class View {
         this.video = video;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Video getVideo() {
+        return video;
+    }
+
+    public void setVideo(Video video) {
+        this.video = video;
+    }
 }
