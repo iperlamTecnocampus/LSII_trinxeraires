@@ -49,6 +49,6 @@ public class VideosController {
 
     @GetMapping("{name}")
     public List<VideoInfoDTO> searchVideo(@PathVariable String name) {
-
+        return videoService.searchVideo(name);
     }
 }
