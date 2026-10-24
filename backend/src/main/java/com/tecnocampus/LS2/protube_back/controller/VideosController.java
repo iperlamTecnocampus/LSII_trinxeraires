@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/videos/")
+@RequestMapping("/api/videos")
 public class VideosController {
 
     private final VideoService videoService;
@@ -20,40 +20,40 @@ public class VideosController {
     public VideosController(VideoService videoService) {
         this.videoService = videoService;
     }
-    @GetMapping("allVideos")
+    @GetMapping("/allVideos")
     public ResponseEntity<List<UUID>> getVideos() {
         return ResponseEntity.ok().body(videoService.getVideos());
 
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<VideoInfoDTO> getVideoInfo(@PathVariable UUID id) {
         return ResponseEntity.ok().body(videoService.getVideoInfo(id));
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteVideoById(@PathVariable UUID id) {
         videoService.deleteVideoById(id);
     }
 
-    @PostMapping()
+    @PostMapping("/")
     public VideoInfoDTO createVideo(@RequestBody CreateVideoDTO dto) {
         return videoService.createVideo(dto);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public VideoInfoDTO editVideo(@PathVariable UUID id, @RequestBody EditVideoDTO dto) {
         return videoService.editVideo(id, dto);
     }
 
-    @GetMapping("{name}")
+    @GetMapping("/search/{name}")
     public List<VideoInfoDTO> searchVideo(@PathVariable String name) {
         return videoService.searchVideo(name);
     }
     
     //Comments
-    @PostMapping("comment")
+    @PostMapping("/comment")
     public ResponseEntity<Boolean> commentVideo(@RequestParam String userName, @RequestParam UUID videoId, @RequestBody String comment) {
         boolean isCommented = videoService.commentVideo(userName, videoId, comment);
         return ResponseEntity.ok(isCommented);
