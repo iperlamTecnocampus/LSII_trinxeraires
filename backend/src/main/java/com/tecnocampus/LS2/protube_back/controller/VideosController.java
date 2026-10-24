@@ -25,12 +25,7 @@ public class VideosController {
         return ResponseEntity.ok().body(videoService.getVideos());
 
     }
-
-    @GetMapping("/getVideoById/{id}")
-    public ResponseEntity<UUID> getVideoById(@PathVariable UUID id) {
-        return ResponseEntity.ok().body(videoService.getVideoById(id));
-    }
-
+    
     @GetMapping("/getVideoInfo/{id}")
     public ResponseEntity<?> getVideoInfo(@PathVariable UUID id) {
         return ResponseEntity.ok().body(videoService.getVideoInfo(id));
