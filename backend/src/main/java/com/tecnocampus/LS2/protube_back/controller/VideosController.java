@@ -20,10 +20,9 @@ public class VideosController {
     public VideosController(VideoService videoService) {
         this.videoService = videoService;
     }
-    @GetMapping("/allVideos")
+    @GetMapping("/")
     public ResponseEntity<List<UUID>> getVideos() {
         return ResponseEntity.ok().body(videoService.getVideos());
-
     }
 
     @GetMapping("/{id}")
@@ -53,8 +52,8 @@ public class VideosController {
     }
     
     //Comments
-    @PostMapping("/comment")
-    public ResponseEntity<Boolean> commentVideo(@RequestParam String userName, @RequestParam UUID videoId, @RequestBody String comment) {
+    @PostMapping("/{id}/comment")
+    public ResponseEntity<Boolean> commentVideo(@RequestParam String userName, @PathVariable UUID videoId, @RequestBody String comment) {
         boolean isCommented = videoService.commentVideo(userName, videoId, comment);
         return ResponseEntity.ok(isCommented);
     }

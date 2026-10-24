@@ -8,6 +8,7 @@ import com.tecnocampus.LS2.protube_back.persistance.UserRepository;
 import com.tecnocampus.LS2.protube_back.persistance.VideoRepository;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateVideoDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.EditVideoDTO;
+import com.tecnocampus.LS2.protube_back.services.DTO.out.CommentDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoInfoDTO;
 import com.tecnocampus.LS2.protube_back.services.exceptions.UserNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.exceptions.VideoNotFoundException;
@@ -24,15 +25,17 @@ import java.util.UUID;
 public class VideoService {
 
     private final VideoRepository videoRepository;
-    private final VideoMapper videoMapper;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+
+    private final VideoMapper videoMapper;
+    private final CommentMapper commentMapper;
     public VideoService(VideoRepository videoRepository, UserRepository userRepository, CommentRepository conmmentRepository) {
         this.videoRepository = videoRepository;
         this.userRepository = userRepository;
         this.commentRepository = conmmentRepository;
         VideoUserMapper videoUserMapper = new VideoUserMapper();
-        CommentMapper commentMapper = new CommentMapper(videoUserMapper);
+        commentMapper = new CommentMapper(videoUserMapper);
         CategoryMapper categoryMapper = new CategoryMapper();
         this.videoMapper = new VideoMapper(videoUserMapper, commentMapper, categoryMapper);
 
@@ -76,6 +79,11 @@ public class VideoService {
         videoRepository.save(video);
         Comment savedComment = commentRepository.save(newComment);
         return videoRepository.existCommentByIdAndVideoId(savedComment.getId(), video.getUuid());
+    }
+
+    public List<CommentDTO> getCommentsByVideoId(UUID videoId) {
+        Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException("Video not found"));
+        return video.getComments().stream().map(comment -> commentMapper.toDTO(comment)).toList();
     }
 
     public List<VideoInfoDTO> searchVideo(String name) {
