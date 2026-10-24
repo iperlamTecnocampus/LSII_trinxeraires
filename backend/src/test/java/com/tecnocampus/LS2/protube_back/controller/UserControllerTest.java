@@ -112,62 +112,6 @@ class UserControllerTest {
         }
     }
 
-    // =========================================================================
-    // ENDPOINT: POST /api/users/commentVideo
-    // =========================================================================
-    @Nested
-    @DisplayName("Tests para POST /api/users/commentVideo")
-    class CommentVideoEndpointTests {
-
-        @Test
-        @DisplayName("Debe devolver HTTP 200 y true al añadir un comentario")
-        void commentVideo_Success() throws Exception {
-            String comment = "Excelente vídeo";
-            when(userService.commentVideo(username, videoId, comment)).thenReturn(true);
-
-            mockMvc.perform(post("/api/users/commentVideo")
-                            .param("userName", username)
-                            .param("videoId", videoId.toString())
-                            .contentType(MediaType.TEXT_PLAIN)
-                            .content(comment))
-                    .andExpect(status().isOk())
-                    .andExpect(content().string("true"));
-
-            verify(userService, times(1)).commentVideo(username, videoId, comment);
-        }
-
-        @Test
-        @DisplayName("Debe devolver HTTP 404 Not Found cuando el vídeo no existe")
-        void commentVideo_VideoNotFound_Returns404() throws Exception {
-            String comment = "Comentario de prueba";
-            when(userService.commentVideo(username, videoId, comment))
-                    .thenThrow(new VideoNotFoundException("Video not found"));
-
-            mockMvc.perform(post("/api/users/commentVideo")
-                            .param("userName", username)
-                            .param("videoId", videoId.toString())
-                            .contentType(MediaType.TEXT_PLAIN)
-                            .content(comment))
-                    .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.title").value("Video Not Found"))
-                    .andExpect(jsonPath("$.detail").value("Video not found"));
-
-            verify(userService, times(1)).commentVideo(username, videoId, comment);
-        }
-
-        @Test
-        @DisplayName("Comprobar excepción VideoNotFoundException con assertThrows")
-        void commentVideo_VideoNotFound_AssertThrows() {
-            String comment = "Comentario de prueba";
-            when(userService.commentVideo(username, videoId, comment))
-                    .thenThrow(new VideoNotFoundException("Video not found"));
-
-            assertThrows(
-                    VideoNotFoundException.class,
-                    () -> userController.commentVideo(username, videoId, comment)
-            );
-        }
-    }
 
     // =========================================================================
     // ENDPOINT: POST /api/users/subscribe

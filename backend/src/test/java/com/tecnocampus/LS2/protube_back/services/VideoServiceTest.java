@@ -73,45 +73,6 @@ class VideoServiceTest {
     }
 
     @Nested
-    @DisplayName("Pruebas para el método getVideoById")
-    class GetVideoByIdTests {
-
-        @Test
-        @DisplayName("Debe retornar el UUID del vídeo cuando este existe")
-        void getVideoByIdSuccess() {
-            // Arrange
-            UUID videoId = UUID.randomUUID();
-            Video video = mock(Video.class);
-
-            when(video.getUuid()).thenReturn(videoId);
-            when(repository.findById(videoId)).thenReturn(Optional.of(video));
-
-            // Act
-            UUID result = videoService.getVideoById(videoId);
-
-            // Assert
-            assertEquals(videoId, result);
-            verify(repository, times(1)).findById(videoId);
-        }
-
-        @Test
-        @DisplayName("Debe lanzar RuntimeException cuando el vídeo no existe")
-        void getVideoByIdNotFound() {
-            // Arrange
-            UUID videoId = UUID.randomUUID();
-            when(repository.findById(videoId)).thenReturn(Optional.empty());
-
-            // Act & Assert
-            RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                    videoService.getVideoById(videoId)
-            );
-
-            assertEquals("Video not found", exception.getMessage());
-            verify(repository, times(1)).findById(videoId);
-        }
-    }
-
-    @Nested
     @DisplayName("Pruebas para el método deleteVideoById")
     class DeleteVideoByIdTests {
 

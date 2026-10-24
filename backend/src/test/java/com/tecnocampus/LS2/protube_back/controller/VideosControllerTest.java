@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -42,30 +43,36 @@ class VideosControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private VideosController videoController;
+
     @MockBean
     private VideoService videoService;
 
     private UUID videoId;
+    private String username;
 
     @BeforeEach
     void setUp() {
         videoId = UUID.randomUUID();
+        username = "john_doe";
     }
 
     // =========================================================================
-    // ENDPOINT: GET /api/videos/getAllVideos
+    // GET /api/videos/allVideos
     // =========================================================================
     @Nested
-    @DisplayName("Tests per a GET /api/videos/getAllVideos")
+    @DisplayName("Tests para GET /api/videos/allVideos")
     class GetVideosEndpointTests {
 
         @Test
-        @DisplayName("Deu retornar HTTP 200 i la llista de UUIDs de vídeos")
+        @DisplayName("Debe devolver HTTP 200 y la lista de UUIDs de vídeos")
         void getVideos_Success() throws Exception {
             List<UUID> videos = List.of(videoId, UUID.randomUUID());
+
             when(videoService.getVideos()).thenReturn(videos);
 
-            mockMvc.perform(get("/api/videos/getAllVideos"))
+            mockMvc.perform(get("/api/videos/allVideos"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.length()").value(2))
                     .andExpect(jsonPath("$[0]").value(videoId.toString()));
@@ -75,66 +82,32 @@ class VideosControllerTest {
     }
 
     // =========================================================================
-    // ENDPOINT: GET /api/videos/getVideoById/{id}
+    // GET /api/videos/{id}
     // =========================================================================
     @Nested
-    @DisplayName("Tests per a GET /api/videos/getVideoById/{id}")
-    class GetVideoByIdEndpointTests {
-
-        @Test
-        @DisplayName("Deu retornar HTTP 200 i el UUID del vídeo quan existeix")
-        void getVideoById_Success() throws Exception {
-            when(videoService.getVideoById(videoId)).thenReturn(videoId);
-
-            mockMvc.perform(get("/api/videos/getVideoById/{id}", videoId))
-                    .andExpect(status().isOk())
-                    .andExpect(content().string("\"" + videoId.toString() + "\""));
-
-            verify(videoService, times(1)).getVideoById(videoId);
-        }
-
-        @Test
-        @DisplayName("Deu retornar HTTP 404 Not Found quan el vídeo no existeix")
-        void getVideoById_NotFound_Returns404() throws Exception {
-            when(videoService.getVideoById(videoId))
-                    .thenThrow(new VideoNotFoundException("Video not found"));
-
-            mockMvc.perform(get("/api/videos/getVideoById/{id}", videoId))
-                    .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.title").value("Video Not Found"))
-                    .andExpect(jsonPath("$.detail").value("Video not found"))
-                    .andExpect(jsonPath("$.timestamp").exists());
-
-            verify(videoService, times(1)).getVideoById(videoId);
-        }
-    }
-
-    // =========================================================================
-    // ENDPOINT: GET /api/videos/getVideoInfo/{id}
-    // =========================================================================
-    @Nested
-    @DisplayName("Tests per a GET /api/videos/getVideoInfo/{id}")
+    @DisplayName("Tests para GET /api/videos/{id}")
     class GetVideoInfoEndpointTests {
 
         @Test
-        @DisplayName("Deu retornar HTTP 200 i els detalls del vídeo")
+        @DisplayName("Debe devolver HTTP 200 y los detalles del vídeo")
         void getVideoInfo_Success() throws Exception {
             VideoInfoDTO infoDTO = mock(VideoInfoDTO.class);
+
             when(videoService.getVideoInfo(videoId)).thenReturn(infoDTO);
 
-            mockMvc.perform(get("/api/videos/getVideoInfo/{id}", videoId))
+            mockMvc.perform(get("/api/videos/{id}", videoId))
                     .andExpect(status().isOk());
 
             verify(videoService, times(1)).getVideoInfo(videoId);
         }
 
         @Test
-        @DisplayName("Deu retornar HTTP 404 Not Found quan el vídeo no existeix")
+        @DisplayName("Debe devolver HTTP 404 cuando el vídeo no existe")
         void getVideoInfo_NotFound_Returns404() throws Exception {
             when(videoService.getVideoInfo(videoId))
                     .thenThrow(new VideoNotFoundException("Video not found"));
 
-            mockMvc.perform(get("/api/videos/getVideoInfo/{id}", videoId))
+            mockMvc.perform(get("/api/videos/{id}", videoId))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.title").value("Video Not Found"))
                     .andExpect(jsonPath("$.detail").value("Video not found"));
@@ -144,30 +117,30 @@ class VideosControllerTest {
     }
 
     // =========================================================================
-    // ENDPOINT: DELETE /api/videos/deleteVideoById/{id}
+    // DELETE /api/videos/{id}
     // =========================================================================
     @Nested
-    @DisplayName("Tests per a DELETE /api/videos/deleteVideoById/{id}")
+    @DisplayName("Tests para DELETE /api/videos/{id}")
     class DeleteVideoByIdEndpointTests {
 
         @Test
-        @DisplayName("Deu retornar HTTP 204 No Content en eliminar un vídeo correctament")
+        @DisplayName("Debe devolver HTTP 204 al eliminar un vídeo correctamente")
         void deleteVideoById_Success() throws Exception {
             doNothing().when(videoService).deleteVideoById(videoId);
 
-            mockMvc.perform(delete("/api/videos/deleteVideoById/{id}", videoId))
+            mockMvc.perform(delete("/api/videos/{id}", videoId))
                     .andExpect(status().isNoContent());
 
             verify(videoService, times(1)).deleteVideoById(videoId);
         }
 
         @Test
-        @DisplayName("Deu retornar HTTP 404 Not Found quan es tenta eliminar un vídeo inexistent")
+        @DisplayName("Debe devolver HTTP 404 cuando el vídeo no existe")
         void deleteVideoById_NotFound_Returns404() throws Exception {
             doThrow(new VideoNotFoundException("Video not found"))
                     .when(videoService).deleteVideoById(videoId);
 
-            mockMvc.perform(delete("/api/videos/deleteVideoById/{id}", videoId))
+            mockMvc.perform(delete("/api/videos/{id}", videoId))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.title").value("Video Not Found"))
                     .andExpect(jsonPath("$.detail").value("Video not found"));
@@ -177,88 +150,199 @@ class VideosControllerTest {
     }
 
     // =========================================================================
-    // ENDPOINT: POST /api/videos/createVideo
+    // POST /api/videos/
     // =========================================================================
     @Nested
-    @DisplayName("Tests per a POST /api/videos/createVideo")
+    @DisplayName("Tests para POST /api/videos/")
     class CreateVideoEndpointTests {
 
         @Test
-        @DisplayName("Deu retornar HTTP 200 i crear el vídeo correctament")
+        @DisplayName("Debe devolver HTTP 200 y crear el vídeo correctamente")
         void createVideo_Success() throws Exception {
             CategoryDTO category = new CategoryDTO(1L, "Tecnologia");
             VideoUserDTO author = mock(VideoUserDTO.class);
-            CreateVideoDTO createDTO = new CreateVideoDTO("Títol de prova", "Descripció de prova", author, List.of(category));
+
+            CreateVideoDTO createDTO = new CreateVideoDTO(
+                    "Títol de prova",
+                    "Descripció de prova",
+                    author,
+                    List.of(category)
+            );
+
             VideoInfoDTO expectedInfo = mock(VideoInfoDTO.class);
 
-            when(videoService.createVideo(any(CreateVideoDTO.class))).thenReturn(expectedInfo);
+            when(videoService.createVideo(any(CreateVideoDTO.class)))
+                    .thenReturn(expectedInfo);
 
-            mockMvc.perform(post("/api/videos/createVideo")
+            mockMvc.perform(post("/api/videos/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(createDTO)))
                     .andExpect(status().isOk());
 
-            verify(videoService, times(1)).createVideo(any(CreateVideoDTO.class));
+            verify(videoService, times(1))
+                    .createVideo(any(CreateVideoDTO.class));
         }
 
         @Test
-        @DisplayName("Deu retornar HTTP 404 Not Found si l'autor/usuari del vídeo no existeix")
+        @DisplayName("Debe devolver HTTP 404 si el usuario no existe")
         void createVideo_UserNotFound_Returns404() throws Exception {
-            CreateVideoDTO createDTO = new CreateVideoDTO("Títol", "Descripció", null, List.of());
+            CreateVideoDTO createDTO = new CreateVideoDTO(
+                    "Títol",
+                    "Descripció",
+                    null,
+                    List.of()
+            );
 
             when(videoService.createVideo(any(CreateVideoDTO.class)))
                     .thenThrow(new UserNotFoundException("User not found"));
 
-            mockMvc.perform(post("/api/videos/createVideo")
+            mockMvc.perform(post("/api/videos/")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(createDTO)))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.title").value("User Not Found"))
                     .andExpect(jsonPath("$.detail").value("User not found"));
 
-            verify(videoService, times(1)).createVideo(any(CreateVideoDTO.class));
+            verify(videoService, times(1))
+                    .createVideo(any(CreateVideoDTO.class));
         }
     }
 
     // =========================================================================
-    // ENDPOINT: PUT /api/videos/editVideo/{id}
+    // PUT /api/videos/{id}
     // =========================================================================
     @Nested
-    @DisplayName("Tests per a PUT /api/videos/editVideo/{id}")
+    @DisplayName("Tests para PUT /api/videos/{id}")
     class EditVideoEndpointTests {
 
         @Test
-        @DisplayName("Deu retornar HTTP 200 i editar el vídeo correctament")
+        @DisplayName("Debe devolver HTTP 200 y editar el vídeo correctamente")
         void editVideo_Success() throws Exception {
-            EditVideoDTO editDTO = new EditVideoDTO("Nou Títol", "Nova Descripció");
+            EditVideoDTO editDTO = new EditVideoDTO(
+                    "Nou Títol",
+                    "Nova Descripció"
+            );
+
             VideoInfoDTO expectedInfo = mock(VideoInfoDTO.class);
 
-            when(videoService.editVideo(eq(videoId), any(EditVideoDTO.class))).thenReturn(expectedInfo);
+            when(videoService.editVideo(eq(videoId), any(EditVideoDTO.class)))
+                    .thenReturn(expectedInfo);
 
-            mockMvc.perform(put("/api/videos/editVideo/{id}", videoId)
+            mockMvc.perform(put("/api/videos/{id}", videoId)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(editDTO)))
                     .andExpect(status().isOk());
 
-            verify(videoService, times(1)).editVideo(eq(videoId), any(EditVideoDTO.class));
+            verify(videoService, times(1))
+                    .editVideo(eq(videoId), any(EditVideoDTO.class));
         }
 
         @Test
-        @DisplayName("Deu retornar HTTP 404 Not Found quan es tenta editar un vídeo inexistent")
+        @DisplayName("Debe devolver HTTP 404 cuando el vídeo no existe")
         void editVideo_NotFound_Returns404() throws Exception {
-            EditVideoDTO editDTO = new EditVideoDTO("Títol", "Descripció");
+            EditVideoDTO editDTO = new EditVideoDTO(
+                    "Títol",
+                    "Descripció"
+            );
 
             when(videoService.editVideo(eq(videoId), any(EditVideoDTO.class)))
                     .thenThrow(new VideoNotFoundException("Video not found"));
 
-            mockMvc.perform(put("/api/videos/editVideo/{id}", videoId)
+            mockMvc.perform(put("/api/videos/{id}", videoId)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(editDTO)))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.title").value("Video Not Found"))
                     .andExpect(jsonPath("$.detail").value("Video not found"));
 
-            verify(videoService, times(1)).editVideo(eq(videoId), any(EditVideoDTO.class));
+            verify(videoService, times(1))
+                    .editVideo(eq(videoId), any(EditVideoDTO.class));
+        }
+    }
+
+    // =========================================================================
+    // GET /api/videos/search/{name}
+    // =========================================================================
+    @Nested
+    @DisplayName("Tests para GET /api/videos/search/{name}")
+    class SearchVideoEndpointTests {
+
+        @Test
+        @DisplayName("Debe devolver HTTP 200 y los vídeos encontrados")
+        void searchVideo_Success() throws Exception {
+            String name = "Tecnologia";
+
+            when(videoService.searchVideo(name))
+                    .thenReturn(List.of());
+
+            mockMvc.perform(get("/api/videos/search/{name}", name))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(0));
+
+            verify(videoService, times(1)).searchVideo(name);
+        }
+    }
+
+    // =========================================================================
+    // POST /api/videos/comment
+    // =========================================================================
+    @Nested
+    @DisplayName("Tests para POST /api/videos/comment")
+    class CommentVideoEndpointTests {
+
+        @Test
+        @DisplayName("Debe devolver HTTP 200 y true al añadir un comentario")
+        void commentVideo_Success() throws Exception {
+            String comment = "Excelente vídeo";
+
+            when(videoService.commentVideo(username, videoId, comment))
+                    .thenReturn(true);
+
+            mockMvc.perform(post("/api/videos/comment")
+                            .param("userName", username)
+                            .param("videoId", videoId.toString())
+                            .contentType(MediaType.TEXT_PLAIN)
+                            .content(comment))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string("true"));
+
+            verify(videoService, times(1))
+                    .commentVideo(username, videoId, comment);
+        }
+
+        @Test
+        @DisplayName("Debe devolver HTTP 404 cuando el vídeo no existe")
+        void commentVideo_VideoNotFound_Returns404() throws Exception {
+            String comment = "Comentario de prueba";
+
+            when(videoService.commentVideo(username, videoId, comment))
+                    .thenThrow(new VideoNotFoundException("Video not found"));
+
+            mockMvc.perform(post("/api/videos/comment")
+                            .param("userName", username)
+                            .param("videoId", videoId.toString())
+                            .contentType(MediaType.TEXT_PLAIN)
+                            .content(comment))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.title").value("Video Not Found"))
+                    .andExpect(jsonPath("$.detail").value("Video not found"));
+
+            verify(videoService, times(1))
+                    .commentVideo(username, videoId, comment);
+        }
+
+        @Test
+        @DisplayName("Debe lanzar VideoNotFoundException cuando el vídeo no existe")
+        void commentVideo_VideoNotFound_AssertThrows() {
+            String comment = "Comentario de prueba";
+
+            when(videoService.commentVideo(username, videoId, comment))
+                    .thenThrow(new VideoNotFoundException("Video not found"));
+
+            assertThrows(
+                    VideoNotFoundException.class,
+                    () -> videoController.commentVideo(username, videoId, comment)
+            );
         }
     }
 }
