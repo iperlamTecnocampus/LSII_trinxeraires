@@ -32,11 +32,6 @@ public class VideoService {
         return repository.findAll().stream().map(video -> video.getUuid()).toList();
     }
 
-    public UUID getVideoById(UUID id) {
-        Video video = repository.findById(id).orElseThrow(() -> new VideoNotFoundException("Video not found"));
-        return video.getUuid();
-    }
-
     public void deleteVideoById(UUID id) {
         repository.deleteById(id);
     }
