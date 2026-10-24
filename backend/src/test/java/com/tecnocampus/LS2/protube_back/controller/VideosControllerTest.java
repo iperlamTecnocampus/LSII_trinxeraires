@@ -59,10 +59,10 @@ class VideosControllerTest {
     }
 
     // =========================================================================
-    // GET /api/videos/allVideos
+    // GET /api/videos
     // =========================================================================
     @Nested
-    @DisplayName("Tests para GET /api/videos/allVideos")
+    @DisplayName("Tests para GET /api/videos")
     class GetVideosEndpointTests {
 
         @Test
@@ -72,7 +72,7 @@ class VideosControllerTest {
 
             when(videoService.getVideos()).thenReturn(videos);
 
-            mockMvc.perform(get("/api/videos/allVideos"))
+            mockMvc.perform(get("/api/videos/"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.length()").value(2))
                     .andExpect(jsonPath("$[0]").value(videoId.toString()));
@@ -283,11 +283,8 @@ class VideosControllerTest {
         }
     }
 
-    // =========================================================================
-    // POST /api/videos/comment
-    // =========================================================================
     @Nested
-    @DisplayName("Tests para POST /api/videos/comment")
+    @DisplayName("Tests para POST /api/videos/{id}/comments")
     class CommentVideoEndpointTests {
 
         @Test
@@ -298,9 +295,8 @@ class VideosControllerTest {
             when(videoService.commentVideo(username, videoId, comment))
                     .thenReturn(true);
 
-            mockMvc.perform(post("/api/videos/comment")
+            mockMvc.perform(post("/api/videos/{id}/comments", videoId)
                             .param("userName", username)
-                            .param("videoId", videoId.toString())
                             .contentType(MediaType.TEXT_PLAIN)
                             .content(comment))
                     .andExpect(status().isOk())
@@ -318,9 +314,8 @@ class VideosControllerTest {
             when(videoService.commentVideo(username, videoId, comment))
                     .thenThrow(new VideoNotFoundException("Video not found"));
 
-            mockMvc.perform(post("/api/videos/comment")
+            mockMvc.perform(post("/api/videos/{id}/comments", videoId)
                             .param("userName", username)
-                            .param("videoId", videoId.toString())
                             .contentType(MediaType.TEXT_PLAIN)
                             .content(comment))
                     .andExpect(status().isNotFound())
@@ -329,6 +324,40 @@ class VideosControllerTest {
 
             verify(videoService, times(1))
                     .commentVideo(username, videoId, comment);
+        }
+
+        @Test
+        @DisplayName("Debe devolver HTTP 404 cuando el usuario no existe")
+        void commentVideo_UserNotFound_Returns404() throws Exception {
+            String comment = "Comentario de prueba";
+
+            when(videoService.commentVideo(username, videoId, comment))
+                    .thenThrow(new UserNotFoundException("User not found"));
+
+            mockMvc.perform(post("/api/videos/{id}/comments", videoId)
+                            .param("userName", username)
+                            .contentType(MediaType.TEXT_PLAIN)
+                            .content(comment))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.title").value("User Not Found"))
+                    .andExpect(jsonPath("$.detail").value("User not found"));
+
+            verify(videoService, times(1))
+                    .commentVideo(username, videoId, comment);
+        }
+
+        @Test
+        @DisplayName("Debe devolver HTTP 400 si falta el nombre de usuario")
+        void commentVideo_MissingUserName_BadRequest() throws Exception {
+            String comment = "Comentario de prueba";
+
+            mockMvc.perform(post("/api/videos/{id}/comments", videoId)
+                            .contentType(MediaType.TEXT_PLAIN)
+                            .content(comment))
+                    .andExpect(status().isBadRequest());
+
+            verify(videoService, never())
+                    .commentVideo(any(), any(), any());
         }
 
         @Test
@@ -343,6 +372,94 @@ class VideosControllerTest {
                     VideoNotFoundException.class,
                     () -> videoController.commentVideo(username, videoId, comment)
             );
+
+            verify(videoService, times(1))
+                    .commentVideo(username, videoId, comment);
         }
     }
+
+
+
+    // =========================================================================
+// ENDPOINT: POST /api/videos/{id}/likes
+// =========================================================================
+    @Nested
+    @DisplayName("Tests para POST /api/videos/{id}/likes")
+    class LikeVideoEndpointTests {
+
+        @Test
+        @DisplayName("Debe devolver HTTP 200 y true cuando el like es exitoso")
+        void likeVideo_Success() throws Exception {
+            when(videoService.likeVideo(username, videoId))
+                    .thenReturn(true);
+
+            mockMvc.perform(post("/api/videos/{id}/likes", videoId)
+                            .param("userName", username))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string("true"));
+
+            verify(videoService, times(1))
+                    .likeVideo(username, videoId);
+        }
+
+        @Test
+        @DisplayName("Debe devolver HTTP 404 cuando el usuario no existe")
+        void likeVideo_UserNotFound_Returns404() throws Exception {
+            when(videoService.likeVideo(username, videoId))
+                    .thenThrow(new UserNotFoundException("User not found"));
+
+            mockMvc.perform(post("/api/videos/{id}/likes", videoId)
+                            .param("userName", username))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.title").value("User Not Found"))
+                    .andExpect(jsonPath("$.detail").value("User not found"))
+                    .andExpect(jsonPath("$.timestamp").exists());
+
+            verify(videoService, times(1))
+                    .likeVideo(username, videoId);
+        }
+
+        @Test
+        @DisplayName("Debe devolver HTTP 404 cuando el vídeo no existe")
+        void likeVideo_VideoNotFound_Returns404() throws Exception {
+            when(videoService.likeVideo(username, videoId))
+                    .thenThrow(new VideoNotFoundException("Video not found"));
+
+            mockMvc.perform(post("/api/videos/{id}/likes", videoId)
+                            .param("userName", username))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.title").value("Video Not Found"))
+                    .andExpect(jsonPath("$.detail").value("Video not found"));
+
+            verify(videoService, times(1))
+                    .likeVideo(username, videoId);
+        }
+
+        @Test
+        @DisplayName("Debe devolver HTTP 400 si falta el nombre de usuario")
+        void likeVideo_MissingUserName_BadRequest() throws Exception {
+            mockMvc.perform(post("/api/videos/{id}/likes", videoId))
+                    .andExpect(status().isBadRequest());
+
+            verify(videoService, never())
+                    .likeVideo(any(), any());
+        }
+
+        @Test
+        @DisplayName("Debe lanzar UserNotFoundException cuando el usuario no existe")
+        void likeVideo_UserNotFound_AssertThrows() {
+            when(videoService.likeVideo(username, videoId))
+                    .thenThrow(new UserNotFoundException("User not found"));
+
+            assertThrows(
+                    UserNotFoundException.class,
+                    () -> videoController.likeVideo(username, videoId)
+            );
+
+            verify(videoService, times(1))
+                    .likeVideo(username, videoId);
+        }
+    }
+
+
 }

@@ -53,7 +53,7 @@ public class VideosController {
     
     //Comments
     @PostMapping("/{id}/comments")
-    public ResponseEntity<Boolean> commentVideo(@RequestParam String userName, @PathVariable UUID videoId, @RequestBody String comment) {
+    public ResponseEntity<Boolean> commentVideo(@RequestParam String userName, @PathVariable("id") UUID videoId, @RequestBody String comment) {
         boolean isCommented = videoService.commentVideo(userName, videoId, comment);
         return ResponseEntity.ok(isCommented);
     }
@@ -61,7 +61,7 @@ public class VideosController {
 
     //likes
     @PostMapping("/{id}/likes")
-    public ResponseEntity<Boolean> likeVideo(@RequestParam String userName, @PathVariable UUID videoId) {
+    public ResponseEntity<Boolean> likeVideo(@RequestParam String userName, @PathVariable("id") UUID videoId) {
         boolean liked = videoService.likeVideo(userName, videoId);
         return ResponseEntity.ok(liked);
     }

@@ -1,6 +1,8 @@
 package com.tecnocampus.LS2.protube_back.services;
 
+import com.tecnocampus.LS2.protube_back.model.User;
 import com.tecnocampus.LS2.protube_back.model.Video;
+import com.tecnocampus.LS2.protube_back.persistance.UserRepository;
 import com.tecnocampus.LS2.protube_back.persistance.VideoRepository;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.EditVideoDTO;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +26,9 @@ class VideoServiceTest {
 
     @Mock
     private VideoRepository repository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private VideoService videoService;
@@ -176,6 +181,76 @@ class VideoServiceTest {
             );
 
             assertEquals("Video not found", exception.getMessage());
+            verify(repository, never()).save(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("Pruebas para el método likeVideo")
+    class LikeVideoTests {
+
+        @Test
+        @DisplayName("Debe dar me gusta a un vídeo correctamente y guardar los cambios")
+        void likeVideoSuccess() {
+            // Arrange
+            String username = "johndoe";
+            UUID videoId = UUID.randomUUID();
+
+            User user = new User(username, "john@example.com");
+            Video video = new Video();
+            when(userRepository.findById("johndoe")).thenReturn(Optional.of(user));
+            when(repository.findById(videoId)).thenReturn(Optional.of(video));
+            when(userRepository.hasLiked(username, videoId)).thenReturn(true);
+
+            // Act
+            boolean like = videoService.likeVideo(username, videoId);
+
+            // Assert
+            assertTrue(like);
+            assertEquals(1, video.getLikes().size());
+
+            verify(userRepository, times(1)).save(user);
+            verify(repository, times(1)).save(video);
+        }
+
+        @Test
+        @DisplayName("Debe lanzar excepción si el usuario no existe")
+        void likeVideoUserNotFound() {
+            // Arrange
+            String username = "nonexistent";
+            UUID videoId = UUID.randomUUID();
+
+            when(userRepository.findById(username)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            RuntimeException exception = assertThrows(RuntimeException.class, () ->
+                    videoService.likeVideo(username, videoId)
+            );
+
+            assertEquals("User not found", exception.getMessage());
+            verify(repository, never()).findById(any());
+            verify(userRepository, never()).save(any());
+            verify(repository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Debe lanzar excepción si el vídeo no existe")
+        void likeVideoVideoNotFound() {
+            // Arrange
+            String username = "johndoe";
+            UUID videoId = UUID.randomUUID();
+            User user = new User(username, "john@example.com");
+
+            when(userRepository.findById(username)).thenReturn(Optional.of(user));
+            when(repository.findById(videoId)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            RuntimeException exception = assertThrows(RuntimeException.class, () ->
+                    videoService.likeVideo(username, videoId)
+            );
+
+            assertEquals("Video not found", exception.getMessage());
+            verify(userRepository, never()).save(any());
             verify(repository, never()).save(any());
         }
     }
