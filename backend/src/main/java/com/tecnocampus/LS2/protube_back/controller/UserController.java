@@ -16,11 +16,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/likeVideo")
-    public ResponseEntity<Boolean> likeVideo(@RequestParam String userName, @RequestParam UUID videoId) {
-        boolean liked = userService.likeVideo(userName, videoId);
-        return ResponseEntity.ok(liked);
-    }
 
     @PostMapping("/subscribe")
     public ResponseEntity<Boolean> subscribeToUser(@RequestParam String subscriberUsername, @RequestParam String subscribedUsername) {
