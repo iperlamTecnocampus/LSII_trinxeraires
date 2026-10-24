@@ -52,9 +52,17 @@ public class VideosController {
     }
     
     //Comments
-    @PostMapping("/{id}/comment")
+    @PostMapping("/{id}/comments")
     public ResponseEntity<Boolean> commentVideo(@RequestParam String userName, @PathVariable UUID videoId, @RequestBody String comment) {
         boolean isCommented = videoService.commentVideo(userName, videoId, comment);
         return ResponseEntity.ok(isCommented);
+    }
+
+
+    //likes
+    @PostMapping("/{id}/likes")
+    public ResponseEntity<Boolean> likeVideo(@RequestParam String userName, @PathVariable UUID videoId) {
+        boolean liked = videoService.likeVideo(userName, videoId);
+        return ResponseEntity.ok(liked);
     }
 }
