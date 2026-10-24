@@ -51,4 +51,11 @@ public class VideosController {
     public List<VideoInfoDTO> searchVideo(@PathVariable String name) {
         return videoService.searchVideo(name);
     }
+    
+    //Comments
+    @PostMapping("comment")
+    public ResponseEntity<Boolean> commentVideo(@RequestParam String userName, @RequestParam UUID videoId, @RequestBody String comment) {
+        boolean isCommented = videoService.commentVideo(userName, videoId, comment);
+        return ResponseEntity.ok(isCommented);
+    }
 }
