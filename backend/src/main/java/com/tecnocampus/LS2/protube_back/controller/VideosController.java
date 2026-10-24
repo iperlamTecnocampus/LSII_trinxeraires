@@ -52,4 +52,8 @@ public class VideosController {
         return videoService.editVideo(id, dto);
     }
 
+    @GetMapping("/searchVideo/{name}")
+    public List<VideoInfoDTO> searchVideo(@PathVariable String name) {
+        
+    }
 }
