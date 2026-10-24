@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/videos")
+@RequestMapping("/api/videos/")
 public class VideosController {
 
     private final VideoService videoService;
@@ -20,35 +20,35 @@ public class VideosController {
     public VideosController(VideoService videoService) {
         this.videoService = videoService;
     }
-    @GetMapping("/getAllVideos")
+    @GetMapping("allVideos")
     public ResponseEntity<List<UUID>> getVideos() {
         return ResponseEntity.ok().body(videoService.getVideos());
 
     }
-    
-    @GetMapping("/getVideoInfo/{id}")
-    public ResponseEntity<?> getVideoInfo(@PathVariable UUID id) {
+
+    @GetMapping("{id}")
+    public ResponseEntity<VideoInfoDTO> getVideoInfo(@PathVariable UUID id) {
         return ResponseEntity.ok().body(videoService.getVideoInfo(id));
     }
 
-    @DeleteMapping("/deleteVideoById/{id}")
+    @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteVideoById(@PathVariable UUID id) {
         videoService.deleteVideoById(id);
     }
 
-    @PostMapping("/createVideo")
+    @PostMapping()
     public VideoInfoDTO createVideo(@RequestBody CreateVideoDTO dto) {
         return videoService.createVideo(dto);
     }
 
-    @PutMapping("/editVideo/{id}")
+    @PutMapping("{id}")
     public VideoInfoDTO editVideo(@PathVariable UUID id, @RequestBody EditVideoDTO dto) {
         return videoService.editVideo(id, dto);
     }
 
-    @GetMapping("/searchVideo/{name}")
+    @GetMapping("{name}")
     public List<VideoInfoDTO> searchVideo(@PathVariable String name) {
-        
+
     }
 }
