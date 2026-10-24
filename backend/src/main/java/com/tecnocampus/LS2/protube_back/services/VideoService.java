@@ -89,4 +89,15 @@ public class VideoService {
     public List<VideoInfoDTO> searchVideo(String name) {
         return videoRepository.findVideoByname(name).stream().map(video -> videoMapper.toDTO(video)).toList();
     }
+
+    public boolean likeVideo(String userName, UUID videoId) {
+        User user = userRepository.findById(userName).orElseThrow(() -> new UserNotFoundException("User not found"));
+        Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException("Video not found"));
+
+        user.addLikedVideo(video);
+
+        userRepository.save(user);
+        videoRepository.save(video);
+        return userRepository.hasLiked(userName, videoId);
+    }
 }

@@ -22,20 +22,7 @@ public class UserService {
         this.videoRepository = videoRepository;
         this.commentRepository = commentRepository;
     }
-
-    //like a video
-    public boolean likeVideo(String userName, UUID videoId) {
-        User user = userRepository.findById(userName).orElseThrow(() -> new UserNotFoundException("User not found"));
-        Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException("Video not found"));
-
-        user.addLikedVideo(video);
-
-        userRepository.save(user);
-        videoRepository.save(video);
-        return userRepository.hasLiked(userName, videoId);
-    }
-
-
+    
     //suscribe to a user
     public boolean subscribeToUser(String subscriberUsername, String subscribedUsername) {
         User subscriber = userRepository.findById(subscriberUsername).orElseThrow(() -> new UserNotFoundException("Subscriber user not found"));
