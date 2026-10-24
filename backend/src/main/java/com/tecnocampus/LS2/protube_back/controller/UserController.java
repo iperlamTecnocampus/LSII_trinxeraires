@@ -22,12 +22,6 @@ public class UserController {
         return ResponseEntity.ok(liked);
     }
 
-    @PostMapping("/commentVideo")
-    public ResponseEntity<Boolean> commentVideo(@RequestParam String userName, @RequestParam UUID videoId, @RequestBody String comment) {
-        boolean isCommented = userService.commentVideo(userName, videoId, comment);
-        return ResponseEntity.ok(isCommented);
-    }
-
     @PostMapping("/subscribe")
     public ResponseEntity<Boolean> subscribeToUser(@RequestParam String subscriberUsername, @RequestParam String subscribedUsername) {
         boolean isSub = userService.subscribeToUser(subscriberUsername, subscribedUsername);

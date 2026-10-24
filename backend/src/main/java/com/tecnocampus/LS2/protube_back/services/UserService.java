@@ -35,16 +35,6 @@ public class UserService {
         return userRepository.hasLiked(userName, videoId);
     }
 
-    public boolean commentVideo(String userName, UUID videoId, String comment) {
-        User user = userRepository.findById(userName).orElseThrow(() -> new UserNotFoundException("User not found"));
-        Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException("Video not found"));
-        Comment newComment = new Comment(comment, user, video);
-        video.addComment(newComment);
-
-        videoRepository.save(video);
-        Comment savedComment = commentRepository.save(newComment);
-        return videoRepository.existCommentByIdAndVideoId(savedComment.getId(), video.getUuid());
-    }
 
     //suscribe to a user
     public boolean subscribeToUser(String subscriberUsername, String subscribedUsername) {
