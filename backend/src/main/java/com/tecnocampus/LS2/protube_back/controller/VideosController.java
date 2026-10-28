@@ -21,9 +21,10 @@ public class VideosController {
         this.videoService = videoService;
     }
     @GetMapping("/")
-    public ResponseEntity<List<UUID>> getVideos() {
+    public ResponseEntity<List<VideoInfoDTO>> getVideosInfo() {
         return ResponseEntity.ok().body(videoService.getVideos());
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<VideoInfoDTO> getVideoInfo(@PathVariable UUID id) {
@@ -47,8 +48,8 @@ public class VideosController {
     }
 
     @GetMapping("/search/{name}")
-    public List<VideoInfoDTO> searchVideo(@PathVariable String name) {
-        return videoService.searchVideo(name);
+    public ResponseEntity<List<VideoInfoDTO>> searchVideo(@PathVariable String name) {
+        return ResponseEntity.ok().body(videoService.searchVideo(name));
     }
     
     //Comments
