@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router';
 import { Home } from './pages/Home';
 import { Layout } from './components/Layout';
 import { Profile } from './pages/Profile';
+import { VideoPlayback } from './pages/VideoPlayback';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path="/about" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/watch/:videoId" element={<VideoPlayback />}/>
         </Routes>
       </Layout>
     </BrowserRouter>

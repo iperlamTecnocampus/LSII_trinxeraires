@@ -2,9 +2,12 @@ import { VideoCard } from './VideoCard';
 
 export function VideoGrid() {
   return (
-    <div className="flex flex-row flex-wrap w-full gap-2 justify-center-safe">
+    <div className="flex w-full flex-row flex-wrap justify-center-safe gap-2">
       {Array.from({ length: 8 }, (_, i) => (
-        <VideoCard />
+        <VideoCard
+          key={i}
+          to={`/watch/${i + 1}`}
+        />
       ))}
     </div>
   );
