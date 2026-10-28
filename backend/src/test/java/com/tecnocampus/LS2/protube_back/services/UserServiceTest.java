@@ -3,6 +3,7 @@ package com.tecnocampus.LS2.protube_back.services;
 import com.tecnocampus.LS2.protube_back.model.Comment;
 import com.tecnocampus.LS2.protube_back.model.User;
 import com.tecnocampus.LS2.protube_back.model.Video;
+import com.tecnocampus.LS2.protube_back.persistance.CommentRepository;
 import com.tecnocampus.LS2.protube_back.persistance.UserRepository;
 import com.tecnocampus.LS2.protube_back.persistance.VideoRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -29,6 +30,9 @@ class UserServiceTest {
 
     @Mock
     private VideoRepository videoRepository;
+
+    @Mock
+    private CommentRepository commentRepository;
 
     @InjectMocks
     private UserService userService;
@@ -120,11 +124,16 @@ class UserServiceTest {
 
             when(userRepository.findById(username)).thenReturn(Optional.of(user));
             when(videoRepository.findById(videoId)).thenReturn(Optional.of(video));
+            when(commentRepository.save(any(Comment.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+            when(videoRepository.existCommentByIdAndVideoId(nullable(Long.class), nullable(UUID.class)))
+                    .thenReturn(true);
 
             // Act
-            userService.commentVideo(username, videoId, commentText);
+            boolean result = userService.commentVideo(username, videoId, commentText);
 
             // Assert
+            assertTrue(result);
             assertEquals(1, video.getComments().size());
             Comment createdComment = video.getComments().iterator().next();
             assertEquals(commentText, createdComment.getComment());
@@ -132,6 +141,7 @@ class UserServiceTest {
             assertEquals(video, createdComment.getVideo());
 
             verify(videoRepository, times(1)).save(video);
+            verify(commentRepository, times(1)).save(createdComment);
         }
 
         @Test
