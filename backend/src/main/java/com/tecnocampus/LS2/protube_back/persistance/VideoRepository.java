@@ -10,9 +10,9 @@ import java.util.UUID;
 
 public interface VideoRepository extends JpaRepository<Video, UUID> {
 
-    @Query("select count(v) > 0 from Video v join Comment c where v.uuid = :videoId and c.id = :commentId")
+    @Query("select count(c) > 0 from Comment c where c.video.uuid = :videoId and c.id = :commentId")
     boolean existCommentByIdAndVideoId(@Param("commentId") Long commentId, @Param("videoId") UUID videoId);
 
-    @Query("select v from Video v where v.title = :videoName")
+    @Query("select v from Video v where lower(v.title) like lower(concat('%', :videoName, '%'))")
     List<Video> findVideoByname(@Param("videoName") String name);
 }
