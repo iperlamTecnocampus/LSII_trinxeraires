@@ -40,8 +40,8 @@ public class VideoService {
         this.videoMapper = new VideoMapper(videoUserMapper, commentMapper, categoryMapper);
 
     }
-    public List<UUID> getVideos() {
-        return videoRepository.findAll().stream().map(video -> video.getUuid()).toList();
+    public List<VideoInfoDTO> getVideos() {
+        return videoRepository.findAll().stream().map(video -> videoMapper.toDTO(video)).toList();
     }
 
     public void deleteVideoById(UUID id) {
@@ -56,6 +56,10 @@ public class VideoService {
 
     public VideoInfoDTO createVideo(CreateVideoDTO dto) {
         Video video = videoMapper.toEntity(dto);
+        String authorName = dto.author() != null ? dto.author().userName() : null;
+        User author = userRepository.findById(authorName != null ? authorName : "")
+                .orElseThrow(() -> new UserNotFoundException("Author not found"));
+        video.setAuthor(author);
         videoRepository.save(video);
         return videoMapper.toDTO(video);
     }
@@ -87,7 +91,9 @@ public class VideoService {
     }
 
     public List<VideoInfoDTO> searchVideo(String name) {
-        return videoRepository.findVideoByname(name).stream().map(video -> videoMapper.toDTO(video)).toList();
+        List<VideoInfoDTO> videos = videoRepository.findVideoByname(name).stream().map(video -> videoMapper.toDTO(video)).toList();
+        System.out.println(videos);
+        return videos;
     }
 
     public boolean likeVideo(String userName, UUID videoId) {
