@@ -8,12 +8,16 @@ import { ProfileStats } from './ProfileStats';
 import { formatDate } from './format';
 import type { UserProfile } from './types';
 
+import { useNavigate } from 'react-router';
+
 interface ProfileHeaderProps {
   profile: UserProfile;
   onEdit: () => void;
 }
 
 export function ProfileHeader({ profile, onEdit }: ProfileHeaderProps) {
+  const navigate = useNavigate();
+
   return (
     <header>
       <div className="relative aspect-[3/1] w-full overflow-hidden rounded-2xl bg-muted sm:aspect-[4/1]">
@@ -46,8 +50,23 @@ export function ProfileHeader({ profile, onEdit }: ProfileHeaderProps) {
           <p className="max-w-2xl text-sm text-muted-foreground">{profile.description}</p>
         </div>
 
-        <div className="md:pb-3">
-          <Button onClick={onEdit} className="w-full rounded-full md:w-auto" size="lg">
+        <div className="flex flex-col gap-2 md:flex-row md:pb-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full rounded-full md:w-auto"
+            size="lg"
+            onClick={() => navigate('/upload')}
+          >
+            Upload video
+          </Button>
+
+          <Button
+            type="button"
+            onClick={onEdit}
+            className="w-full rounded-full md:w-auto"
+            size="lg"
+          >
             <HugeiconsIcon icon={Edit02Icon} size={18} />
             Edit profile
           </Button>
