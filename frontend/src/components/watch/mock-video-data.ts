@@ -9,8 +9,6 @@ export const mockVideo: Video = {
   title: 'Building a Full-Stack App with React & TypeScript in 2026',
   description:
     'In this video we build a complete full-stack application using React, TypeScript and modern frontend development practices. We cover component architecture, reusable UI, API integration and project structure.\n\nChapters:\n00:00 Introduction\n03:12 Project setup\n10:45 Component architecture\n24:30 Reusable UI with shadcn/ui\n38:05 API integration\n52:40 Project structure & wrap-up',
-  videoUrl:
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   thumbnail: 'https://picsum.photos/seed/watch-main/1280/720',
   duration: '1:04:12',
   views: 184_000,

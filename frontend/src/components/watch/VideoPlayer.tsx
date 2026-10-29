@@ -1,27 +1,30 @@
 interface VideoPlayerProps {
-  videoUrl?: string;
   poster?: string;
   title: string;
 }
 
 export function VideoPlayer({
-  videoUrl,
   poster,
   title,
 }: VideoPlayerProps) {
   return (
     <div className="w-full overflow-hidden rounded-xl bg-black">
-      <div className="aspect-video w-full">
-        <video
-          className="h-full w-full object-contain"
-          controls
-          poster={poster}
-          aria-label={title}
-        >
-          {videoUrl && <source src={videoUrl} type="video/mp4" />}
+      <div className="relative aspect-video w-full">
+        {poster ? (
+          <img
+            src={poster}
+            alt={title}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="h-full w-full bg-muted" />
+        )}
 
-          Your browser does not support the video tag.
-        </video>
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+          <span className="rounded-md bg-black/70 px-4 py-2 text-sm font-medium text-white">
+            Video player
+          </span>
+        </div>
       </div>
     </div>
   );
