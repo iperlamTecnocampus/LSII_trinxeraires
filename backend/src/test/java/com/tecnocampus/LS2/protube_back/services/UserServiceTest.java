@@ -1,21 +1,19 @@
 package com.tecnocampus.LS2.protube_back.services;
 
-import com.tecnocampus.LS2.protube_back.model.Comment;
 import com.tecnocampus.LS2.protube_back.model.User;
-import com.tecnocampus.LS2.protube_back.model.Video;
+import com.tecnocampus.LS2.protube_back.persistance.CommentRepository;
 import com.tecnocampus.LS2.protube_back.persistance.UserRepository;
 import com.tecnocampus.LS2.protube_back.persistance.VideoRepository;
+import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateUserDTO;
+import com.tecnocampus.LS2.protube_back.services.DTO.out.UserDTO;
+import com.tecnocampus.LS2.protube_back.services.exceptions.UserAlreadyExistsException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,74 +28,91 @@ class UserServiceTest {
     @Mock
     private VideoRepository videoRepository;
 
-    @InjectMocks
+    @Mock
+    private CommentRepository commentRepository;
+
     private UserService userService;
 
+    private String username;
+    private String email;
+
+    @BeforeEach
+    void setUp() {
+        userService = new UserService(userRepository, videoRepository, commentRepository);
+        username = "john_doe";
+        email = "john.doe@example.com";
+    }
+
+    // =========================================================================
+    // METHOD: createUser
+    // =========================================================================
     @Nested
-    @DisplayName("Pruebas para el método subscribeToUser")
-    class SubscribeToUserTests {
+    @DisplayName("Tests para createUser en UserService")
+    class CreateUserServiceTests {
 
         @Test
-        @DisplayName("Debe establecer la suscripción bidireccional y guardar ambos usuarios")
-        void subscribeToUserSuccess() {
-            // Arrange
-            String subscriberUsername = "alice";
-            String subscribedUsername = "bob";
+        @DisplayName("Debe crear y devolver el UserDTO cuando los datos son válidos")
+        void createUser_Success() {
+            CreateUserDTO dto = new CreateUserDTO(
+                    username,
+                    "John Doe",
+                    "Descripción de prueba",
+                    email,
+                    "pic_fid_123"
+            );
 
-            User subscriber = new User(subscriberUsername, "alice@example.com");
-            User subscribed = new User(subscribedUsername, "bob@example.com");
+            when(userRepository.existsById(username)).thenReturn(false);
+            when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-            when(userRepository.findById(subscriberUsername)).thenReturn(Optional.of(subscriber));
-            when(userRepository.findById(subscribedUsername)).thenReturn(Optional.of(subscribed));
+            UserDTO result = userService.createUser(dto);
 
-            // Act
-            userService.subscribeToUser(subscriberUsername, subscribedUsername);
+            assertNotNull(result);
+            assertEquals(username, result.userName());
+            assertEquals("John Doe", result.displayName());
+            assertEquals(email, result.email());
 
-            // Assert
-            assertTrue(subscriber.getSubscribedTo().contains(subscribed));
-            assertTrue(subscribed.getSubscribers().contains(subscriber));
-
-            verify(userRepository, times(1)).save(subscriber);
-            verify(userRepository, times(1)).save(subscribed);
+            verify(userRepository, times(1)).existsById(username);
+            verify(userRepository, times(1)).save(any(User.class));
         }
 
         @Test
-        @DisplayName("Debe lanzar excepción si el usuario suscriptor no existe")
-        void subscriberNotFound() {
-            // Arrange
-            String subscriberUsername = "nonexistent";
-            String subscribedUsername = "bob";
-
-            when(userRepository.findById(subscriberUsername)).thenReturn(Optional.empty());
-
-            // Act & Assert
-            RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                    userService.subscribeToUser(subscriberUsername, subscribedUsername)
+        @DisplayName("Debe lanzar UserAlreadyExistsException cuando el username ya está registrado")
+        void createUser_AlreadyExists_ThrowsException() {
+            CreateUserDTO dto = new CreateUserDTO(
+                    username,
+                    "John Doe",
+                    "Descripción de prueba",
+                    email,
+                    "pic_fid_123"
             );
 
-            assertEquals("Subscriber user not found", exception.getMessage());
-            verify(userRepository, never()).save(any());
+            when(userRepository.existsById(username)).thenReturn(true);
+
+            UserAlreadyExistsException exception = assertThrows(
+                    UserAlreadyExistsException.class,
+                    () -> userService.createUser(dto)
+            );
+
+            assertEquals("User already exists", exception.getMessage());
+            verify(userRepository, times(1)).existsById(username);
+            verify(userRepository, never()).save(any(User.class));
         }
 
         @Test
-        @DisplayName("Debe lanzar excepción si el usuario al que suscribirse no existe")
-        void subscribedUserNotFound() {
-            // Arrange
-            String subscriberUsername = "alice";
-            String subscribedUsername = "nonexistent";
+        @DisplayName("Debe lanzar IllegalArgumentException cuando el DTO es nulo o faltan campos obligatorios")
+        void createUser_InvalidData_ThrowsIllegalArgumentException() {
+            CreateUserDTO blankUsernameDto = new CreateUserDTO("   ", "John Doe", "Desc", email, "pic_1");
+            CreateUserDTO nullUsernameDto = new CreateUserDTO(null, "John Doe", "Desc", email, "pic_1");
+            CreateUserDTO blankEmailDto = new CreateUserDTO(username, "John Doe", "Desc", "  ", "pic_1");
+            CreateUserDTO nullEmailDto = new CreateUserDTO(username, "John Doe", "Desc", null, "pic_1");
 
-            User subscriber = new User(subscriberUsername, "alice@example.com");
+            assertThrows(IllegalArgumentException.class, () -> userService.createUser(null));
+            assertThrows(IllegalArgumentException.class, () -> userService.createUser(blankUsernameDto));
+            assertThrows(IllegalArgumentException.class, () -> userService.createUser(nullUsernameDto));
+            assertThrows(IllegalArgumentException.class, () -> userService.createUser(blankEmailDto));
+            assertThrows(IllegalArgumentException.class, () -> userService.createUser(nullEmailDto));
 
-            when(userRepository.findById(subscriberUsername)).thenReturn(Optional.of(subscriber));
-            when(userRepository.findById(subscribedUsername)).thenReturn(Optional.empty());
-
-            // Act & Assert
-            RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                    userService.subscribeToUser(subscriberUsername, subscribedUsername)
-            );
-
-            assertEquals("Subscribed user not found", exception.getMessage());
-            verify(userRepository, never()).save(any());
+            verifyNoInteractions(userRepository);
         }
     }
 }
