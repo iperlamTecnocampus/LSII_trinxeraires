@@ -1,0 +1,172 @@
+
+@baseUrl = http://localhost:8080/api
+
+### 1.1 Crear usuario irvin
+POST {{baseUrl}}/users/
+Content-Type: application/json
+
+{
+  "username": "irvin",
+  "displayName": "Irvin",
+  "description": "Creador de contenido",
+  "email": "irvin@protube.com",
+  "pictureFid": "irvin.png"
+}
+
+### 1.2 Crear usuario ana
+POST {{baseUrl}}/users/
+Content-Type: application/json
+
+{
+  "username": "ana",
+  "displayName": "Ana",
+  "description": "Espectadora",
+  "email": "ana@protube.com",
+  "pictureFid": "ana.png"
+}
+
+### 1.3 Crear usuario marc
+POST {{baseUrl}}/users/
+Content-Type: application/json
+
+{
+  "username": "marc",
+  "displayName": "Marc",
+  "description": "Otro espectador",
+  "email": "marc@protube.com",
+  "pictureFid": "marc.png"
+}
+
+### 1.4 Consultar usuario irvin
+GET {{baseUrl}}/users/irvin
+
+### 2.1.1 Crear vídeo (autor irvin)
+POST {{baseUrl}}/videos/
+Content-Type: application/json
+
+{
+  "title": "Mi primer video",
+  "description": "Descripción del primer vídeo",
+  "author": {
+    "userName": "irvin"
+  },
+  "categories": []
+}
+
+
+### 2.1.2 Crear vídeo (autor irvin)
+POST {{baseUrl}}/videos/
+Content-Type: application/json
+
+{
+  "title": "Mi segundo video",
+  "description": "Descripción del segundo vídeo",
+  "author": {
+    "userName": "irvin"
+  },
+  "categories": []
+}
+
+### 2.2 Listar vídeos y guardar el id del primero
+GET {{baseUrl}}/videos/
+
+> {%
+    client.global.set("videoId", response.body[0].videoId);
+%}
+
+### 2.3 Obtener info del vídeo
+GET {{baseUrl}}/videos/{{videoId}}
+
+### 2.4 Buscar vídeo por nombre
+GET {{baseUrl}}/videos/search/segundo
+
+### 2.5 Editar título y descripción
+PUT {{baseUrl}}/videos/{{videoId}}
+Content-Type: application/json
+
+{
+  "title": "Título editado",
+  "description": "Descripción editada"
+}
+
+### 3.1 Comentar el vídeo (ana)
+POST {{baseUrl}}/videos/{{videoId}}/comments?userName=ana
+Content-Type: text/plain
+
+Muy buen vídeo!
+
+### 3.2 Comentar el vídeo (marc)
+POST {{baseUrl}}/videos/{{videoId}}/comments?userName=marc
+Content-Type: text/plain
+
+Me ha gustado mucho
+
+### 3.3 Ver comentarios en la info del vídeo
+GET {{baseUrl}}/videos/{{videoId}}
+
+### 4.1 Like al vídeo (ana)
+POST {{baseUrl}}/videos/{{videoId}}/likes?userName=ana
+
+### 4.2 Like al vídeo (marc)
+POST {{baseUrl}}/videos/{{videoId}}/likes?userName=marc
+
+### 4.3 Verificar likes
+GET {{baseUrl}}/videos/{{videoId}}
+
+### 5.1 Suscribirse: ana → irvin
+POST {{baseUrl}}/users/subscribe?subscriberUsername=ana&subscribedUsername=irvin
+
+### 5.2 Suscribirse: marc → irvin
+POST {{baseUrl}}/users/subscribe?subscriberUsername=marc&subscribedUsername=irvin
+
+### 5.3 Verificar suscriptores de irvin
+GET {{baseUrl}}/users/irvin
+
+### 6.1 Error: crear usuario duplicado (409)
+POST {{baseUrl}}/users/
+Content-Type: application/json
+
+{
+  "username": "irvin",
+  "email": "otro@protube.com"
+}
+
+### 6.2 Error: crear usuario sin email (400)
+POST {{baseUrl}}/users/
+Content-Type: application/json
+
+{
+  "username": "sinemail"
+}
+
+### 6.3 Error: vídeo inexistente (404)
+GET {{baseUrl}}/videos/00000000-0000-0000-0000-000000000000
+
+### 6.4 Error: comentar con usuario inexistente (404)
+POST {{baseUrl}}/videos/{{videoId}}/comments?userName=fantasma
+Content-Type: text/plain
+
+Hola
+
+### 6.5 Error: like con usuario inexistente (404)
+POST {{baseUrl}}/videos/{{videoId}}/likes?userName=fantasma
+
+### 6.6 Error: crear vídeo con autor inexistente (404)
+POST {{baseUrl}}/videos/
+Content-Type: application/json
+
+{
+  "title": "Sin autor",
+  "description": "x",
+  "author": { "userName": "fantasma" },
+  "categories": []
+}
+
+### 6.7 Error: suscripción con usuario inexistente (404)
+POST {{baseUrl}}/users/subscribe?subscriberUsername=ana&subscribedUsername=fantasma
+
+### 7.1 Eliminar vídeo (204)
+DELETE {{baseUrl}}/videos/{{videoId}}
+
+### 7.2 Verificar que ya no existe (404)
+GET {{baseUrl}}/videos/{{videoId}}

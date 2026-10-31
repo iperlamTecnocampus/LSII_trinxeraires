@@ -1,10 +1,12 @@
 package com.tecnocampus.LS2.protube_back.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tecnocampus.LS2.protube_back.controller.exceptionHandler.DomainExceptionHandler;
-
+import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateUserDTO;
+import com.tecnocampus.LS2.protube_back.services.DTO.out.UserDTO;
 import com.tecnocampus.LS2.protube_back.services.UserService;
+import com.tecnocampus.LS2.protube_back.services.exceptions.UserAlreadyExistsException;
 import com.tecnocampus.LS2.protube_back.services.exceptions.UserNotFoundException;
-import com.tecnocampus.LS2.protube_back.services.exceptions.VideoNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -16,9 +18,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
+import java.util.Collections;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -28,11 +31,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(value = UserController.class, properties = {
         "ENV_PROTUBE_STORE_DIR=C:/tmp/test-storage"
 })
-@Import(DomainExceptionHandler.class) // Importa el ExceptionHandler
+@Import(DomainExceptionHandler.class)
 class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private UserService userService;
@@ -50,122 +56,91 @@ class UserControllerTest {
     }
 
     // =========================================================================
-    // ENDPOINT: POST /api/users/likeVideo
+    // ENDPOINT: POST /api/users/
     // =========================================================================
     @Nested
-    @DisplayName("Tests para POST /api/users/likeVideo")
-    class LikeVideoEndpointTests {
+    @DisplayName("Tests para POST /api/users/")
+    class CreateUserEndpointTests {
 
         @Test
-        @DisplayName("Debe devolver HTTP 200 y true cuando el 'like' es exitoso")
-        void likeVideo_Success() throws Exception {
-            when(userService.likeVideo(username, videoId)).thenReturn(true);
-
-            mockMvc.perform(post("/api/users/likeVideo")
-                            .param("userName", username)
-                            .param("videoId", videoId.toString()))
-                    .andExpect(status().isOk())
-                    .andExpect(content().string("true"));
-
-            verify(userService, times(1)).likeVideo(username, videoId);
-        }
-
-        @Test
-        @DisplayName("Debe devolver HTTP 404 Not Found cuando el usuario no existe")
-        void likeVideo_UserNotFound_Returns404() throws Exception {
-            when(userService.likeVideo(username, videoId))
-                    .thenThrow(new UserNotFoundException("User not found"));
-
-            mockMvc.perform(post("/api/users/likeVideo")
-                            .param("userName", username)
-                            .param("videoId", videoId.toString()))
-                    .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.title").value("User Not Found"))
-                    .andExpect(jsonPath("$.detail").value("User not found"))
-                    .andExpect(jsonPath("$.timestamp").exists());
-
-            verify(userService, times(1)).likeVideo(username, videoId);
-        }
-
-        @Test
-        @DisplayName("Comprobar excepción UserNotFoundException con assertThrows")
-        void likeVideo_UserNotFound_AssertThrows() {
-            when(userService.likeVideo(username, videoId))
-                    .thenThrow(new UserNotFoundException("User not found"));
-
-            UserNotFoundException exception = assertThrows(
-                    UserNotFoundException.class,
-                    () -> userController.likeVideo(username, videoId)
+        @DisplayName("Debe devolver HTTP 201 y el UserDTO al crear un usuario exitosamente")
+        void createUser_Success() throws Exception {
+            CreateUserDTO createDto = new CreateUserDTO(
+                    username,
+                    "John Doe",
+                    "Descripción de prueba",
+                    "john.doe@example.com",
+                    "pic_fid_123"
             );
 
-            verify(userService, times(1)).likeVideo(username, videoId);
+            UserDTO expectedUser = new UserDTO(
+                    "pic_fid_123",
+                    username,
+                    "John Doe",
+                    "Descripción de prueba",
+                    "john.doe@example.com",
+                    LocalDate.now(),
+                    Collections.emptyList(),
+                    0L,
+                    Collections.emptyList()
+            );
+
+            when(userService.createUser(any(CreateUserDTO.class))).thenReturn(expectedUser);
+
+            mockMvc.perform(post("/api/users/")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(createDto)))
+                    .andExpect(status().isCreated())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.userName").value(username))
+                    .andExpect(jsonPath("$.displayName").value("John Doe"))
+                    .andExpect(jsonPath("$.email").value("john.doe@example.com"));
+
+            verify(userService, times(1)).createUser(any(CreateUserDTO.class));
         }
 
         @Test
-        @DisplayName("Debe devolver HTTP 400 Bad Request si faltan parámetros obligatorios")
-        void likeVideo_MissingParams_BadRequest() throws Exception {
-            mockMvc.perform(post("/api/users/likeVideo")
-                            .param("userName", username)) // Falta videoId
-                    .andExpect(status().isBadRequest());
+        @DisplayName("Debe lanzar UserAlreadyExistsException cuando el usuario ya existe")
+        void createUser_AlreadyExists_AssertThrows() {
+            CreateUserDTO createDto = new CreateUserDTO(
+                    username,
+                    "John Doe",
+                    "Descripción de prueba",
+                    "john.doe@example.com",
+                    "pic_fid_123"
+            );
 
-            verify(userService, never()).likeVideo(any(), any());
-        }
-    }
-
-    // =========================================================================
-    // ENDPOINT: POST /api/users/commentVideo
-    // =========================================================================
-    @Nested
-    @DisplayName("Tests para POST /api/users/commentVideo")
-    class CommentVideoEndpointTests {
-
-        @Test
-        @DisplayName("Debe devolver HTTP 200 y true al añadir un comentario")
-        void commentVideo_Success() throws Exception {
-            String comment = "Excelente vídeo";
-            when(userService.commentVideo(username, videoId, comment)).thenReturn(true);
-
-            mockMvc.perform(post("/api/users/commentVideo")
-                            .param("userName", username)
-                            .param("videoId", videoId.toString())
-                            .contentType(MediaType.TEXT_PLAIN)
-                            .content(comment))
-                    .andExpect(status().isOk())
-                    .andExpect(content().string("true"));
-
-            verify(userService, times(1)).commentVideo(username, videoId, comment);
-        }
-
-        @Test
-        @DisplayName("Debe devolver HTTP 404 Not Found cuando el vídeo no existe")
-        void commentVideo_VideoNotFound_Returns404() throws Exception {
-            String comment = "Comentario de prueba";
-            when(userService.commentVideo(username, videoId, comment))
-                    .thenThrow(new VideoNotFoundException("Video not found"));
-
-            mockMvc.perform(post("/api/users/commentVideo")
-                            .param("userName", username)
-                            .param("videoId", videoId.toString())
-                            .contentType(MediaType.TEXT_PLAIN)
-                            .content(comment))
-                    .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.title").value("Video Not Found"))
-                    .andExpect(jsonPath("$.detail").value("Video not found"));
-
-            verify(userService, times(1)).commentVideo(username, videoId, comment);
-        }
-
-        @Test
-        @DisplayName("Comprobar excepción VideoNotFoundException con assertThrows")
-        void commentVideo_VideoNotFound_AssertThrows() {
-            String comment = "Comentario de prueba";
-            when(userService.commentVideo(username, videoId, comment))
-                    .thenThrow(new VideoNotFoundException("Video not found"));
+            when(userService.createUser(any(CreateUserDTO.class)))
+                    .thenThrow(new UserAlreadyExistsException("User already exists"));
 
             assertThrows(
-                    VideoNotFoundException.class,
-                    () -> userController.commentVideo(username, videoId, comment)
+                    UserAlreadyExistsException.class,
+                    () -> userController.createUser(createDto)
             );
+
+            verify(userService, times(1)).createUser(any(CreateUserDTO.class));
+        }
+
+        @Test
+        @DisplayName("Debe lanzar IllegalArgumentException cuando faltan datos obligatorios")
+        void createUser_InvalidArguments_AssertThrows() {
+            CreateUserDTO invalidDto = new CreateUserDTO(
+                    "",
+                    "John Doe",
+                    "Descripción",
+                    "",
+                    "pic_fid_123"
+            );
+
+            when(userService.createUser(any(CreateUserDTO.class)))
+                    .thenThrow(new IllegalArgumentException("username and email are required"));
+
+            assertThrows(
+                    IllegalArgumentException.class,
+                    () -> userController.createUser(invalidDto)
+            );
+
+            verify(userService, times(1)).createUser(any(CreateUserDTO.class));
         }
     }
 

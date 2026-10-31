@@ -20,36 +20,50 @@ public class VideosController {
     public VideosController(VideoService videoService) {
         this.videoService = videoService;
     }
-    @GetMapping("/getAllVideos")
-    public ResponseEntity<List<UUID>> getVideos() {
+    @GetMapping("/")
+    public ResponseEntity<List<VideoInfoDTO>> getVideosInfo() {
         return ResponseEntity.ok().body(videoService.getVideos());
-
     }
 
-    @GetMapping("/getVideoById/{id}")
-    public ResponseEntity<UUID> getVideoById(@PathVariable UUID id) {
-        return ResponseEntity.ok().body(videoService.getVideoById(id));
-    }
 
-    @GetMapping("/getVideoInfo/{id}")
-    public ResponseEntity<?> getVideoInfo(@PathVariable UUID id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<VideoInfoDTO> getVideoInfo(@PathVariable UUID id) {
         return ResponseEntity.ok().body(videoService.getVideoInfo(id));
     }
 
-    @DeleteMapping("/deleteVideoById/{id}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteVideoById(@PathVariable UUID id) {
         videoService.deleteVideoById(id);
     }
 
-    @PostMapping("/createVideo")
+    @PostMapping("/")
     public VideoInfoDTO createVideo(@RequestBody CreateVideoDTO dto) {
         return videoService.createVideo(dto);
     }
 
-    @PutMapping("/editVideo/{id}")
+    @PutMapping("/{id}")
     public VideoInfoDTO editVideo(@PathVariable UUID id, @RequestBody EditVideoDTO dto) {
         return videoService.editVideo(id, dto);
     }
 
+    @GetMapping("/search/{name}")
+    public ResponseEntity<List<VideoInfoDTO>> searchVideo(@PathVariable String name) {
+        return ResponseEntity.ok().body(videoService.searchVideo(name));
+    }
+    
+    //Comments
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<Boolean> commentVideo(@RequestParam String userName, @PathVariable("id") UUID videoId, @RequestBody String comment) {
+        boolean isCommented = videoService.commentVideo(userName, videoId, comment);
+        return ResponseEntity.ok(isCommented);
+    }
+
+
+    //likes
+    @PostMapping("/{id}/likes")
+    public ResponseEntity<Boolean> likeVideo(@RequestParam String userName, @PathVariable("id") UUID videoId) {
+        boolean liked = videoService.likeVideo(userName, videoId);
+        return ResponseEntity.ok(liked);
+    }
 }
