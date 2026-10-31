@@ -21,6 +21,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -66,16 +68,17 @@ class VideosControllerTest {
     class GetVideosEndpointTests {
 
         @Test
-        @DisplayName("Debe devolver HTTP 200 y la lista de UUIDs de vídeos")
+        @DisplayName("Debe devolver HTTP 200 y la lista de vídeos")
         void getVideos_Success() throws Exception {
-            List<UUID> videos = List.of(videoId, UUID.randomUUID());
+            VideoInfoDTO video1 = mock(VideoInfoDTO.class);
+            VideoInfoDTO video2 = mock(VideoInfoDTO.class);
+            List<VideoInfoDTO> videos = List.of(video1, video2);
 
             when(videoService.getVideos()).thenReturn(videos);
 
             mockMvc.perform(get("/api/videos/"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.length()").value(2))
-                    .andExpect(jsonPath("$[0]").value(videoId.toString()));
+                    .andExpect(jsonPath("$.length()").value(2));
 
             verify(videoService, times(1)).getVideos();
         }
@@ -268,9 +271,42 @@ class VideosControllerTest {
     class SearchVideoEndpointTests {
 
         @Test
-        @DisplayName("Debe devolver HTTP 200 y los vídeos encontrados")
-        void searchVideo_Success() throws Exception {
-            String name = "Tecnologia";
+        @DisplayName("Debe devolver HTTP 200 y la lista de vídeos cuando hay coincidencias")
+        void searchVideo_WithMatches_Success() throws Exception {
+            String searchName = "Tutorial";
+            VideoUserDTO authorDto = new VideoUserDTO("pic_fid_1", username, "John Doe");
+            VideoInfoDTO videoDto = new VideoInfoDTO(
+                    videoId,
+                    "vid_fid_1",
+                    "thumb_fid_1",
+                    "Tutorial de Spring Boot",
+                    "Descripción de prueba",
+                    LocalDateTime.now(),
+                    authorDto,
+                    List.of(1L),
+                    Collections.emptyList(),
+                    15L,
+                    120L
+            );
+
+            when(videoService.searchVideo(searchName)).thenReturn(List.of(videoDto));
+
+            mockMvc.perform(get("/api/videos/search/{name}", searchName)
+                            .accept(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.length()").value(1))
+                    .andExpect(jsonPath("$[0].videoId").value(videoId.toString()))
+                    .andExpect(jsonPath("$[0].title").value("Tutorial de Spring Boot"))
+                    .andExpect(jsonPath("$[0].author.userName").value(username));
+
+            verify(videoService, times(1)).searchVideo(searchName);
+        }
+
+        @Test
+        @DisplayName("Debe devolver HTTP 200 y una lista vacía cuando no hay coincidencias")
+        void searchVideo_EmptyResult_Success() throws Exception {
+            String name = "VideoInexistente";
 
             when(videoService.searchVideo(name))
                     .thenReturn(List.of());
@@ -283,6 +319,9 @@ class VideosControllerTest {
         }
     }
 
+    // =========================================================================
+    // ENDPOINT: POST /api/videos/{id}/comments
+    // =========================================================================
     @Nested
     @DisplayName("Tests para POST /api/videos/{id}/comments")
     class CommentVideoEndpointTests {
@@ -378,11 +417,9 @@ class VideosControllerTest {
         }
     }
 
-
-
     // =========================================================================
-// ENDPOINT: POST /api/videos/{id}/likes
-// =========================================================================
+    // ENDPOINT: POST /api/videos/{id}/likes
+    // =========================================================================
     @Nested
     @DisplayName("Tests para POST /api/videos/{id}/likes")
     class LikeVideoEndpointTests {
@@ -460,6 +497,4 @@ class VideosControllerTest {
                     .likeVideo(username, videoId);
         }
     }
-
-
 }
