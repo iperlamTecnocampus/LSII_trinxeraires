@@ -1,21 +1,12 @@
-import {
-  useRef,
-  useState,
-  type DragEvent,
-} from 'react';
+import { useRef, useState, type DragEvent } from 'react';
 
 import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Cancel01Icon,
-  CloudUploadIcon,
-  Video01Icon,
-} from '@hugeicons/core-free-icons';
+import { Cancel01Icon, CloudUploadIcon, Video01Icon } from '@hugeicons/core-free-icons';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-const ACCEPTED =
-  'video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov';
+const ACCEPTED = 'video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov';
 
 export function formatBytes(bytes: number): string {
   if (bytes < 1024) {
@@ -27,10 +18,7 @@ export function formatBytes(bytes: number): string {
   let value = bytes / 1024;
   let index = 0;
 
-  while (
-    value >= 1024 &&
-    index < units.length - 1
-  ) {
+  while (value >= 1024 && index < units.length - 1) {
     value /= 1024;
     index++;
   }
@@ -43,10 +31,7 @@ interface VideoDropzoneProps {
   onFileChange: (file: File | null) => void;
 }
 
-export function VideoDropzone({
-  file,
-  onFileChange,
-}: VideoDropzoneProps) {
+export function VideoDropzone({ file, onFileChange }: VideoDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
@@ -54,14 +39,11 @@ export function VideoDropzone({
     inputRef.current?.click();
   };
 
-  const handleDrop = (
-    event: DragEvent<HTMLDivElement>,
-  ) => {
+  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setDragging(false);
 
-    const droppedFile =
-      event.dataTransfer.files?.[0];
+    const droppedFile = event.dataTransfer.files?.[0];
 
     if (droppedFile) {
       onFileChange(droppedFile);
@@ -76,9 +58,7 @@ export function VideoDropzone({
       accept={ACCEPTED}
       className="sr-only"
       onChange={(event) => {
-        onFileChange(
-          event.target.files?.[0] ?? null,
-        );
+        onFileChange(event.target.files?.[0] ?? null);
 
         event.target.value = '';
       }}
@@ -91,29 +71,17 @@ export function VideoDropzone({
         {input}
 
         <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <HugeiconsIcon
-            icon={Video01Icon}
-            size={24}
-          />
+          <HugeiconsIcon icon={Video01Icon} size={24} />
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="truncate font-medium">
-            {file.name}
-          </p>
+          <p className="truncate font-medium">{file.name}</p>
 
-          <p className="text-sm text-muted-foreground">
-            {formatBytes(file.size)} · Selected
-          </p>
+          <p className="text-sm text-muted-foreground">{formatBytes(file.size)} · Selected</p>
         </div>
 
         <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={openPicker}
-          >
+          <Button type="button" variant="outline" size="sm" onClick={openPicker}>
             Change
           </Button>
 
@@ -124,11 +92,7 @@ export function VideoDropzone({
             onClick={() => onFileChange(null)}
             aria-label="Remove selected video"
           >
-            <HugeiconsIcon
-              icon={Cancel01Icon}
-              size={16}
-            />
-
+            <HugeiconsIcon icon={Cancel01Icon} size={16} />
             Remove
           </Button>
         </div>
@@ -143,10 +107,7 @@ export function VideoDropzone({
       aria-label="Select a video file"
       onClick={openPicker}
       onKeyDown={(event) => {
-        if (
-          event.key === 'Enter' ||
-          event.key === ' '
-        ) {
+        if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
           openPicker();
         }
@@ -159,33 +120,22 @@ export function VideoDropzone({
       onDrop={handleDrop}
       className={cn(
         'flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-14 text-center transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring',
-        dragging
-          ? 'border-primary bg-primary/5'
-          : 'border-border hover:bg-muted/50',
+        dragging ? 'border-primary bg-primary/5' : 'border-border hover:bg-muted/50'
       )}
     >
       {input}
 
       <div className="flex size-16 items-center justify-center rounded-full bg-muted text-muted-foreground">
-        <HugeiconsIcon
-          icon={CloudUploadIcon}
-          size={32}
-        />
+        <HugeiconsIcon icon={CloudUploadIcon} size={32} />
       </div>
 
       <div>
-        <p className="font-medium">
-          Drag and drop your video file
-        </p>
+        <p className="font-medium">Drag and drop your video file</p>
 
-        <p className="text-sm text-muted-foreground">
-          or click to browse
-        </p>
+        <p className="text-sm text-muted-foreground">or click to browse</p>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        MP4, WebM or MOV
-      </p>
+      <p className="text-xs text-muted-foreground">MP4, WebM or MOV</p>
     </div>
   );
 }

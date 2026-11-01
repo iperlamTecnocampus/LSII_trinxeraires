@@ -61,12 +61,7 @@ export function ProfileHeader({ profile, onEdit }: ProfileHeaderProps) {
             Upload video
           </Button>
 
-          <Button
-            type="button"
-            onClick={onEdit}
-            className="w-full rounded-full md:w-auto"
-            size="lg"
-          >
+          <Button type="button" onClick={onEdit} className="w-full rounded-full md:w-auto" size="lg">
             <HugeiconsIcon icon={Edit02Icon} size={18} />
             Edit profile
           </Button>

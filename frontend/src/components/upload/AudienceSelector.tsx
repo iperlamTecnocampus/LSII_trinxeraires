@@ -3,18 +3,13 @@ interface AudienceSelectorProps {
   onChange: (value: 'yes' | 'no') => void;
 }
 
-export function AudienceSelector({
-  value,
-  onChange,
-}: AudienceSelectorProps) {
+export function AudienceSelector({ value, onChange }: AudienceSelectorProps) {
   return (
     <section>
       <div className="mb-3">
         <h3 className="font-semibold">Audience</h3>
 
-        <p className="text-sm text-muted-foreground">
-          Is this video made for kids?
-        </p>
+        <p className="text-sm text-muted-foreground">Is this video made for kids?</p>
       </div>
 
       <div className="flex flex-col gap-3">
@@ -29,13 +24,9 @@ export function AudienceSelector({
           />
 
           <div>
-            <p className="font-medium">
-              Yes, it's made for kids
-            </p>
+            <p className="font-medium">Yes, it's made for kids</p>
 
-            <p className="text-sm text-muted-foreground">
-              This video is primarily intended for children.
-            </p>
+            <p className="text-sm text-muted-foreground">This video is primarily intended for children.</p>
           </div>
         </label>
 
@@ -50,13 +41,9 @@ export function AudienceSelector({
           />
 
           <div>
-            <p className="font-medium">
-              No, it's not made for kids
-            </p>
+            <p className="font-medium">No, it's not made for kids</p>
 
-            <p className="text-sm text-muted-foreground">
-              This video is intended for a general audience.
-            </p>
+            <p className="text-sm text-muted-foreground">This video is intended for a general audience.</p>
           </div>
         </label>
       </div>

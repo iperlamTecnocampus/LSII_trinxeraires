@@ -18,8 +18,7 @@ const options: {
   {
     value: 'unlisted',
     title: 'Unlisted',
-    description:
-      'Anyone with the link can watch your video.',
+    description: 'Anyone with the link can watch your video.',
   },
   {
     value: 'private',
@@ -28,18 +27,13 @@ const options: {
   },
 ];
 
-export function VisibilitySelector({
-  value,
-  onChange,
-}: VisibilitySelectorProps) {
+export function VisibilitySelector({ value, onChange }: VisibilitySelectorProps) {
   return (
     <section>
       <div className="mb-3">
         <h3 className="font-semibold">Visibility</h3>
 
-        <p className="text-sm text-muted-foreground">
-          Choose who can watch your video
-        </p>
+        <p className="text-sm text-muted-foreground">Choose who can watch your video</p>
       </div>
 
       <div className="flex flex-col gap-3">
@@ -58,13 +52,9 @@ export function VisibilitySelector({
             />
 
             <div>
-              <p className="font-medium">
-                {option.title}
-              </p>
+              <p className="font-medium">{option.title}</p>
 
-              <p className="text-sm text-muted-foreground">
-                {option.description}
-              </p>
+              <p className="text-sm text-muted-foreground">{option.description}</p>
             </div>
           </label>
         ))}
