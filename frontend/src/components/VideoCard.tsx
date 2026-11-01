@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import type { components } from "@/api-schema.d.ts";
 type VideoInfoDTO = components["schemas"]["VideoInfoDTO"];
@@ -8,11 +8,15 @@ type VideoInfoDTO = components["schemas"]["VideoInfoDTO"];
 export function VideoCard({video}: {video: VideoInfoDTO}) {
   return (
     <Link
-      className="w-full sm:w-[40%] lg:w-[30%] xl:w-[24%] flex flex-col gap-2 p-2 rounded-md hover:bg-accent transition-colors"
-      to="/"
+      className={
+        variant === 'compact'
+          ? 'flex w-full gap-2 rounded-md p-2 transition-colors hover:bg-accent'
+          : 'flex w-full flex-col gap-2 rounded-md p-2 transition-colors hover:bg-accent sm:w-[40%] lg:w-[30%] xl:w-[24%]'
+      }
+      to={to}
     >
-      <AspectRatio ratio={16 / 9} className="w-full">
-        <img className="rounded-md" src="https://picsum.photos/640/360" alt="Video thumbnail" loading="lazy" />
+      <AspectRatio ratio={16 / 9} className={variant === 'compact' ? 'w-40 shrink-0' : 'w-full'}>
+        <img className="h-full w-full rounded-md object-cover" src={thumbnail} alt={title} loading="lazy" />
       </AspectRatio>
       <div className="flex flex-row gap-2">
         <Avatar>

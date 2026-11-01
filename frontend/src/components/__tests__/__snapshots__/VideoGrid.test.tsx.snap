@@ -3,10 +3,10 @@
 exports[`this component renders correctly 1`] = `
 <DocumentFragment>
   <div
-    class="flex flex-row flex-wrap w-full gap-2 justify-center-safe"
+    class="flex w-full flex-row flex-wrap justify-center-safe gap-2"
   >
     <a
-      href="/"
+      href="/watch/1"
     >
       <div
         class="relative aspect-(--ratio) w-full"
@@ -14,14 +14,14 @@ exports[`this component renders correctly 1`] = `
         style="--ratio: 1.7777777777777777;"
       >
         <img
-          alt="Video thumbnail"
-          class="rounded-md"
+          alt="Good video title without clickbait"
+          class="h-full w-full rounded-md object-cover"
           loading="lazy"
           src="https://picsum.photos/640/360"
         />
       </div>
       <div
-        class="flex flex-row gap-2"
+        class="flex min-w-0 flex-row gap-2"
       >
         <span
           class="group/avatar relative flex size-8 shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=lg]:size-10 data-[size=sm]:size-6 dark:after:mix-blend-lighten"
@@ -36,29 +36,28 @@ exports[`this component renders correctly 1`] = `
           </span>
         </span>
         <div
-          class="flex flex-col"
+          class="min-w-0"
         >
-          <h3>
+          <h3
+            class="line-clamp-2 font-medium"
+          >
             Good video title without clickbait
           </h3>
           <div
-            class="flex flex-row gap-2 col text-gray-600 dark:text-gray-300 text-sm"
+            class="mt-1 flex flex-col text-sm text-muted-foreground"
           >
             <span>
               Username
             </span>
             <span>
-              5k
-            </span>
-            <span>
-              12h ago
+              5k · 12h ago
             </span>
           </div>
         </div>
       </div>
     </a>
     <a
-      href="/"
+      href="/watch/2"
     >
       <div
         class="relative aspect-(--ratio) w-full"
@@ -66,14 +65,14 @@ exports[`this component renders correctly 1`] = `
         style="--ratio: 1.7777777777777777;"
       >
         <img
-          alt="Video thumbnail"
-          class="rounded-md"
+          alt="Good video title without clickbait"
+          class="h-full w-full rounded-md object-cover"
           loading="lazy"
           src="https://picsum.photos/640/360"
         />
       </div>
       <div
-        class="flex flex-row gap-2"
+        class="flex min-w-0 flex-row gap-2"
       >
         <span
           class="group/avatar relative flex size-8 shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=lg]:size-10 data-[size=sm]:size-6 dark:after:mix-blend-lighten"
@@ -88,29 +87,28 @@ exports[`this component renders correctly 1`] = `
           </span>
         </span>
         <div
-          class="flex flex-col"
+          class="min-w-0"
         >
-          <h3>
+          <h3
+            class="line-clamp-2 font-medium"
+          >
             Good video title without clickbait
           </h3>
           <div
-            class="flex flex-row gap-2 col text-gray-600 dark:text-gray-300 text-sm"
+            class="mt-1 flex flex-col text-sm text-muted-foreground"
           >
             <span>
               Username
             </span>
             <span>
-              5k
-            </span>
-            <span>
-              12h ago
+              5k · 12h ago
             </span>
           </div>
         </div>
       </div>
     </a>
     <a
-      href="/"
+      href="/watch/3"
     >
       <div
         class="relative aspect-(--ratio) w-full"
@@ -118,14 +116,14 @@ exports[`this component renders correctly 1`] = `
         style="--ratio: 1.7777777777777777;"
       >
         <img
-          alt="Video thumbnail"
-          class="rounded-md"
+          alt="Good video title without clickbait"
+          class="h-full w-full rounded-md object-cover"
           loading="lazy"
           src="https://picsum.photos/640/360"
         />
       </div>
       <div
-        class="flex flex-row gap-2"
+        class="flex min-w-0 flex-row gap-2"
       >
         <span
           class="group/avatar relative flex size-8 shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=lg]:size-10 data-[size=sm]:size-6 dark:after:mix-blend-lighten"
@@ -140,29 +138,28 @@ exports[`this component renders correctly 1`] = `
           </span>
         </span>
         <div
-          class="flex flex-col"
+          class="min-w-0"
         >
-          <h3>
+          <h3
+            class="line-clamp-2 font-medium"
+          >
             Good video title without clickbait
           </h3>
           <div
-            class="flex flex-row gap-2 col text-gray-600 dark:text-gray-300 text-sm"
+            class="mt-1 flex flex-col text-sm text-muted-foreground"
           >
             <span>
               Username
             </span>
             <span>
-              5k
-            </span>
-            <span>
-              12h ago
+              5k · 12h ago
             </span>
           </div>
         </div>
       </div>
     </a>
     <a
-      href="/"
+      href="/watch/4"
     >
       <div
         class="relative aspect-(--ratio) w-full"
@@ -170,14 +167,14 @@ exports[`this component renders correctly 1`] = `
         style="--ratio: 1.7777777777777777;"
       >
         <img
-          alt="Video thumbnail"
-          class="rounded-md"
+          alt="Good video title without clickbait"
+          class="h-full w-full rounded-md object-cover"
           loading="lazy"
           src="https://picsum.photos/640/360"
         />
       </div>
       <div
-        class="flex flex-row gap-2"
+        class="flex min-w-0 flex-row gap-2"
       >
         <span
           class="group/avatar relative flex size-8 shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=lg]:size-10 data-[size=sm]:size-6 dark:after:mix-blend-lighten"
@@ -192,29 +189,28 @@ exports[`this component renders correctly 1`] = `
           </span>
         </span>
         <div
-          class="flex flex-col"
+          class="min-w-0"
         >
-          <h3>
+          <h3
+            class="line-clamp-2 font-medium"
+          >
             Good video title without clickbait
           </h3>
           <div
-            class="flex flex-row gap-2 col text-gray-600 dark:text-gray-300 text-sm"
+            class="mt-1 flex flex-col text-sm text-muted-foreground"
           >
             <span>
               Username
             </span>
             <span>
-              5k
-            </span>
-            <span>
-              12h ago
+              5k · 12h ago
             </span>
           </div>
         </div>
       </div>
     </a>
     <a
-      href="/"
+      href="/watch/5"
     >
       <div
         class="relative aspect-(--ratio) w-full"
@@ -222,14 +218,14 @@ exports[`this component renders correctly 1`] = `
         style="--ratio: 1.7777777777777777;"
       >
         <img
-          alt="Video thumbnail"
-          class="rounded-md"
+          alt="Good video title without clickbait"
+          class="h-full w-full rounded-md object-cover"
           loading="lazy"
           src="https://picsum.photos/640/360"
         />
       </div>
       <div
-        class="flex flex-row gap-2"
+        class="flex min-w-0 flex-row gap-2"
       >
         <span
           class="group/avatar relative flex size-8 shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=lg]:size-10 data-[size=sm]:size-6 dark:after:mix-blend-lighten"
@@ -244,29 +240,28 @@ exports[`this component renders correctly 1`] = `
           </span>
         </span>
         <div
-          class="flex flex-col"
+          class="min-w-0"
         >
-          <h3>
+          <h3
+            class="line-clamp-2 font-medium"
+          >
             Good video title without clickbait
           </h3>
           <div
-            class="flex flex-row gap-2 col text-gray-600 dark:text-gray-300 text-sm"
+            class="mt-1 flex flex-col text-sm text-muted-foreground"
           >
             <span>
               Username
             </span>
             <span>
-              5k
-            </span>
-            <span>
-              12h ago
+              5k · 12h ago
             </span>
           </div>
         </div>
       </div>
     </a>
     <a
-      href="/"
+      href="/watch/6"
     >
       <div
         class="relative aspect-(--ratio) w-full"
@@ -274,14 +269,14 @@ exports[`this component renders correctly 1`] = `
         style="--ratio: 1.7777777777777777;"
       >
         <img
-          alt="Video thumbnail"
-          class="rounded-md"
+          alt="Good video title without clickbait"
+          class="h-full w-full rounded-md object-cover"
           loading="lazy"
           src="https://picsum.photos/640/360"
         />
       </div>
       <div
-        class="flex flex-row gap-2"
+        class="flex min-w-0 flex-row gap-2"
       >
         <span
           class="group/avatar relative flex size-8 shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=lg]:size-10 data-[size=sm]:size-6 dark:after:mix-blend-lighten"
@@ -296,29 +291,28 @@ exports[`this component renders correctly 1`] = `
           </span>
         </span>
         <div
-          class="flex flex-col"
+          class="min-w-0"
         >
-          <h3>
+          <h3
+            class="line-clamp-2 font-medium"
+          >
             Good video title without clickbait
           </h3>
           <div
-            class="flex flex-row gap-2 col text-gray-600 dark:text-gray-300 text-sm"
+            class="mt-1 flex flex-col text-sm text-muted-foreground"
           >
             <span>
               Username
             </span>
             <span>
-              5k
-            </span>
-            <span>
-              12h ago
+              5k · 12h ago
             </span>
           </div>
         </div>
       </div>
     </a>
     <a
-      href="/"
+      href="/watch/7"
     >
       <div
         class="relative aspect-(--ratio) w-full"
@@ -326,14 +320,14 @@ exports[`this component renders correctly 1`] = `
         style="--ratio: 1.7777777777777777;"
       >
         <img
-          alt="Video thumbnail"
-          class="rounded-md"
+          alt="Good video title without clickbait"
+          class="h-full w-full rounded-md object-cover"
           loading="lazy"
           src="https://picsum.photos/640/360"
         />
       </div>
       <div
-        class="flex flex-row gap-2"
+        class="flex min-w-0 flex-row gap-2"
       >
         <span
           class="group/avatar relative flex size-8 shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=lg]:size-10 data-[size=sm]:size-6 dark:after:mix-blend-lighten"
@@ -348,29 +342,28 @@ exports[`this component renders correctly 1`] = `
           </span>
         </span>
         <div
-          class="flex flex-col"
+          class="min-w-0"
         >
-          <h3>
+          <h3
+            class="line-clamp-2 font-medium"
+          >
             Good video title without clickbait
           </h3>
           <div
-            class="flex flex-row gap-2 col text-gray-600 dark:text-gray-300 text-sm"
+            class="mt-1 flex flex-col text-sm text-muted-foreground"
           >
             <span>
               Username
             </span>
             <span>
-              5k
-            </span>
-            <span>
-              12h ago
+              5k · 12h ago
             </span>
           </div>
         </div>
       </div>
     </a>
     <a
-      href="/"
+      href="/watch/8"
     >
       <div
         class="relative aspect-(--ratio) w-full"
@@ -378,14 +371,14 @@ exports[`this component renders correctly 1`] = `
         style="--ratio: 1.7777777777777777;"
       >
         <img
-          alt="Video thumbnail"
-          class="rounded-md"
+          alt="Good video title without clickbait"
+          class="h-full w-full rounded-md object-cover"
           loading="lazy"
           src="https://picsum.photos/640/360"
         />
       </div>
       <div
-        class="flex flex-row gap-2"
+        class="flex min-w-0 flex-row gap-2"
       >
         <span
           class="group/avatar relative flex size-8 shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=lg]:size-10 data-[size=sm]:size-6 dark:after:mix-blend-lighten"
@@ -400,22 +393,21 @@ exports[`this component renders correctly 1`] = `
           </span>
         </span>
         <div
-          class="flex flex-col"
+          class="min-w-0"
         >
-          <h3>
+          <h3
+            class="line-clamp-2 font-medium"
+          >
             Good video title without clickbait
           </h3>
           <div
-            class="flex flex-row gap-2 col text-gray-600 dark:text-gray-300 text-sm"
+            class="mt-1 flex flex-col text-sm text-muted-foreground"
           >
             <span>
               Username
             </span>
             <span>
-              5k
-            </span>
-            <span>
-              12h ago
+              5k · 12h ago
             </span>
           </div>
         </div>
