@@ -2,7 +2,10 @@ import { Link } from 'react-router';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
-export function VideoCard() {
+import type { components } from "@/api-schema.d.ts";
+type VideoInfoDTO = components["schemas"]["VideoInfoDTO"];
+
+export function VideoCard({video}: {video: VideoInfoDTO}) {
   return (
     <Link
       className="w-full sm:w-[40%] lg:w-[30%] xl:w-[24%] flex flex-col gap-2 p-2 rounded-md hover:bg-accent transition-colors"
@@ -17,9 +20,9 @@ export function VideoCard() {
           <AvatarFallback>US</AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
-          <h3>Good video title without clickbait</h3>
+          <h3>{video.title}</h3>
           <div className="flex flex-row gap-2 col text-gray-600 dark:text-gray-300 text-sm">
-            <span>Username</span>
+            <span>{video.author.displayName}</span>
             <span>5k</span>
             <span>12h ago</span>
           </div>

@@ -1,10 +1,13 @@
 import { VideoCard } from './VideoCard';
 
-export function VideoGrid() {
+import type { components } from "@/api-schema.d.ts";
+type VideoInfoDTO = components["schemas"]["VideoInfoDTO"];
+
+export function VideoGrid({ videos }: { videos: VideoInfoDTO[] }) {
   return (
     <div className="flex flex-row flex-wrap w-full gap-2 justify-center-safe">
-      {Array.from({ length: 8 }, (_, i) => (
-        <VideoCard />
+      {videos.map((video) => (
+        <VideoCard video={video} />
       ))}
     </div>
   );
