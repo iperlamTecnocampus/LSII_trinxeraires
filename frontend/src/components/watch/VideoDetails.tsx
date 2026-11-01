@@ -1,10 +1,6 @@
 import { useState } from 'react';
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
 import { formatCount } from './format';
@@ -20,30 +16,19 @@ export function VideoDetails({ video }: VideoDetailsProps) {
 
   return (
     <section className="mt-4">
-      <h1 className="text-xl font-semibold leading-tight">
-        {video.title}
-      </h1>
+      <h1 className="text-xl font-semibold leading-tight">{video.title}</h1>
 
       <div className="mt-4 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
-            <AvatarImage
-              src={video.channel.avatar}
-              alt={video.channel.name}
-            />
-            <AvatarFallback>
-              {video.channel.name.charAt(0)}
-            </AvatarFallback>
+            <AvatarImage src={video.channel.avatar} alt={video.channel.name} />
+            <AvatarFallback>{video.channel.name.charAt(0)}</AvatarFallback>
           </Avatar>
 
           <div className="min-w-0">
-            <p className="truncate font-semibold">
-              {video.channel.name}
-            </p>
+            <p className="truncate font-semibold">{video.channel.name}</p>
 
-            <p className="text-sm text-muted-foreground">
-              {formatCount(video.channel.subscribers)} subscribers
-            </p>
+            <p className="text-sm text-muted-foreground">{formatCount(video.channel.subscribers)} subscribers</p>
           </div>
 
           <Button
@@ -66,27 +51,15 @@ export function VideoDetails({ video }: VideoDetailsProps) {
             Like · {formatCount(video.likes + (isLiked ? 1 : 0))}
           </Button>
 
-          <Button
-            type="button"
-            variant="secondary"
-            className="rounded-full"
-          >
+          <Button type="button" variant="secondary" className="rounded-full">
             Share
           </Button>
 
-          <Button
-            type="button"
-            variant="secondary"
-            className="rounded-full"
-          >
+          <Button type="button" variant="secondary" className="rounded-full">
             Save
           </Button>
 
-          <Button
-            type="button"
-            variant="secondary"
-            className="rounded-full"
-          >
+          <Button type="button" variant="secondary" className="rounded-full">
             •••
           </Button>
         </div>

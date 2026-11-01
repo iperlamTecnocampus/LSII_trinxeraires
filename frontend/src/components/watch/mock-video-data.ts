@@ -1,8 +1,4 @@
-import type {
-  Comment,
-  RelatedVideo,
-  Video,
-} from './types';
+import type { Comment, RelatedVideo, Video } from './types';
 
 export const mockVideo: Video = {
   id: 'abc123',

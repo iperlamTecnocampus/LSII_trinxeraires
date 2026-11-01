@@ -9,9 +9,7 @@ interface VideoDescriptionProps {
   video: Video;
 }
 
-export function VideoDescription({
-  video,
-}: VideoDescriptionProps) {
+export function VideoDescription({ video }: VideoDescriptionProps) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -22,13 +20,7 @@ export function VideoDescription({
         <span>{video.uploadedAt}</span>
       </div>
 
-      <div
-        className={`mt-2 whitespace-pre-line text-sm ${
-          expanded ? '' : 'line-clamp-3'
-        }`}
-      >
-        {video.description}
-      </div>
+      <div className={`mt-2 whitespace-pre-line text-sm ${expanded ? '' : 'line-clamp-3'}`}>{video.description}</div>
 
       <Button
         type="button"

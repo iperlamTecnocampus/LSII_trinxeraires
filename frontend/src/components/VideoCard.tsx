@@ -1,10 +1,6 @@
 import { Link } from 'react-router';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface VideoCardProps {
   title?: string;
@@ -36,37 +32,20 @@ export function VideoCard({
       }
       to={to}
     >
-      <AspectRatio
-        ratio={16 / 9}
-        className={
-          variant === 'compact'
-            ? 'w-40 shrink-0'
-            : 'w-full'
-        }
-      >
-        <img
-          className="h-full w-full rounded-md object-cover"
-          src={thumbnail}
-          alt={title}
-          loading="lazy"
-        />
+      <AspectRatio ratio={16 / 9} className={variant === 'compact' ? 'w-40 shrink-0' : 'w-full'}>
+        <img className="h-full w-full rounded-md object-cover" src={thumbnail} alt={title} loading="lazy" />
       </AspectRatio>
 
       <div className="flex min-w-0 flex-row gap-2">
         {variant === 'grid' && (
           <Avatar>
-            <AvatarImage
-              src={avatar}
-              alt={channelName}
-            />
+            <AvatarImage src={avatar} alt={channelName} />
             <AvatarFallback>US</AvatarFallback>
           </Avatar>
         )}
 
         <div className="min-w-0">
-          <h3 className="line-clamp-2 font-medium">
-            {title}
-          </h3>
+          <h3 className="line-clamp-2 font-medium">{title}</h3>
 
           <div className="mt-1 flex flex-col text-sm text-muted-foreground">
             <span>{channelName}</span>
