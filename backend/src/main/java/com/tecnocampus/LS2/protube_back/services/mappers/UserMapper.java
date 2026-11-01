@@ -1,6 +1,7 @@
 package com.tecnocampus.LS2.protube_back.services.mappers;
 
 import com.tecnocampus.LS2.protube_back.model.User;
+import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateUserDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.UserDTO;
 import org.springframework.stereotype.Component;
 
@@ -48,5 +49,14 @@ public class UserMapper {
                 user.getSubscribers() != null ? (long) user.getSubscribers().size() : 0L,
                 Collections.emptyList()
         );
+    }
+
+    public User toEntity(CreateUserDTO dto) {
+        if (dto == null) return null;
+        User user = new User(dto.username(), dto.email());
+        user.setDisplayName(dto.displayName());
+        user.setDescription(dto.description());
+        user.setPictureFid(dto.pictureFid());
+        return user;
     }
 }

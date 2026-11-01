@@ -31,6 +31,7 @@ public class VideoMapper {
         if (video == null) return null;
 
         return new VideoInfoDTO(
+                video.getUuid(),
                 video.getVideoFid(),
                 video.getThumbnailFid(),
                 video.getTitle(),

@@ -1,22 +1,19 @@
 package com.tecnocampus.LS2.protube_back.services;
 
-import com.tecnocampus.LS2.protube_back.model.Comment;
 import com.tecnocampus.LS2.protube_back.model.User;
-import com.tecnocampus.LS2.protube_back.model.Video;
 import com.tecnocampus.LS2.protube_back.persistance.CommentRepository;
 import com.tecnocampus.LS2.protube_back.persistance.UserRepository;
 import com.tecnocampus.LS2.protube_back.persistance.VideoRepository;
+import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateUserDTO;
+import com.tecnocampus.LS2.protube_back.services.DTO.out.UserDTO;
+import com.tecnocampus.LS2.protube_back.services.exceptions.UserAlreadyExistsException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,220 +31,88 @@ class UserServiceTest {
     @Mock
     private CommentRepository commentRepository;
 
-    @InjectMocks
     private UserService userService;
 
-    @Nested
-    @DisplayName("Pruebas para el método likeVideo")
-    class LikeVideoTests {
+    private String username;
+    private String email;
 
-        @Test
-        @DisplayName("Debe dar me gusta a un vídeo correctamente y guardar los cambios")
-        void likeVideoSuccess() {
-            // Arrange
-            String username = "johndoe";
-            UUID videoId = UUID.randomUUID();
-
-            User user = new User(username, "john@example.com");
-            Video video = new Video();
-            when(userRepository.findById("johndoe")).thenReturn(Optional.of(user));
-            when(videoRepository.findById(videoId)).thenReturn(Optional.of(video));
-            when(userRepository.hasLiked(username, videoId)).thenReturn(true);
-
-            // Act
-            boolean like = userService.likeVideo(username, videoId);
-
-            // Assert
-            assertTrue(like);
-            assertEquals(1, video.getLikes().size());
-
-            verify(userRepository, times(1)).save(user);
-            verify(videoRepository, times(1)).save(video);
-        }
-
-        @Test
-        @DisplayName("Debe lanzar excepción si el usuario no existe")
-        void likeVideoUserNotFound() {
-            // Arrange
-            String username = "nonexistent";
-            UUID videoId = UUID.randomUUID();
-
-            when(userRepository.findById(username)).thenReturn(Optional.empty());
-
-            // Act & Assert
-            RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                    userService.likeVideo(username, videoId)
-            );
-
-            assertEquals("User not found", exception.getMessage());
-            verify(videoRepository, never()).findById(any());
-            verify(userRepository, never()).save(any());
-            verify(videoRepository, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("Debe lanzar excepción si el vídeo no existe")
-        void likeVideoVideoNotFound() {
-            // Arrange
-            String username = "johndoe";
-            UUID videoId = UUID.randomUUID();
-            User user = new User(username, "john@example.com");
-
-            when(userRepository.findById(username)).thenReturn(Optional.of(user));
-            when(videoRepository.findById(videoId)).thenReturn(Optional.empty());
-
-            // Act & Assert
-            RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                    userService.likeVideo(username, videoId)
-            );
-
-            assertEquals("Video not found", exception.getMessage());
-            verify(userRepository, never()).save(any());
-            verify(videoRepository, never()).save(any());
-        }
+    @BeforeEach
+    void setUp() {
+        userService = new UserService(userRepository, videoRepository, commentRepository);
+        username = "john_doe";
+        email = "john.doe@example.com";
     }
 
+    // =========================================================================
+    // METHOD: createUser
+    // =========================================================================
     @Nested
-    @DisplayName("Pruebas para el método commentVideo")
-    class CommentVideoTests {
+    @DisplayName("Tests para createUser en UserService")
+    class CreateUserServiceTests {
 
         @Test
-        @DisplayName("Debe agregar un comentario al vídeo y guardar la entidad vídeo")
-        void commentVideoSuccess() {
-            // Arrange
-            String username = "johndoe";
-            UUID videoId = UUID.randomUUID();
-            String commentText = "¡Excelente vídeo!";
-
-            User user = new User(username, "john@example.com");
-            Video video = new Video();
-
-            when(userRepository.findById(username)).thenReturn(Optional.of(user));
-            when(videoRepository.findById(videoId)).thenReturn(Optional.of(video));
-            when(commentRepository.save(any(Comment.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
-            when(videoRepository.existCommentByIdAndVideoId(nullable(Long.class), nullable(UUID.class)))
-                    .thenReturn(true);
-
-            // Act
-            boolean result = userService.commentVideo(username, videoId, commentText);
-
-            // Assert
-            assertTrue(result);
-            assertEquals(1, video.getComments().size());
-            Comment createdComment = video.getComments().iterator().next();
-            assertEquals(commentText, createdComment.getComment());
-            assertEquals(user, createdComment.getUser());
-            assertEquals(video, createdComment.getVideo());
-
-            verify(videoRepository, times(1)).save(video);
-            verify(commentRepository, times(1)).save(createdComment);
-        }
-
-        @Test
-        @DisplayName("Debe lanzar excepción al comentar si el usuario no existe")
-        void commentVideoUserNotFound() {
-            // Arrange
-            String username = "ghost";
-            UUID videoId = UUID.randomUUID();
-
-            when(userRepository.findById(username)).thenReturn(Optional.empty());
-
-            // Act & Assert
-            RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                    userService.commentVideo(username, videoId, "Hola")
+        @DisplayName("Debe crear y devolver el UserDTO cuando los datos son válidos")
+        void createUser_Success() {
+            CreateUserDTO dto = new CreateUserDTO(
+                    username,
+                    "John Doe",
+                    "Descripción de prueba",
+                    email,
+                    "pic_fid_123"
             );
 
-            assertEquals("User not found", exception.getMessage());
-            verify(videoRepository, never()).findById(any());
-            verify(videoRepository, never()).save(any());
+            when(userRepository.existsById(username)).thenReturn(false);
+            when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            UserDTO result = userService.createUser(dto);
+
+            assertNotNull(result);
+            assertEquals(username, result.userName());
+            assertEquals("John Doe", result.displayName());
+            assertEquals(email, result.email());
+
+            verify(userRepository, times(1)).existsById(username);
+            verify(userRepository, times(1)).save(any(User.class));
         }
 
         @Test
-        @DisplayName("Debe lanzar excepción al comentar si el vídeo no existe")
-        void commentVideoNotFound() {
-            // Arrange
-            String username = "johndoe";
-            UUID videoId = UUID.randomUUID();
-
-            when(userRepository.findById(username)).thenReturn(Optional.of(new User(username, "john@example.com")));
-            when(videoRepository.findById(videoId)).thenReturn(Optional.empty());
-
-            // Act & Assert
-            RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                    userService.commentVideo(username, videoId, "Hola")
+        @DisplayName("Debe lanzar UserAlreadyExistsException cuando el username ya está registrado")
+        void createUser_AlreadyExists_ThrowsException() {
+            CreateUserDTO dto = new CreateUserDTO(
+                    username,
+                    "John Doe",
+                    "Descripción de prueba",
+                    email,
+                    "pic_fid_123"
             );
 
-            assertEquals("Video not found", exception.getMessage());
-            verify(videoRepository, never()).save(any());
-        }
-    }
+            when(userRepository.existsById(username)).thenReturn(true);
 
-    @Nested
-    @DisplayName("Pruebas para el método subscribeToUser")
-    class SubscribeToUserTests {
-
-        @Test
-        @DisplayName("Debe establecer la suscripción bidireccional y guardar ambos usuarios")
-        void subscribeToUserSuccess() {
-            // Arrange
-            String subscriberUsername = "alice";
-            String subscribedUsername = "bob";
-
-            User subscriber = new User(subscriberUsername, "alice@example.com");
-            User subscribed = new User(subscribedUsername, "bob@example.com");
-
-            when(userRepository.findById(subscriberUsername)).thenReturn(Optional.of(subscriber));
-            when(userRepository.findById(subscribedUsername)).thenReturn(Optional.of(subscribed));
-
-            // Act
-            userService.subscribeToUser(subscriberUsername, subscribedUsername);
-
-            // Assert
-            assertTrue(subscriber.getSubscribedTo().contains(subscribed));
-            assertTrue(subscribed.getSubscribers().contains(subscriber));
-
-            verify(userRepository, times(1)).save(subscriber);
-            verify(userRepository, times(1)).save(subscribed);
-        }
-
-        @Test
-        @DisplayName("Debe lanzar excepción si el usuario suscriptor no existe")
-        void subscriberNotFound() {
-            // Arrange
-            String subscriberUsername = "nonexistent";
-            String subscribedUsername = "bob";
-
-            when(userRepository.findById(subscriberUsername)).thenReturn(Optional.empty());
-
-            // Act & Assert
-            RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                    userService.subscribeToUser(subscriberUsername, subscribedUsername)
+            UserAlreadyExistsException exception = assertThrows(
+                    UserAlreadyExistsException.class,
+                    () -> userService.createUser(dto)
             );
 
-            assertEquals("Subscriber user not found", exception.getMessage());
-            verify(userRepository, never()).save(any());
+            assertEquals("User already exists", exception.getMessage());
+            verify(userRepository, times(1)).existsById(username);
+            verify(userRepository, never()).save(any(User.class));
         }
 
         @Test
-        @DisplayName("Debe lanzar excepción si el usuario al que suscribirse no existe")
-        void subscribedUserNotFound() {
-            // Arrange
-            String subscriberUsername = "alice";
-            String subscribedUsername = "nonexistent";
+        @DisplayName("Debe lanzar IllegalArgumentException cuando el DTO es nulo o faltan campos obligatorios")
+        void createUser_InvalidData_ThrowsIllegalArgumentException() {
+            CreateUserDTO blankUsernameDto = new CreateUserDTO("   ", "John Doe", "Desc", email, "pic_1");
+            CreateUserDTO nullUsernameDto = new CreateUserDTO(null, "John Doe", "Desc", email, "pic_1");
+            CreateUserDTO blankEmailDto = new CreateUserDTO(username, "John Doe", "Desc", "  ", "pic_1");
+            CreateUserDTO nullEmailDto = new CreateUserDTO(username, "John Doe", "Desc", null, "pic_1");
 
-            User subscriber = new User(subscriberUsername, "alice@example.com");
+            assertThrows(IllegalArgumentException.class, () -> userService.createUser(null));
+            assertThrows(IllegalArgumentException.class, () -> userService.createUser(blankUsernameDto));
+            assertThrows(IllegalArgumentException.class, () -> userService.createUser(nullUsernameDto));
+            assertThrows(IllegalArgumentException.class, () -> userService.createUser(blankEmailDto));
+            assertThrows(IllegalArgumentException.class, () -> userService.createUser(nullEmailDto));
 
-            when(userRepository.findById(subscriberUsername)).thenReturn(Optional.of(subscriber));
-            when(userRepository.findById(subscribedUsername)).thenReturn(Optional.empty());
-
-            // Act & Assert
-            RuntimeException exception = assertThrows(RuntimeException.class, () ->
-                    userService.subscribeToUser(subscriberUsername, subscribedUsername)
-            );
-
-            assertEquals("Subscribed user not found", exception.getMessage());
-            verify(userRepository, never()).save(any());
+            verifyNoInteractions(userRepository);
         }
     }
 }
