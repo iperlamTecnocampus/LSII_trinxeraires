@@ -32,7 +32,7 @@ export function ProfileTabs({ profile, activity }: ProfileTabsProps) {
       </TabsList>
 
       <TabsContent value="videos" className="pt-6">
-        <VideoGrid />
+        <VideoGrid videos={[]}/>
       </TabsContent>
 
       <TabsContent value="about" className="pt-6">
