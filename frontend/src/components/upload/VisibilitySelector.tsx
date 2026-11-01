@@ -1,3 +1,6 @@
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
 type Visibility = 'public' | 'unlisted' | 'private';
 
 interface VisibilitySelectorProps {
@@ -36,29 +39,30 @@ export function VisibilitySelector({ value, onChange }: VisibilitySelectorProps)
         <p className="text-sm text-muted-foreground">Choose who can watch your video</p>
       </div>
 
-      <div className="flex flex-col gap-3">
-        {options.map((option) => (
-          <label
-            key={option.value}
-            className="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors hover:bg-muted/50"
-          >
-            <input
-              type="radio"
-              name="visibility"
-              value={option.value}
-              checked={value === option.value}
-              onChange={() => onChange(option.value)}
-              className="mt-1"
-            />
+      <RadioGroup
+        value={value}
+        onValueChange={(newValue) => onChange(newValue as Visibility)}
+        className="flex flex-col gap-3"
+      >
+        {options.map((option) => {
+          const id = `visibility-${option.value}`;
 
-            <div>
-              <p className="font-medium">{option.title}</p>
+          return (
+            <div
+              key={option.value}
+              className="flex items-start gap-3 rounded-lg border p-4 transition-colors hover:bg-muted/50"
+            >
+              <RadioGroupItem id={id} value={option.value} className="mt-1" />
 
-              <p className="text-sm text-muted-foreground">{option.description}</p>
+              <Label htmlFor={id} className="flex cursor-pointer flex-col items-start gap-1">
+                <span className="font-medium">{option.title}</span>
+
+                <span className="text-sm font-normal text-muted-foreground">{option.description}</span>
+              </Label>
             </div>
-          </label>
-        ))}
-      </div>
+          );
+        })}
+      </RadioGroup>
     </section>
   );
 }

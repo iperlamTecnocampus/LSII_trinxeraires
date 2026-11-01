@@ -1,5 +1,6 @@
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface VideoDetailsFormProps {
   title: string;
@@ -73,41 +74,53 @@ export function VideoDetailsForm({
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="video-category" className="mb-2 block text-sm font-medium">
-              Category
-            </label>
+            <label className="mb-2 block text-sm font-medium">Category</label>
 
-            <select
-              id="video-category"
+            <Select
               value={category}
-              onChange={(event) => onCategoryChange(event.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              onValueChange={(value) => {
+                if (value) {
+                  onCategoryChange(value);
+                }
+              }}
             >
-              {categories.map((item) => (
-                <option key={item} value={item} className="bg-background text-foreground">
-                  {item}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {categories.map((item) => (
+                  <SelectItem key={item} value={item}>
+                    {item}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
-            <label htmlFor="video-language" className="mb-2 block text-sm font-medium">
-              Language
-            </label>
+            <label className="mb-2 block text-sm font-medium">Language</label>
 
-            <select
-              id="video-language"
+            <Select
               value={language}
-              onChange={(event) => onLanguageChange(event.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              onValueChange={(value) => {
+                if (value) {
+                  onLanguageChange(value);
+                }
+              }}
             >
-              {languages.map((item) => (
-                <option key={item} value={item} className="bg-background text-foreground">
-                  {item}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select language" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {languages.map((item) => (
+                  <SelectItem key={item} value={item}>
+                    {item}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
