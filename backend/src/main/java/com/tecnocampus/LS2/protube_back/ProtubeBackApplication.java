@@ -6,7 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 @OpenAPIDefinition(
 		info = @Info(
-				title = "Video Platform REST API",
+				title = "Protube REST API",
 				version = "1.0",
 				description = "API documentation for managing videos, comments, likes, and user interactions."
 		)
