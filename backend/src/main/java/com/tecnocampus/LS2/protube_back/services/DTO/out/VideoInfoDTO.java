@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public record VideoInfoDTO(
@@ -18,7 +17,7 @@ public record VideoInfoDTO(
         LocalDateTime uploadedAt,
 
         VideoUserDTO author,
-        List<Long> categories,
+        List<CategoryDTO> categories,
         List<CommentDTO> comments,
         Long likes,
         Long views

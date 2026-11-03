@@ -3,14 +3,13 @@ package com.tecnocampus.LS2.protube_back.services.mappers;
 import com.tecnocampus.LS2.protube_back.model.Category;
 import com.tecnocampus.LS2.protube_back.model.User;
 import com.tecnocampus.LS2.protube_back.model.Video;
-import com.tecnocampus.LS2.protube_back.services.DTO.in.CategoryDTO;
+import com.tecnocampus.LS2.protube_back.services.DTO.out.CategoryDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateVideoDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoInfoDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoUserDTO;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 

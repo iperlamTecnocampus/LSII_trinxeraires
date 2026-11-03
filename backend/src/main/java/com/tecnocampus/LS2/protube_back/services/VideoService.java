@@ -1,15 +1,19 @@
 package com.tecnocampus.LS2.protube_back.services;
 
+import com.tecnocampus.LS2.protube_back.model.Category;
 import com.tecnocampus.LS2.protube_back.model.Comment;
 import com.tecnocampus.LS2.protube_back.model.User;
 import com.tecnocampus.LS2.protube_back.model.Video;
+import com.tecnocampus.LS2.protube_back.persistance.CategoryRepository;
 import com.tecnocampus.LS2.protube_back.persistance.CommentRepository;
 import com.tecnocampus.LS2.protube_back.persistance.UserRepository;
 import com.tecnocampus.LS2.protube_back.persistance.VideoRepository;
+import com.tecnocampus.LS2.protube_back.services.DTO.out.CategoryDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateVideoDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.EditVideoDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.CommentDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoInfoDTO;
+import com.tecnocampus.LS2.protube_back.services.exceptions.CategoryNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.exceptions.UserNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.exceptions.VideoNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.mappers.CategoryMapper;
@@ -18,8 +22,7 @@ import com.tecnocampus.LS2.protube_back.services.mappers.VideoMapper;
 import com.tecnocampus.LS2.protube_back.services.mappers.VideoUserMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class VideoService {
@@ -27,13 +30,16 @@ public class VideoService {
     private final VideoRepository videoRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final CategoryRepository categoryRepository;
 
     private final VideoMapper videoMapper;
     private final CommentMapper commentMapper;
-    public VideoService(VideoRepository videoRepository, UserRepository userRepository, CommentRepository conmmentRepository) {
+    public VideoService(VideoRepository videoRepository, UserRepository userRepository, CommentRepository commentRepository, CategoryRepository categoryRepository) {
         this.videoRepository = videoRepository;
         this.userRepository = userRepository;
-        this.commentRepository = conmmentRepository;
+        this.commentRepository = commentRepository;
+        this.categoryRepository = categoryRepository;
+
         VideoUserMapper videoUserMapper = new VideoUserMapper();
         commentMapper = new CommentMapper(videoUserMapper);
         CategoryMapper categoryMapper = new CategoryMapper();
@@ -56,6 +62,17 @@ public class VideoService {
 
     public VideoInfoDTO createVideo(CreateVideoDTO dto) {
         Video video = videoMapper.toEntity(dto);
+
+        Set<Category> categories = new HashSet<>();
+        List<String> categoryIds = dto.categories();
+        for (String cid : categoryIds) {
+            categories.add(this.categoryRepository.findById(cid)
+                    .orElseThrow(
+                            () -> new CategoryNotFoundException("Category " + cid + " doesn't exist.")
+                    ));
+        }
+        video.setCategories(categories);
+
         String authorName = dto.author() != null ? dto.author().userName() : null;
         User author = userRepository.findById(authorName != null ? authorName : "")
                 .orElseThrow(() -> new UserNotFoundException("Author not found"));
