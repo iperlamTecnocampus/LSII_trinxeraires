@@ -1,0 +1,10 @@
+services:
+  api:
+    image: protube-api
+    container_name: protube_api
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"

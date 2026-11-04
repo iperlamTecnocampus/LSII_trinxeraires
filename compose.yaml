@@ -14,5 +14,52 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  rustfs_perms:
+    image: alpine
+    user: root
+    volumes:
+      - ./rustfs/volumes:/fix_path
+    command: chown -R 10001:10001 /fix_path
+
+  rustfs:
+    image: rustfs/rustfs:latest
+    depends_on:
+      rustfs_perms:
+        condition: service_completed_successfully
+    volumes:
+      - ./rustfs/volumes/data:/data
+      - ./rustfs/volumes/logs:/var/log/rustfs/
+    environment:
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_CONSOLE_ADDRESS: ":9001"
+      RUSTFS_CONSOLE_ENABLE: "true"
+      RUSTFS_OBS_LOGGER_LEVEL: error
+      RUSTFS_OBS_LOG_DIRECTORY: /var/log/rustfs/
+      RUSTFS_ACCESS_KEY: admin
+      RUSTFS_SECRET_KEY: admin
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:9000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+      
+  rustfs-init:
+    image: rustfs/rc:latest
+    container_name: rc-test-rustfs-init
+    depends_on:
+      rustfs:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      until (/usr/bin/rc alias set rustfs http://rustfs:9000 admin admin) do echo '...waiting...' && sleep 1; done;
+      /usr/bin/rc mb rustfs/protube;
+      echo 'RustFS initialization complete';
+      tail -f /dev/null
+      "
+
 volumes:
   postgres_data:

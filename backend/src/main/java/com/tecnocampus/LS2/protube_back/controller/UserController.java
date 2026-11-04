@@ -1,6 +1,8 @@
 package com.tecnocampus.LS2.protube_back.controller;
 
 import com.tecnocampus.LS2.protube_back.services.UserService;
+import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateUserDTO;
+import com.tecnocampus.LS2.protube_back.services.DTO.out.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,16 +18,15 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/likeVideo")
-    public ResponseEntity<Boolean> likeVideo(@RequestParam String userName, @RequestParam UUID videoId) {
-        boolean liked = userService.likeVideo(userName, videoId);
-        return ResponseEntity.ok(liked);
+    @PostMapping("/")
+    @ResponseStatus(org.springframework.http.HttpStatus.CREATED)
+    public UserDTO createUser(@RequestBody CreateUserDTO dto) {
+        return userService.createUser(dto);
     }
 
-    @PostMapping("/commentVideo")
-    public ResponseEntity<Boolean> commentVideo(@RequestParam String userName, @RequestParam UUID videoId, @RequestBody String comment) {
-        boolean isCommented = userService.commentVideo(userName, videoId, comment);
-        return ResponseEntity.ok(isCommented);
+    @GetMapping("/{username}")
+    public UserDTO getUser(@PathVariable String username) {
+        return userService.getUser(username);
     }
 
     @PostMapping("/subscribe")

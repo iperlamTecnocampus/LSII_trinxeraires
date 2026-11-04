@@ -2,28 +2,49 @@ package com.tecnocampus.LS2.protube_back.model;
 
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CategoryTest {
 
     @Test
-    void constructorSetsIdAndNameAndInitializesVideos() throws Exception {
-        Category category = new Category(111l, "Music");
+    void constructorSetsIdAndNameAndInitializesVideos() {
+        Category category = new Category(111L, "Music");
 
-        assertEquals("music", fieldValue(category, "id"));
-        assertEquals("Music", fieldValue(category, "name"));
-        assertNotNull(fieldValue(category, "videos"));
-        assertTrue(((Set<?>) fieldValue(category, "videos")).isEmpty());
+        assertEquals(111L, category.getId());
+        assertEquals("Music", category.getName());
+        assertNotNull(category.getVideos());
+        assertTrue(category.getVideos().isEmpty());
     }
 
-    private Object fieldValue(Object target, String fieldName) throws Exception {
-        Field field = target.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        return field.get(target);
+    @Test
+    void defaultConstructorInitializesVideos() {
+        Category category = new Category();
+
+        assertNotNull(category.getVideos());
+        assertTrue(category.getVideos().isEmpty());
+    }
+
+    @Test
+    void settersAndVideoOperationsUpdateCategory() {
+        Category category = new Category();
+        Video firstVideo = new Video();
+        Video secondVideo = new Video();
+        Set<Video> videos = new HashSet<>(Set.of(firstVideo));
+
+        category.setName("Music");
+        category.setVideos(videos);
+        category.addVideo(secondVideo);
+        category.removeVideo(firstVideo);
+
+        assertEquals("Music", category.getName());
+        assertSame(videos, category.getVideos());
+        assertTrue(category.getVideos().contains(secondVideo));
+        assertEquals(Set.of(secondVideo), category.getVideos());
     }
 }
