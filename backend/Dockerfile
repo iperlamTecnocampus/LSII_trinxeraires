@@ -11,4 +11,4 @@ COPY ./backend/ ./backend/
 
 WORKDIR /app/backend
 
-ENTRYPOINT ["mvn", "spring-boot:run", "-f", "pom.xml", "-Pprod"]
+ENTRYPOINT ["mvn", "spring-boot:run", "-f", "pom.xml", "-Pprod", "-e"]
