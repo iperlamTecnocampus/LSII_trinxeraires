@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:16
@@ -60,6 +58,16 @@ services:
       echo 'RustFS initialization complete';
       tail -f /dev/null
       "
+      
+  web:
+    image: protube-api
+    container_name: protube_api
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
 
 volumes:
   postgres_data:

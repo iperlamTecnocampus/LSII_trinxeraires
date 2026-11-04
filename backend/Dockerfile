@@ -6,7 +6,8 @@ RUN apt-get install openjdk-21-jdk maven -y
 
 WORKDIR /app
 
-COPY . .
+COPY ./frontend/ ./frontend/
+COPY ./backend/ ./backend/
 
 WORKDIR /app/backend
 
