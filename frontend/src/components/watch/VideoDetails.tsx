@@ -2,17 +2,42 @@ import { useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import type { components } from '@/api-schema.d.ts';
+import { $api } from '@/lib/api';
 
 import { formatCount } from './format';
-import type { Video } from './types';
+
+type VideoInfoDTO = components['schemas']['VideoInfoDTO'];
 
 interface VideoDetailsProps {
-  video: Video;
+  video: VideoInfoDTO;
 }
 
 export function VideoDetails({ video }: VideoDetailsProps) {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+
+  const authorUsername = video.author?.userName;
+  const { data: authorData } = $api.useQuery(
+    'get',
+    '/api/users/{username}',
+    {
+      params: {
+        path: {
+          username: authorUsername ?? '',
+        },
+      },
+    },
+    {
+      enabled: Boolean(authorUsername),
+    }
+  );
+
+  const channelName = video.author?.displayName || video.author?.userName || 'Unknown Channel';
+  const avatarUrl = video.author?.pictureFid || 'https://picsum.photos/256';
+  const avatarFallback = channelName.charAt(0).toUpperCase();
+  const subscriberCount = authorData?.suscribers ?? 0;
+  const baseLikes = video.likes ?? 0;
 
   return (
     <section className="mt-4">
@@ -21,14 +46,14 @@ export function VideoDetails({ video }: VideoDetailsProps) {
       <div className="mt-4 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={video.channel.avatar} alt={video.channel.name} />
-            <AvatarFallback>{video.channel.name.charAt(0)}</AvatarFallback>
+            <AvatarImage src={avatarUrl} alt={channelName} />
+            <AvatarFallback>{avatarFallback}</AvatarFallback>
           </Avatar>
 
           <div className="min-w-0">
-            <p className="truncate font-semibold">{video.channel.name}</p>
+            <p className="truncate font-semibold">{channelName}</p>
 
-            <p className="text-sm text-muted-foreground">{formatCount(video.channel.subscribers)} subscribers</p>
+            <p className="text-sm text-muted-foreground">{formatCount(subscriberCount)} subscribers</p>
           </div>
 
           <Button
@@ -48,7 +73,7 @@ export function VideoDetails({ video }: VideoDetailsProps) {
             className="rounded-full"
             onClick={() => setIsLiked((value) => !value)}
           >
-            Like · {formatCount(video.likes + (isLiked ? 1 : 0))}
+            Like · {formatCount(baseLikes + (isLiked ? 1 : 0))}
           </Button>
 
           <Button type="button" variant="secondary" className="rounded-full">

@@ -45,7 +45,7 @@ POST {{baseUrl}}/categories/
 Content-Type: application/json
 
 {
-  "id": "sports",
+  "id": "sportse",
   "name": "Sports"
 }
 

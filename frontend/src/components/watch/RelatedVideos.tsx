@@ -1,13 +1,12 @@
 import { VideoCard } from '@/components/VideoCard';
 
-import { formatCount } from './format';
-import type { RelatedVideo } from './types';
 
-interface RelatedVideosProps {
-  videos: RelatedVideo[];
-}
+import type { components } from "@/api-schema.d.ts";
 
-export function RelatedVideos({ videos }: RelatedVideosProps) {
+type VideoInfoDTO = components["schemas"]["VideoInfoDTO"];
+
+
+export function RelatedVideos({ videos }: { videos: VideoInfoDTO[] }) {
   return (
     <aside>
       <h2 className="mb-3 text-lg font-semibold">Related videos</h2>
@@ -15,14 +14,7 @@ export function RelatedVideos({ videos }: RelatedVideosProps) {
       <div className="flex flex-col gap-1">
         {videos.map((video) => (
           <VideoCard
-            key={video.id}
-            variant="compact"
-            title={video.title}
-            channelName={video.channelName}
-            views={`${formatCount(video.views)} views`}
-            uploadedAt={video.uploadedAt}
-            thumbnail={video.thumbnail}
-            to={`/watch/${video.id}`}
+           video={video} 
           />
         ))}
       </div>
