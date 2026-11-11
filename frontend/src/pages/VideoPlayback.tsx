@@ -9,7 +9,7 @@ import { $api } from '../lib/api';
 export function VideoPlayback() {
   const { videoId } = useParams<{ videoId: string }>();
 
-  const { data: video, error, isLoading } = $api.useQuery(
+  const { data: video, error, isLoading, refetch } = $api.useQuery(
     'get',
     '/api/videos/{id}',
     {
@@ -65,7 +65,14 @@ export function VideoPlayback() {
 
           <VideoDescription video={video} />
 
-          <CommentsSection comments={comments} commentCount={comments.length} />
+          <CommentsSection
+            comments={comments}
+            commentCount={comments.length}
+            videoId={videoId}
+            onCommentAdded={() => {
+              refetch();
+            }}
+          />
         </main>
 
         <div className="min-w-0">
