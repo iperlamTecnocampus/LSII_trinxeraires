@@ -1,4 +1,7 @@
 import os
+from pathlib import Path
+import shutil
+import tempfile
 from uuid import uuid4
 from collections.abc import Iterator
 
@@ -6,6 +9,8 @@ import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
+
+from hls import package_mp4
 
 router = APIRouter()
 
@@ -81,17 +86,87 @@ def post_video(file: UploadFile = File(...)) -> dict[str, str]:
         raise HTTPException(status_code=415, detail="Uploaded file must be an MP4 video")
 
     fid = uuid4().hex
+    uploaded_keys: list[str] = []
     try:
-        s3_client.put_object(
-            Bucket="protube",
-            Key=fid,
-            Body=file.file,
-            ContentType="video/mp4",
-        )
+        with tempfile.TemporaryDirectory(prefix="protube-upload-") as temp_dir:
+            temp_path = Path(temp_dir)
+            source_path = temp_path / "source.mp4"
+            output_dir = temp_path / "hls"
 
-    except (ClientError, BotoCoreError) as exc:
+            with source_path.open("wb") as source_file:
+                shutil.copyfileobj(file.file, source_file, length=64 * 1024)
+
+            playlist_path = package_mp4(source_path, output_dir)
+
+            with source_path.open("rb") as source_file:
+                s3_client.put_object(
+                    Bucket="protube",
+                    Key=fid,
+                    Body=source_file,
+                    ContentType="video/mp4",
+                )
+            uploaded_keys.append(fid)
+
+            # Store the segments before the manifest so a published playlist
+            # never points at objects that have not finished uploading.
+            package_files = sorted(
+                path
+                for path in output_dir.iterdir()
+                if path.is_file() and path != playlist_path
+            )
+            for path in package_files:
+                key = f"hls/{fid}/{path.name}"
+                content_type = (
+                    "video/mp4"
+                    if path.name == "init.mp4"
+                    else "video/iso.segment"
+                )
+                with path.open("rb") as segment_file:
+                    s3_client.put_object(
+                        Bucket="protube",
+                        Key=key,
+                        Body=segment_file,
+                        ContentType=content_type,
+                    )
+                uploaded_keys.append(key)
+
+            playlist_key = f"hls/{fid}/index.m3u8"
+            with playlist_path.open("rb") as playlist_file:
+                s3_client.put_object(
+                    Bucket="protube",
+                    Key=playlist_key,
+                    Body=playlist_file,
+                    ContentType="application/vnd.apple.mpegurl",
+                )
+            uploaded_keys.append(playlist_key)
+
+    except FileNotFoundError as exc:
+        _delete_uploaded_objects(uploaded_keys)
         raise HTTPException(
-            status_code=502, detail="Unable to store video"
+            status_code=503, detail="FFmpeg is required to prepare HLS video"
+        ) from exc
+    except RuntimeError as exc:
+        _delete_uploaded_objects(uploaded_keys)
+        raise HTTPException(
+            status_code=422, detail=f"Unable to package video for HLS: {exc}"
+        ) from exc
+    except (ClientError, BotoCoreError) as exc:
+        _delete_uploaded_objects(uploaded_keys)
+        raise HTTPException(
+            status_code=502, detail="Unable to store video and HLS segments"
         ) from exc
 
     return {"fid": fid}
+
+
+def _delete_uploaded_objects(keys: list[str]) -> None:
+    if not keys:
+        return
+
+    try:
+        s3_client.delete_objects(
+            Bucket="protube",
+            Delete={"Objects": [{"Key": key} for key in keys], "Quiet": True},
+        )
+    except (ClientError, BotoCoreError):
+        pass
