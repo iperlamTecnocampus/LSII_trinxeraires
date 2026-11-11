@@ -14,7 +14,9 @@ export function RelatedVideos({ videos }: { videos: VideoInfoDTO[] }) {
       <div className="flex flex-col gap-1">
         {videos.map((video) => (
           <VideoCard
-           video={video} 
+            key={video.videoId}
+            video={video}
+            variant="compact"
           />
         ))}
       </div>
