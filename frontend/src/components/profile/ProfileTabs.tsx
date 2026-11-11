@@ -4,10 +4,14 @@ import { VideoGrid } from '@/components/VideoGrid';
 import { ProfileAbout } from './ProfileAbout';
 import { ProfileActivityList } from './ProfileActivityList';
 
-import type { ProfileActivity, UserProfile } from './types';
+import { components } from '@/api-schema';
+
+type UserDTO = components['schemas']['UserDTO'];
+// Deixem un any o tipus bàsic per l'activitat fins que facis l'endpoint al backend
+type ProfileActivity = any;
 
 interface ProfileTabsProps {
-  profile: UserProfile;
+  profile: UserDTO;
   activity: ProfileActivity[];
 }
 
@@ -32,7 +36,8 @@ export function ProfileTabs({ profile, activity }: ProfileTabsProps) {
       </TabsList>
 
       <TabsContent value="videos" className="pt-6">
-        <VideoGrid videos={[]}/>
+        {/* Ara passem els vídeos reals de l'usuari */}
+        <VideoGrid videos={profile.video || []} />
       </TabsContent>
 
       <TabsContent value="about" className="pt-6">
