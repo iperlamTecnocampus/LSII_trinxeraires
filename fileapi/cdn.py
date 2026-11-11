@@ -25,7 +25,7 @@ s3_client = boto3.client(
 
 
 @router.get("/thumbnails/{fid}")
-def get_thumbnail(fid: str) -> StreamingResponse:
+async def get_thumbnail(fid: str) -> StreamingResponse:
     try:
         result = s3_client.get_object(Bucket="protube", Key=f"{fid}")
 
@@ -56,7 +56,7 @@ def get_thumbnail(fid: str) -> StreamingResponse:
 
 
 @router.post("/thumbnails", status_code=201)
-def post_thumbnail(file: UploadFile = File(...)) -> dict[str, str]:
+async def post_thumbnail(file: UploadFile = File(...)) -> dict[str, str]:
     header = file.file.read(12)
     file.file.seek(0)
     if len(header) < 12 or header[:4] != b"RIFF" or header[8:12] != b"WEBP":
@@ -79,7 +79,7 @@ def post_thumbnail(file: UploadFile = File(...)) -> dict[str, str]:
     return {"fid": fid}
 
 @router.post("/videos", status_code=201)
-def post_video(file: UploadFile = File(...)) -> dict[str, str]:
+async def post_video(file: UploadFile = File(...)) -> dict[str, str]:
     header = file.file.read(12)
     file.file.seek(0)
     if len(header) < 12 or header[4:8] != b"ftyp":

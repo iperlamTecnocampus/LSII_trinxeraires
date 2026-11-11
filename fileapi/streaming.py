@@ -66,7 +66,7 @@ def _parse_range(range_header: str, size: int) -> tuple[int, int]:
 
 @router.get("/hls/{fid}.m3u8", response_class=Response)
 @router.get("/stream/{fid}", response_class=Response)
-def get_playlist(fid: str) -> Response:
+async def get_playlist(fid: str) -> Response:
     """Return the pre-packaged HLS playlist for an uploaded video."""
     _validate_fid(fid)
     try:
@@ -109,7 +109,7 @@ def get_playlist(fid: str) -> Response:
 
 @router.get("/hls/{fid}/segments/{segment_name}")
 @router.get("/stream/{fid}/segments/{segment_name}")
-def get_hls_segment(fid: str, segment_name: str) -> StreamingResponse:
+async def get_hls_segment(fid: str, segment_name: str) -> StreamingResponse:
     """Stream one stored HLS initialization or media segment from S3."""
     _validate_fid(fid)
     if segment_name != "init.mp4" and not re.fullmatch(
@@ -156,7 +156,7 @@ def _validate_fid(fid: str) -> None:
 
 
 @router.get("/hls/{fid}.mp4")
-def get_video(fid: str, range_header: str | None = Header(default=None, alias="Range")) -> StreamingResponse:
+async def get_video(fid: str, range_header: str | None = Header(default=None, alias="Range")) -> StreamingResponse:
     size = _object_size(fid)
     status_code = 200
     request_range = None
