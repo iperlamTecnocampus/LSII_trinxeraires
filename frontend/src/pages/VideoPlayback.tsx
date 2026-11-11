@@ -9,7 +9,12 @@ import { $api } from '../lib/api';
 export function VideoPlayback() {
   const { videoId } = useParams<{ videoId: string }>();
 
-  const { data: video, error, isLoading, refetch } = $api.useQuery(
+  const {
+    data: video,
+    error,
+    isLoading,
+    refetch,
+  } = $api.useQuery(
     'get',
     '/api/videos/{id}',
     {
@@ -56,10 +61,7 @@ export function VideoPlayback() {
     <div className="mx-auto w-full max-w-[1600px] px-4 py-6">
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_400px]">
         <main className="min-w-0">
-          <VideoPlayer
-            poster={video.thumbnailFid || 'https://picsum.photos/640/360'}
-            title={video.title ?? ''}
-          />
+          <VideoPlayer poster={video.thumbnailFid || 'https://picsum.photos/640/360'} title={video.title ?? ''} />
 
           <VideoDetails video={video} />
 

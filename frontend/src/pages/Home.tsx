@@ -5,10 +5,7 @@ import { CategoryList } from '../components/CategoryList';
 import { $api } from '../lib/api';
 
 export function Home() {
-  const { data, error, isLoading } = $api.useQuery(
-    "get",
-    "/api/videos/"
-  );
+  const { data, error, isLoading } = $api.useQuery('get', '/api/videos/');
 
   if (error) return `An error occured: ${error.message}`;
 

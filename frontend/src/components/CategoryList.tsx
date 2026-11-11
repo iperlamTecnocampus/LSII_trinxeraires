@@ -14,22 +14,18 @@ function CategoryBadge({ children, url }: { children: ReactNode; url: string }) 
 }
 
 export function CategoryList() {
-
-  const { data, error, isLoading } = $api.useQuery(
-    "get",
-    "/api/categories/"
-  );
+  const { data, error, isLoading } = $api.useQuery('get', '/api/categories/');
 
   if (error) return `An error occured: ${error.message}`;
 
   if (isLoading) {
     return;
   }
-  
+
   return (
     <div className="flex flex-row gap-2 w-full scroll-fade-e overflow-x-auto scrollbar-none">
       {data.map((category) => (
-        <CategoryBadge url={"/category/" + category.id}>{category.name}</CategoryBadge>
+        <CategoryBadge url={'/category/' + category.id}>{category.name}</CategoryBadge>
       ))}
     </div>
   );

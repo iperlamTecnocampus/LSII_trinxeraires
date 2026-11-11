@@ -1,7 +1,7 @@
 import { VideoCard } from './VideoCard';
 
-import type { components } from "@/api-schema.d.ts";
-type VideoInfoDTO = components["schemas"]["VideoInfoDTO"];
+import type { components } from '@/api-schema.d.ts';
+type VideoInfoDTO = components['schemas']['VideoInfoDTO'];
 
 export function VideoGrid({ videos }: { videos: VideoInfoDTO[] }) {
   return (

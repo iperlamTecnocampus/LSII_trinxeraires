@@ -1,10 +1,8 @@
 import { VideoCard } from '@/components/VideoCard';
 
+import type { components } from '@/api-schema.d.ts';
 
-import type { components } from "@/api-schema.d.ts";
-
-type VideoInfoDTO = components["schemas"]["VideoInfoDTO"];
-
+type VideoInfoDTO = components['schemas']['VideoInfoDTO'];
 
 export function RelatedVideos({ videos }: { videos: VideoInfoDTO[] }) {
   return (
@@ -13,11 +11,7 @@ export function RelatedVideos({ videos }: { videos: VideoInfoDTO[] }) {
 
       <div className="flex flex-col gap-1">
         {videos.map((video) => (
-          <VideoCard
-            key={video.videoId}
-            video={video}
-            variant="compact"
-          />
+          <VideoCard key={video.videoId} video={video} variant="compact" />
         ))}
       </div>
     </aside>
