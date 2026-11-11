@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   db:
     image: postgres:16
@@ -7,10 +9,6 @@ services:
       POSTGRES_USER: ${ENV_PROTUBE_DB_USER}
       POSTGRES_PASSWORD: ${ENV_PROTUBE_DB_PASS}
       POSTGRES_DB: ${ENV_PROTUBE_DB}
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U protube -d protube"]
-      interval: 5s
-      retries: 10
     ports:
       - "5432:5432"
     volumes:
@@ -24,7 +22,7 @@ services:
     command: chown -R 10001:10001 /fix_path
 
   rustfs:
-    image: rustfs/rustfs:latest
+    image: rustfs/rustfs:1.0.4
     depends_on:
       rustfs_perms:
         condition: service_completed_successfully
@@ -48,7 +46,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-      
+
   rustfs-init:
     image: rustfs/rc:latest
     container_name: rc-test-rustfs-init
@@ -62,25 +60,6 @@ services:
       echo 'RustFS initialization complete';
       tail -f /dev/null
       "
-      
-  web:
-    image: protube-api
-    container_name: protube_api
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      ENV_PROTUBE_DB_USER: ${ENV_PROTUBE_DB_USER}
-      ENV_PROTUBE_DB_PASS: ${ENV_PROTUBE_DB_PASS}
-      ENV_PROTUBE_DB: ${ENV_PROTUBE_DB}
-      ENV_PROTUBE_DB_HOST: db
-    
 
 volumes:
   postgres_data:
