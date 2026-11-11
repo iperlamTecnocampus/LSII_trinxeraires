@@ -24,7 +24,7 @@ services:
     command: chown -R 10001:10001 /fix_path
 
   rustfs:
-    image: rustfs/rustfs:latest
+    image: rustfs/rustfs:1.0.4
     depends_on:
       rustfs_perms:
         condition: service_completed_successfully
@@ -48,7 +48,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-      
+
   rustfs-init:
     image: rustfs/rc:latest
     container_name: rc-test-rustfs-init
@@ -62,7 +62,6 @@ services:
       echo 'RustFS initialization complete';
       tail -f /dev/null
       "
-      
   web:
     image: protube-api
     container_name: protube_api
@@ -80,7 +79,6 @@ services:
       ENV_PROTUBE_DB_PASS: ${ENV_PROTUBE_DB_PASS}
       ENV_PROTUBE_DB: ${ENV_PROTUBE_DB}
       ENV_PROTUBE_DB_HOST: db
-    
 
 volumes:
   postgres_data:
