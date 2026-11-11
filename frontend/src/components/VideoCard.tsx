@@ -21,8 +21,8 @@ export interface VideoCardProps {
 
 export function VideoCard({
   video,
-  title = video?.title,
-  channelName = video?.author?.displayName || video?.author?.userName,
+  title = video?.title ?? 'Good video title without clickbait',
+  channelName = video?.author?.displayName || video?.author?.userName || 'Username',
   views = video?.views !== undefined ? `${formatCount(video.views)} views` : '5k',
   uploadedAt = video?.uploadedAt ? timeAgo(video.uploadedAt) : '12h ago',
   thumbnail = video?.thumbnailFid || 'https://picsum.photos/640/360',
