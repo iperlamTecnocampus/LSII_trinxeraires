@@ -1,8 +1,14 @@
 import { Link } from 'react-router';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { timeAgo } from '../utils/format';
+import { formatCount } from './watch/format';
 
-interface VideoCardProps {
+import type { components } from '@/api-schema.d.ts';
+type VideoInfoDTO = components['schemas']['VideoInfoDTO'];
+
+export interface VideoCardProps {
+  video?: VideoInfoDTO;
   title?: string;
   channelName?: string;
   views?: string;
@@ -14,13 +20,14 @@ interface VideoCardProps {
 }
 
 export function VideoCard({
-  title = 'Good video title without clickbait',
-  channelName = 'Username',
-  views = '5k',
-  uploadedAt = '12h ago',
-  thumbnail = 'https://picsum.photos/640/360',
-  avatar = 'https://picsum.photos/256',
-  to = '/',
+  video,
+  title = video?.title ?? 'Good video title without clickbait',
+  channelName = video?.author?.displayName || video?.author?.userName || 'Username',
+  views = video?.views !== undefined ? `${formatCount(video.views)} views` : '5k',
+  uploadedAt = video?.uploadedAt ? timeAgo(video.uploadedAt) : '12h ago',
+  thumbnail = video?.thumbnailFid || 'https://picsum.photos/640/360',
+  avatar = video?.author?.pictureFid || 'https://picsum.photos/256',
+  to = video?.videoId ? `/watch/${video.videoId}` : '/',
   variant = 'grid',
 }: VideoCardProps) {
   return (

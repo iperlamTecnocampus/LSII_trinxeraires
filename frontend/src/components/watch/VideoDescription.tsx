@@ -1,12 +1,14 @@
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-
 import { formatCount } from './format';
-import type { Video } from './types';
+import { timeAgo } from '@/utils/format';
+import type { components } from '@/api-schema.d.ts';
+
+type VideoInfoDTO = components['schemas']['VideoInfoDTO'];
 
 interface VideoDescriptionProps {
-  video: Video;
+  video: VideoInfoDTO;
 }
 
 export function VideoDescription({ video }: VideoDescriptionProps) {
@@ -15,9 +17,9 @@ export function VideoDescription({ video }: VideoDescriptionProps) {
   return (
     <section className="mt-4 rounded-xl bg-muted p-4">
       <div className="flex flex-wrap gap-2 text-sm font-semibold">
-        <span>{formatCount(video.views)} views</span>
+        <span>{formatCount(video.views ?? 0)} views</span>
         <span>•</span>
-        <span>{video.uploadedAt}</span>
+        <span>{video.uploadedAt ? timeAgo(video.uploadedAt) : ''}</span>
       </div>
 
       <div className={`mt-2 whitespace-pre-line text-sm ${expanded ? '' : 'line-clamp-3'}`}>{video.description}</div>

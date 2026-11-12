@@ -1,18 +1,27 @@
-import type { ProfileActivity } from './types';
 import { formatDate } from './format';
+
+// Re-definim el tipus d'activitat temporalment fins que existeixi al backend
+export interface ProfileActivity {
+  id: string;
+  text: string;
+  date: string;
+}
 
 interface ProfileActivityListProps {
   items: ProfileActivity[];
 }
 
 export function ProfileActivityList({ items }: ProfileActivityListProps) {
-  if (items.length === 0) {
+  // Si items és undefined, ho fallbackejem a array buit
+  const safeItems = items || [];
+
+  if (safeItems.length === 0) {
     return <p className="py-16 text-center text-muted-foreground">No recent activity.</p>;
   }
 
   return (
     <div className="space-y-4">
-      {items.map((item) => (
+      {safeItems.map((item) => (
         <div key={item.id} className="rounded-xl border bg-card p-4">
           <p className="text-sm font-medium">{item.text}</p>
 

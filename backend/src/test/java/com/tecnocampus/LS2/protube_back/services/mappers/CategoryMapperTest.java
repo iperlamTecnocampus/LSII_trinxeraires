@@ -1,7 +1,7 @@
 package com.tecnocampus.LS2.protube_back.services.mappers;
 
 import com.tecnocampus.LS2.protube_back.model.Category;
-import com.tecnocampus.LS2.protube_back.services.DTO.in.CategoryDTO;
+import com.tecnocampus.LS2.protube_back.services.DTO.out.CategoryDTO;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
