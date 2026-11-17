@@ -70,11 +70,13 @@ class UserControllerTest {
                     "John Doe",
                     "Descripción de prueba",
                     "john.doe@example.com",
-                    "pic_fid_123"
+                    "pic_fid_123",
+                    "banner_fid_456"
             );
 
             UserDTO expectedUser = new UserDTO(
                     "pic_fid_123",
+                    "banner_fid_456", // <-- AFEGIT: Nou paràmetre bannerFid
                     username,
                     "John Doe",
                     "Descripción de prueba",
@@ -107,7 +109,8 @@ class UserControllerTest {
                     "John Doe",
                     "Descripción de prueba",
                     "john.doe@example.com",
-                    "pic_fid_123"
+                    "pic_fid_123",
+                    "banner_fid_456"
             );
 
             when(userService.createUser(any(CreateUserDTO.class)))
@@ -129,7 +132,8 @@ class UserControllerTest {
                     "John Doe",
                     "Descripción",
                     "",
-                    "pic_fid_123"
+                    "pic_fid_123",
+                    "banner_fid_456"
             );
 
             when(userService.createUser(any(CreateUserDTO.class)))
