@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes } from 'react-router';
 
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
+import { LoginPage } from './pages/LoginPage';
 import { Profile } from './pages/Profile';
 import { UploadPage } from './pages/UploadPage';
 import { VideoPlayback } from './pages/VideoPlayback';
@@ -13,20 +14,40 @@ import { VideoStudioPage } from './pages/VideoStudioPage';
 function App() {
   return (
     <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route index element={<Home />} />
-          <Route path="/about" element={<Home />} />
-          {/* RUTA 1: El teu perfil. Quan l'usuari vagi a /profile, simulem que està loguejat com a "ana" */}
-          <Route path="/profile" element={<Profile username="ana" />} />
+      <Routes>
+        {/* Login without Header or Sidebar */}
+        <Route path="/login" element={<LoginPage />} />
 
-          {/* RUTA 2: El perfil d'un altre. Quan vagi a /profile/altre_usuari, llegirà la URL */}
-          <Route path="/profile/:username" element={<Profile />} />
-          <Route path="/upload" element={<UploadPage />} />
-          <Route path="/studio" element={<VideoStudioPage />} />
-          <Route path="/watch/:videoId" element={<VideoPlayback />} />
-        </Routes>
-      </Layout>
+        {/* Main application */}
+        <Route
+          path="/*"
+          element={
+            <Layout>
+              <Routes>
+                <Route index element={<Home />} />
+                <Route path="/about" element={<Home />} />
+
+                <Route
+                  path="/profile"
+                  element={<Profile username="ana" />}
+                />
+
+                <Route
+                  path="/profile/:username"
+                  element={<Profile />}
+                />
+
+                <Route path="/upload" element={<UploadPage />} />
+                <Route path="/studio" element={<VideoStudioPage />} />
+                <Route
+                  path="/watch/:videoId"
+                  element={<VideoPlayback />}
+                />
+              </Routes>
+            </Layout>
+          }
+        />
+      </Routes>
     </BrowserRouter>
   );
 }
