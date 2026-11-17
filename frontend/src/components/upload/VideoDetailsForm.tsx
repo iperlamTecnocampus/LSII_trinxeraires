@@ -6,6 +6,9 @@ interface VideoDetailsFormProps {
   title: string;
   description: string;
   category: string;
+  categories: { id: string; name: string }[];
+  categoriesLoading: boolean;
+  categoriesError: string | null;
   language: string;
   onTitleChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
@@ -13,14 +16,16 @@ interface VideoDetailsFormProps {
   onLanguageChange: (value: string) => void;
 }
 
-const categories = ['Technology', 'Education', 'Entertainment', 'Gaming', 'Music', 'Sports', 'Other'];
-
 const languages = ['English', 'Spanish', 'Catalan', 'French'];
+const NO_CATEGORY_VALUE = '__no_category__';
 
 export function VideoDetailsForm({
   title,
   description,
   category,
+  categories,
+  categoriesLoading,
+  categoriesError,
   language,
   onTitleChange,
   onDescriptionChange,
@@ -73,25 +78,34 @@ export function VideoDetailsForm({
             <label className="mb-2 block text-sm font-medium">Category</label>
 
             <Select
-              value={category}
+              value={category || NO_CATEGORY_VALUE}
+              disabled={categoriesLoading || categories.length === 0}
               onValueChange={(value) => {
                 if (value) {
-                  onCategoryChange(value);
+                  onCategoryChange(value === NO_CATEGORY_VALUE ? '' : value);
                 }
               }}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select category" />
+                <SelectValue placeholder="None">
+                  {(value: string | null) =>
+                    value === NO_CATEGORY_VALUE
+                      ? 'None'
+                      : (categories.find((item) => item.id === value)?.name ?? 'None')
+                  }
+                </SelectValue>
               </SelectTrigger>
 
               <SelectContent>
+                <SelectItem value={NO_CATEGORY_VALUE}>None</SelectItem>
                 {categories.map((item) => (
-                  <SelectItem key={item} value={item}>
-                    {item}
+                  <SelectItem key={item.id} value={item.id}>
+                    {item.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {categoriesError && <p className="mt-1 text-xs text-destructive">Could not load categories.</p>}
           </div>
 
           <div>
@@ -119,7 +133,6 @@ export function VideoDetailsForm({
             </Select>
           </div>
         </div>
-
       </div>
     </section>
   );

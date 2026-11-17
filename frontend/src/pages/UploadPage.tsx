@@ -45,6 +45,14 @@ async function uploadFile(endpoint: 'videos' | 'thumbnails', file: File): Promis
 export function UploadPage() {
   const navigate = useNavigate();
   const createVideoMutation = $api.useMutation('post', '/api/videos/');
+  const {
+    data: categoryData,
+    isLoading: categoriesLoading,
+    error: categoriesError,
+  } = $api.useQuery('get', '/api/categories/');
+  const categories = (categoryData ?? [])
+    .map((item) => ({ id: String(item.id ?? ''), name: item.name ?? '' }))
+    .filter((item) => item.id && item.name);
   const [file, setFile] = useState<File | null>(null);
   const [videoFid, setVideoFid] = useState<string | null>(null);
   const [videoUploading, setVideoUploading] = useState(false);
@@ -57,7 +65,7 @@ export function UploadPage() {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Technology');
+  const [category, setCategory] = useState('');
   const [language, setLanguage] = useState('English');
 
   const [visibility, setVisibility] = useState<'public' | 'unlisted' | 'private'>('public');
@@ -142,7 +150,7 @@ export function UploadPage() {
           title: title.trim(),
           description,
           author: { userName: 'ana' },
-          categories: [],
+          categories: category ? [category] : [],
           videoFid,
           thumbnailFid,
         } as any,
@@ -175,7 +183,7 @@ export function UploadPage() {
     setUploadError(null);
     setTitle('');
     setDescription('');
-    setCategory('Technology');
+    setCategory('');
     setLanguage('English');
     setVisibility('public');
     setPublishReady(false);
@@ -214,6 +222,9 @@ export function UploadPage() {
               title={title}
               description={description}
               category={category}
+              categories={categories}
+              categoriesLoading={categoriesLoading}
+              categoriesError={categoriesError?.message ?? null}
               language={language}
               onTitleChange={(value) => {
                 setTitle(value);
