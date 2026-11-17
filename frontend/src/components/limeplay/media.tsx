@@ -1,38 +1,31 @@
-import { useComposedRefs } from "@radix-ui/react-compose-refs"
-import * as React from "react"
+import { useComposedRefs } from '@radix-ui/react-compose-refs';
+import * as React from 'react';
 
-import { useMediaStore } from "@/hooks/limeplay/use-media"
-import { usePlaybackStore } from "@/hooks/limeplay/use-playback"
+import { useMediaStore } from '@/hooks/limeplay/use-media';
+import { usePlaybackStore } from '@/hooks/limeplay/use-playback';
 
 export type MediaProps =
-  | (React.AudioHTMLAttributes<HTMLAudioElement> & { as: "audio" })
+  | (React.AudioHTMLAttributes<HTMLAudioElement> & { as: 'audio' })
   | (React.VideoHTMLAttributes<HTMLVideoElement> & {
       /**
        * Type of Media Element to Render
        *
        * @default video
        */
-      as?: "video"
-    })
+      as?: 'video';
+    });
 
-export type MediaPropsDocs = Pick<MediaProps, "as">
+export type MediaPropsDocs = Pick<MediaProps, 'as'>;
 
-export const Media = React.forwardRef<HTMLMediaElement, MediaProps>(
-  (props, forwardedRef) => {
-    const { as: Element = "video", ...etc } = props
-    const setMediaElement = useMediaStore((state) => state.setMediaElement)
-    const status = usePlaybackStore((state) => state.status)
-    const composedRef = useComposedRefs(forwardedRef, setMediaElement)
+export const Media = React.forwardRef<HTMLMediaElement, MediaProps>((props, forwardedRef) => {
+  const { as: Element = 'video', ...etc } = props;
+  const setMediaElement = useMediaStore((state) => state.setMediaElement);
+  const status = usePlaybackStore((state) => state.status);
+  const composedRef = useComposedRefs(forwardedRef, setMediaElement);
 
-    return (
-      <Element
-        aria-busy={status === "buffering" || status === "loading"}
-        controls={false}
-        {...etc}
-        ref={composedRef}
-      />
-    )
-  }
-)
+  return (
+    <Element aria-busy={status === 'buffering' || status === 'loading'} controls={false} {...etc} ref={composedRef} />
+  );
+});
 
-Media.displayName = "Media"
+Media.displayName = 'Media';

@@ -145,7 +145,7 @@ export function UploadPage() {
     setUploadError(null);
 
     try {
-      const { data, error } = await createVideoMutation.mutateAsync({
+      const { error } = await createVideoMutation.mutateAsync({
         body: {
           title: title.trim(),
           description,
@@ -153,7 +153,7 @@ export function UploadPage() {
           categories: category ? [category] : [],
           videoFid,
           thumbnailFid,
-        } as any,
+        },
       });
 
       if (error) {
@@ -162,9 +162,7 @@ export function UploadPage() {
       }
 
       setPublishReady(true);
-      if (data?.videoId) {
-        navigate(`/watch/${data.videoId}`);
-      }
+      navigate('/studio');
     } catch (error) {
       setPublishReady(false);
       setUploadError(error instanceof Error ? error.message : 'Please try again.');

@@ -1,55 +1,41 @@
-import React from "react"
+import React from 'react';
 
-import type {
-  MediaEventSlice,
-  MediaFeature,
-} from "@/components/limeplay/media-provider"
+import type { MediaEventSlice, MediaFeature } from '@/components/limeplay/media-provider';
 
-import { useMediaStore } from "@/hooks/limeplay/use-media"
-import { noop, off, on } from "@/lib/utils"
-import {
-  useMediaEvents,
-  useMediaFeatureApi,
-  useMediaFeatureStore,
-} from "@/components/limeplay/media-provider"
+import { useMediaStore } from '@/hooks/limeplay/use-media';
+import { noop, off, on } from '@/lib/utils';
+import { useMediaEvents, useMediaFeatureApi, useMediaFeatureStore } from '@/components/limeplay/media-provider';
 
-export const PICTURE_IN_PICTURE_FEATURE_KEY = "pictureInPicture"
+export const PICTURE_IN_PICTURE_FEATURE_KEY = 'pictureInPicture';
 
 export interface PictureInPictureAvailabilityOptions {
-  mediaElement: HTMLMediaElement | null
-  supported: boolean
+  mediaElement: HTMLMediaElement | null;
+  supported: boolean;
 }
 
 export interface PictureInPictureEvents {
-  enterpictureinpicture: void
-  leavepictureinpicture: void
+  enterpictureinpicture: void;
+  leavepictureinpicture: void;
 }
 
 export interface PictureInPictureStore extends MediaEventSlice<PictureInPictureEvents> {
   [PICTURE_IN_PICTURE_FEATURE_KEY]: {
-    active: boolean
-    enter: () => Promise<void>
-    exit: () => Promise<void>
-    supported: boolean
-    toggle: () => Promise<void>
-  }
+    active: boolean;
+    enter: () => Promise<void>;
+    exit: () => Promise<void>;
+    supported: boolean;
+    toggle: () => Promise<void>;
+  };
 }
 
 interface ExtendedHTMLVideoElement extends HTMLVideoElement {
-  webkitPresentationMode?: string
-  webkitSetPresentationMode?: (mode: string) => void
-  webkitSupportsPresentationMode?: (mode: string) => boolean
+  webkitPresentationMode?: string;
+  webkitSetPresentationMode?: (mode: string) => void;
+  webkitSupportsPresentationMode?: (mode: string) => boolean;
 }
 
-export function canUsePictureInPicture({
-  mediaElement,
-  supported,
-}: PictureInPictureAvailabilityOptions): boolean {
-  return (
-    supported &&
-    isPictureInPictureVideoElement(mediaElement) &&
-    !mediaElement.disablePictureInPicture
-  )
+export function canUsePictureInPicture({ mediaElement, supported }: PictureInPictureAvailabilityOptions): boolean {
+  return supported && isPictureInPictureVideoElement(mediaElement) && !mediaElement.disablePictureInPicture;
 }
 
 export function pictureInPictureFeature(): MediaFeature<PictureInPictureStore> {
@@ -58,154 +44,138 @@ export function pictureInPictureFeature(): MediaFeature<PictureInPictureStore> {
       [PICTURE_IN_PICTURE_FEATURE_KEY]: {
         active: false,
         enter: async () => {
-          const media = get().media
-            .mediaElement as ExtendedHTMLVideoElement | null
-          if (!isPictureInPictureVideoElement(media)) return
-          if (media.disablePictureInPicture) return
+          const media = get().media.mediaElement as ExtendedHTMLVideoElement | null;
+          if (!isPictureInPictureVideoElement(media)) return;
+          if (media.disablePictureInPicture) return;
 
           try {
             if (isWebkitPictureInPictureSupported(media)) {
-              media.webkitSetPresentationMode!("picture-in-picture")
+              media.webkitSetPresentationMode!('picture-in-picture');
             } else {
-              await media.requestPictureInPicture()
+              await media.requestPictureInPicture();
             }
           } catch (error) {
-            console.error("Failed to enter Picture-in-Picture mode:", error)
+            console.error('Failed to enter Picture-in-Picture mode:', error);
           }
         },
         exit: async () => {
-          const media = get().media
-            .mediaElement as ExtendedHTMLVideoElement | null
-          if (!media) return
+          const media = get().media.mediaElement as ExtendedHTMLVideoElement | null;
+          if (!media) return;
 
           try {
             if (isWebkitPictureInPictureSupported(media)) {
-              media.webkitSetPresentationMode!("inline")
+              media.webkitSetPresentationMode!('inline');
             } else if (document.pictureInPictureElement) {
-              await document.exitPictureInPicture()
+              await document.exitPictureInPicture();
             }
           } catch (error) {
-            console.error("Failed to exit Picture-in-Picture mode:", error)
+            console.error('Failed to exit Picture-in-Picture mode:', error);
           }
         },
         supported: false,
         toggle: async () => {
-          const pip = get().pictureInPicture
+          const pip = get().pictureInPicture;
           if (pip.active) {
-            await pip.exit()
+            await pip.exit();
           } else {
-            await pip.enter()
+            await pip.enter();
           }
         },
       },
     }),
     key: PICTURE_IN_PICTURE_FEATURE_KEY,
     Setup: PictureInPictureSetup,
-  }
+  };
 }
 
 export function usePictureInPictureStore<TSelected>(
-  selector: (state: PictureInPictureStore["pictureInPicture"]) => TSelected
+  selector: (state: PictureInPictureStore['pictureInPicture']) => TSelected
 ): TSelected {
-  return useMediaFeatureStore<PictureInPictureStore, TSelected>(
-    PICTURE_IN_PICTURE_FEATURE_KEY,
-    (state) => selector(state.pictureInPicture)
-  )
+  return useMediaFeatureStore<PictureInPictureStore, TSelected>(PICTURE_IN_PICTURE_FEATURE_KEY, (state) =>
+    selector(state.pictureInPicture)
+  );
 }
 
 function hasVideoTrack(media: HTMLVideoElement): boolean {
-  return media.videoWidth > 0 && media.videoHeight > 0
+  return media.videoWidth > 0 && media.videoHeight > 0;
 }
 
 function isPictureInPictureVideoElement(
   mediaElement: HTMLMediaElement | null
 ): mediaElement is ExtendedHTMLVideoElement {
-  return mediaElement?.nodeName.toLowerCase() === "video"
+  return mediaElement?.nodeName.toLowerCase() === 'video';
 }
 
-function isWebkitPictureInPictureSupported(
-  media: ExtendedHTMLVideoElement
-): boolean {
+function isWebkitPictureInPictureSupported(media: ExtendedHTMLVideoElement): boolean {
   return (
-    typeof media.webkitSupportsPresentationMode === "function" &&
-    media.webkitSupportsPresentationMode("picture-in-picture") &&
-    typeof media.webkitSetPresentationMode === "function"
-  )
+    typeof media.webkitSupportsPresentationMode === 'function' &&
+    media.webkitSupportsPresentationMode('picture-in-picture') &&
+    typeof media.webkitSetPresentationMode === 'function'
+  );
 }
 
 function PictureInPictureSetup() {
-  const store = useMediaFeatureApi<PictureInPictureStore>(
-    PICTURE_IN_PICTURE_FEATURE_KEY
-  )
-  const events = useMediaEvents<PictureInPictureEvents>()
-  const mediaElement = useMediaStore((state) => state.mediaElement)
+  const store = useMediaFeatureApi<PictureInPictureStore>(PICTURE_IN_PICTURE_FEATURE_KEY);
+  const events = useMediaEvents<PictureInPictureEvents>();
+  const mediaElement = useMediaStore((state) => state.mediaElement);
 
   React.useEffect(() => {
-    const media = mediaElement as ExtendedHTMLVideoElement | null
-    if (!isPictureInPictureVideoElement(media)) return noop
+    const media = mediaElement as ExtendedHTMLVideoElement | null;
+    if (!isPictureInPictureVideoElement(media)) return noop;
 
     const updatePictureInPictureSupport = () => {
-      const browserSupports =
-        document.pictureInPictureEnabled ||
-        isWebkitPictureInPictureSupported(media)
+      const browserSupports = document.pictureInPictureEnabled || isWebkitPictureInPictureSupported(media);
 
       store.setState(({ pictureInPicture }) => {
-        pictureInPicture.supported =
-          browserSupports &&
-          !media.disablePictureInPicture &&
-          hasVideoTrack(media)
-      })
-    }
+        pictureInPicture.supported = browserSupports && !media.disablePictureInPicture && hasVideoTrack(media);
+      });
+    };
 
-    updatePictureInPictureSupport()
+    updatePictureInPictureSupport();
 
     const enterPictureInPictureHandler = () => {
       store.setState(({ pictureInPicture }) => {
-        pictureInPicture.active = true
-      })
-      events.emit("enterpictureinpicture")
-    }
+        pictureInPicture.active = true;
+      });
+      events.emit('enterpictureinpicture');
+    };
 
     const leavePictureInPictureHandler = () => {
       store.setState(({ pictureInPicture }) => {
-        pictureInPicture.active = false
-      })
-      events.emit("leavepictureinpicture")
-    }
+        pictureInPicture.active = false;
+      });
+      events.emit('leavepictureinpicture');
+    };
 
     const webkitPresentationModeHandler = () => {
-      const isActive = media.webkitPresentationMode === "picture-in-picture"
+      const isActive = media.webkitPresentationMode === 'picture-in-picture';
       if (isActive) {
-        enterPictureInPictureHandler()
+        enterPictureInPictureHandler();
       } else {
-        leavePictureInPictureHandler()
+        leavePictureInPictureHandler();
       }
-    }
+    };
 
-    on(media, "enterpictureinpicture", enterPictureInPictureHandler)
-    on(media, "leavepictureinpicture", leavePictureInPictureHandler)
-    on(media, "loadedmetadata", updatePictureInPictureSupport)
-    on(media, "emptied", updatePictureInPictureSupport)
+    on(media, 'enterpictureinpicture', enterPictureInPictureHandler);
+    on(media, 'leavepictureinpicture', leavePictureInPictureHandler);
+    on(media, 'loadedmetadata', updatePictureInPictureSupport);
+    on(media, 'emptied', updatePictureInPictureSupport);
 
     if (isWebkitPictureInPictureSupported(media)) {
-      on(media, "webkitpresentationmodechanged", webkitPresentationModeHandler)
+      on(media, 'webkitpresentationmodechanged', webkitPresentationModeHandler);
     }
 
     return () => {
-      off(media, "enterpictureinpicture", enterPictureInPictureHandler)
-      off(media, "leavepictureinpicture", leavePictureInPictureHandler)
-      off(media, "loadedmetadata", updatePictureInPictureSupport)
-      off(media, "emptied", updatePictureInPictureSupport)
+      off(media, 'enterpictureinpicture', enterPictureInPictureHandler);
+      off(media, 'leavepictureinpicture', leavePictureInPictureHandler);
+      off(media, 'loadedmetadata', updatePictureInPictureSupport);
+      off(media, 'emptied', updatePictureInPictureSupport);
 
       if (isWebkitPictureInPictureSupported(media)) {
-        off(
-          media,
-          "webkitpresentationmodechanged",
-          webkitPresentationModeHandler
-        )
+        off(media, 'webkitpresentationmodechanged', webkitPresentationModeHandler);
       }
-    }
-  }, [mediaElement, store])
+    };
+  }, [mediaElement, store]);
 
-  return null
+  return null;
 }

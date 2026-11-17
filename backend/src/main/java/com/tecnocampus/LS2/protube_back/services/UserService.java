@@ -1,14 +1,11 @@
 package com.tecnocampus.LS2.protube_back.services;
 
-import com.tecnocampus.LS2.protube_back.model.Comment;
 import com.tecnocampus.LS2.protube_back.model.User;
-import com.tecnocampus.LS2.protube_back.model.Video;
-import com.tecnocampus.LS2.protube_back.persistance.CommentRepository;
-import com.tecnocampus.LS2.protube_back.persistance.UserRepository;
-import com.tecnocampus.LS2.protube_back.persistance.VideoRepository;
+import com.tecnocampus.LS2.protube_back.persistence.CommentRepository;
+import com.tecnocampus.LS2.protube_back.persistence.UserRepository;
+import com.tecnocampus.LS2.protube_back.persistence.VideoRepository;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.EditUserDTO;
 import com.tecnocampus.LS2.protube_back.services.exceptions.UserNotFoundException;
-import com.tecnocampus.LS2.protube_back.services.exceptions.VideoNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateUserDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.UserDTO;
 import com.tecnocampus.LS2.protube_back.services.exceptions.UserAlreadyExistsException;
@@ -18,8 +15,7 @@ import com.tecnocampus.LS2.protube_back.services.mappers.VideoUserMapper;
 import com.tecnocampus.LS2.protube_back.services.mappers.CommentMapper;
 import com.tecnocampus.LS2.protube_back.services.mappers.CategoryMapper;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
@@ -47,9 +43,12 @@ public class UserService {
         return userMapper.toDTOBasic(saved);
     }
 
+    @Transactional(readOnly = true)
     public UserDTO getUser(String username) {
         User user = userRepository.findById(username).orElseThrow(() -> new UserNotFoundException("User not found"));
-        return userMapper.toDTOBasic(user);
+        return userMapper.toDTO(user,
+                videoRepository.findByAuthorUsername(username),
+                userRepository.findSubscriptionsByUsername(username));
     }
     
     //suscribe to a user

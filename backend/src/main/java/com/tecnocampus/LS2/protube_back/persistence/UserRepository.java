@@ -1,10 +1,11 @@
-package com.tecnocampus.LS2.protube_back.persistance;
+package com.tecnocampus.LS2.protube_back.persistence;
 
 import com.tecnocampus.LS2.protube_back.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -15,4 +16,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Query("select count(u) > 0 from User u join u.subscribedTo s where u.username = :subscriber and s.username = :subscribed")
     boolean isSubscribed(@Param("subscriber") String subscriber, @Param("subscribed") String subscribed);
+
+    @Query("select channel from User u join u.subscribedTo channel where u.username = :username")
+    List<User> findSubscriptionsByUsername(@Param("username") String username);
 }

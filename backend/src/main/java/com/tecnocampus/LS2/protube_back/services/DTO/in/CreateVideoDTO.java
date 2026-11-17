@@ -1,5 +1,6 @@
 package com.tecnocampus.LS2.protube_back.services.DTO.in;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.CategoryDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoUserDTO;
 
@@ -10,8 +11,8 @@ public record CreateVideoDTO(
         String description,
         VideoUserDTO author,
         List<String> categories,
-        String videoFid,
-        String thumbnailFid
+        @JsonProperty("videoFid") String videoFid,
+        @JsonProperty("thumbnailFid") String thumbnailFid
 ) {
     public CreateVideoDTO(String title, String description, VideoUserDTO author, List<String> categories) {
         this(title, description, author, categories, null, null);

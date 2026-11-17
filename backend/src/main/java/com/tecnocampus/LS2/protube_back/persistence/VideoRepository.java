@@ -1,4 +1,4 @@
-package com.tecnocampus.LS2.protube_back.persistance;
+package com.tecnocampus.LS2.protube_back.persistence;
 
 import com.tecnocampus.LS2.protube_back.model.Video;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +15,6 @@ public interface VideoRepository extends JpaRepository<Video, UUID> {
 
     @Query("select v from Video v where lower(v.title) like lower(concat('%', :videoName, '%'))")
     List<Video> findVideoByname(@Param("videoName") String name);
+
+    List<Video> findByAuthorUsername(String username);
 }

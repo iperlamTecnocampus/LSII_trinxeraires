@@ -74,8 +74,21 @@ public class UserController {
         return ResponseEntity.ok(isSub);
     }
 
+    @Operation(
+            summary = "Edit user profile",
+            description = "Updates an existing user's profile information, such as display name, description, profile picture, and banner image. Note that the username itself cannot be modified."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User profile successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Unsupported operation (e.g., attempting to change the username)", content = @Content),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
+    })
     @PutMapping("/{username}")
-    public UserDTO editUserProfile(@PathVariable String username, @RequestBody EditUserDTO dto) {
+    public UserDTO editUserProfile(
+            @Parameter(description = "Unique username of the user to be updated", example = "johndoe", required = true)
+            @PathVariable String username,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Updated user profile details", required = true)
+            @RequestBody EditUserDTO dto) {
         return userService.editUserProfile(username, dto);
     }
 }
