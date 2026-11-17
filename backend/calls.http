@@ -40,6 +40,24 @@ Content-Type: application/json
 ### 1.4 Consultar usuario irvin
 GET {{baseUrl}}/users/irvin
 
+### Crear categoria sports
+POST {{baseUrl}}/categories/
+Content-Type: application/json
+
+{
+  "id": "sportse",
+  "name": "Sports"
+}
+
+### Crear categoria gaming
+POST {{baseUrl}}/categories/
+Content-Type: application/json
+
+{
+  "id": "gaming",
+  "name": "Gaming"
+}
+
 ### 2.1.1 Crear vídeo (autor irvin)
 POST {{baseUrl}}/videos/
 Content-Type: application/json
@@ -50,7 +68,7 @@ Content-Type: application/json
   "author": {
     "userName": "irvin"
   },
-  "categories": []
+  "categories": ["gaming"]
 }
 
 
