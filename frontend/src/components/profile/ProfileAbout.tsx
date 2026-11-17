@@ -1,40 +1,29 @@
 import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  AtIcon,
-  Calendar03Icon,
-  Globe02Icon,
-  Location01Icon,
-  PlayIcon,
-  ThumbsUpIcon,
-  UserGroupIcon,
-  Video01Icon,
-} from '@hugeicons/core-free-icons';
+import { AtIcon, Calendar03Icon, PlayIcon, ThumbsUpIcon, UserGroupIcon, Video01Icon } from '@hugeicons/core-free-icons';
 
 import { formatCount, formatDate } from './format';
-import type { UserProfile } from './types';
+import { components } from '@/api-schema';
+
+type UserDTO = components['schemas']['UserDTO'];
 
 interface ProfileAboutProps {
-  profile: UserProfile;
+  profile: UserDTO;
 }
 
 export function ProfileAbout({ profile }: ProfileAboutProps) {
+  // Calculem les estadístiques basant-nos en els vídeos de l'usuari (si en té)
+  const totalViews = profile.video?.reduce((acc, vid) => acc + (vid.views || 0), 0) || 0;
+  const totalLikes = profile.video?.reduce((acc, vid) => acc + (vid.likes || 0), 0) || 0;
+  const videoCount = profile.video?.length || 0;
+
   const details = [
     {
       icon: AtIcon,
-      label: `@${profile.username}`,
+      label: `@${profile.userName}`,
     },
-    {
+    profile.joinDate && {
       icon: Calendar03Icon,
-      label: `Joined ${formatDate(profile.joinedAt)}`,
-    },
-    profile.location && {
-      icon: Location01Icon,
-      label: profile.location,
-    },
-    profile.website && {
-      icon: Globe02Icon,
-      label: profile.website,
-      href: `https://${profile.website}`,
+      label: `Joined ${formatDate(profile.joinDate)}`,
     },
   ].filter(Boolean) as {
     icon: typeof AtIcon;
@@ -46,22 +35,22 @@ export function ProfileAbout({ profile }: ProfileAboutProps) {
     {
       icon: UserGroupIcon,
       label: 'Subscribers',
-      value: profile.subscribers,
+      value: profile.suscribers || 0,
     },
     {
       icon: PlayIcon,
       label: 'Total views',
-      value: profile.totalViews,
+      value: totalViews,
     },
     {
       icon: Video01Icon,
       label: 'Videos',
-      value: profile.videoCount,
+      value: videoCount,
     },
     {
       icon: ThumbsUpIcon,
       label: 'Likes received',
-      value: profile.likesReceived,
+      value: totalLikes,
     },
   ];
 
@@ -71,7 +60,10 @@ export function ProfileAbout({ profile }: ProfileAboutProps) {
         <section>
           <h2 className="mb-3 text-lg font-bold">Description</h2>
 
-          <p className="max-w-prose leading-relaxed text-muted-foreground">{profile.longDescription}</p>
+          {/* Mostrem la descripció del backend, o un missatge per defecte */}
+          <p className="max-w-prose leading-relaxed text-muted-foreground">
+            {profile.description || 'Aquest usuari encara no ha escrit cap descripció.'}
+          </p>
         </section>
 
         <section>

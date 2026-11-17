@@ -10,7 +10,7 @@ import java.util.Set;
 public class Category {
 
     @Id
-    private Long id;
+    private String id;
 
     @Column(nullable = false, unique = true)
     private String name;
@@ -18,7 +18,7 @@ public class Category {
     @ManyToMany(mappedBy = "categories")
     private Set<Video> videos = new HashSet<>();
 
-    public Category(Long id, String name) {
+    public Category(String id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -35,7 +35,7 @@ public class Category {
         this.name = name;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import shutil
 import tempfile
+from io import BytesIO
 from uuid import uuid4
 from collections.abc import Iterator
 
@@ -9,6 +10,7 @@ import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
+from PIL import Image, ImageOps, UnidentifiedImageError
 
 from hls import package_mp4
 
@@ -56,18 +58,24 @@ async def get_thumbnail(fid: str) -> StreamingResponse:
 
 
 @router.post("/thumbnails", status_code=201)
-async def post_thumbnail(file: UploadFile = File(...)) -> dict[str, str]:
-    header = file.file.read(12)
-    file.file.seek(0)
-    if len(header) < 12 or header[:4] != b"RIFF" or header[8:12] != b"WEBP":
-        raise HTTPException(status_code=415, detail="Uploaded file must be a WebP image")
+def post_thumbnail(file: UploadFile = File(...)) -> dict[str, str]:
+    webp = BytesIO()
+    try:
+        with Image.open(file.file) as source:
+            image = ImageOps.exif_transpose(source)
+            has_alpha = "A" in image.getbands() or "transparency" in image.info
+            image.convert("RGBA" if has_alpha else "RGB").save(webp, format="WEBP")
+    except (Image.DecompressionBombError, UnidentifiedImageError, OSError, ValueError) as exc:
+        raise HTTPException(status_code=415, detail="Uploaded file must be a valid image") from exc
+
+    webp.seek(0)
 
     fid = uuid4().hex
     try:
         s3_client.put_object(
             Bucket="protube",
             Key=fid,
-            Body=file.file,
+            Body=webp,
             ContentType="image/webp",
         )
 

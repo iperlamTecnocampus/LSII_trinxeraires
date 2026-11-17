@@ -16,7 +16,11 @@ function App() {
         <Routes>
           <Route index element={<Home />} />
           <Route path="/about" element={<Home />} />
-          <Route path="/profile" element={<Profile />} />
+          {/* RUTA 1: El teu perfil. Quan l'usuari vagi a /profile, simulem que està loguejat com a "ana" */}
+          <Route path="/profile" element={<Profile username="ana" />} />
+
+          {/* RUTA 2: El perfil d'un altre. Quan vagi a /profile/altre_usuari, llegirà la URL */}
+          <Route path="/profile/:username" element={<Profile />} />
           <Route path="/upload" element={<UploadPage />} />
           <Route path="/watch/:videoId" element={<VideoPlayback />} />
         </Routes>

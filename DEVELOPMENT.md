@@ -96,9 +96,12 @@ npm run dev
   ```
   VITE_API_DOMAIN=http://localhost:8080
   VITE_MEDIA_DOMAIN=http://localhost:8080
+  VITE_FILE_API_DOMAIN=http://localhost:8000
   ```
   and are read through `src/utils/Env.ts` (`API_BASE_URL = ${VITE_API_DOMAIN}/api`,
-  `MEDIA_BASE_URL = ${VITE_MEDIA_DOMAIN}/media`). To override locally without touching the committed file, create
+  `MEDIA_BASE_URL = ${VITE_MEDIA_DOMAIN}/media`, `FILE_API_BASE_URL = ${VITE_FILE_API_DOMAIN}`). The file API
+  allows the Vite dev origin by default; set its `CORS_ORIGINS` variable for other frontend origins. Thumbnail
+  uploads may use any supported image format; the file API converts them to WebP before storing. To override locally without touching the committed file, create
   `frontend/.env.development.local`.
 
 ## 4. Tests, lint and formatting

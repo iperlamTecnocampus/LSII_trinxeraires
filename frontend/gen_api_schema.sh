@@ -1,0 +1,1 @@
+npx openapi-typescript http://localhost:8080/v3/api-docs -o ./src/api-schema.d.ts

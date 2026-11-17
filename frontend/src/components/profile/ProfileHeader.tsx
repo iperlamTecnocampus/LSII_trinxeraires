@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/button';
 
 import { ProfileStats } from './ProfileStats';
 import { formatDate } from './format';
-import type { UserProfile } from './types';
 
 import { useNavigate } from 'react-router';
+import { components } from '@/api-schema';
+
+type UserDTO = components['schemas']['UserDTO'];
 
 interface ProfileHeaderProps {
-  profile: UserProfile;
+  profile: UserDTO;
   onEdit: () => void;
 }
 
@@ -21,33 +23,43 @@ export function ProfileHeader({ profile, onEdit }: ProfileHeaderProps) {
   return (
     <header>
       <div className="relative aspect-[3/1] w-full overflow-hidden rounded-2xl bg-muted sm:aspect-[4/1]">
-        <img src={profile.banner} alt="" className="h-full w-full object-cover" />
-
+        {/* Assumint que el backend no té banner per ara, hi deixem un fons genèric o gradient */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-muted to-primary/10" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/70 to-transparent" />
       </div>
 
       <div className="relative -mt-12 flex flex-col gap-5 px-2 sm:-mt-16 sm:px-6 md:flex-row md:items-end">
         <Avatar className="size-24 shrink-0 ring-4 ring-background sm:size-36">
-          <AvatarImage src={profile.avatar} alt={profile.name} className="object-cover" />
+          {/* Assegura't de concatenar la teva URL base d'imatges aquí si el pictureFid només és un ID */}
+          <AvatarImage
+            src={`/api/files/${profile.pictureFid}`}
+            alt={profile.displayName || profile.userName}
+            className="object-cover"
+          />
 
-          <AvatarFallback>{profile.name.slice(0, 2)}</AvatarFallback>
+          <AvatarFallback>{(profile.displayName || profile.userName)?.slice(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
 
         <div className="flex min-w-0 flex-1 flex-col gap-2 md:pb-2">
-          <h1 className="text-2xl font-extrabold tracking-tight sm:text-4xl">{profile.name}</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight sm:text-4xl">
+            {profile.displayName || profile.userName}
+          </h1>
 
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">@{profile.username}</span>
+            <span className="font-medium text-foreground">@{profile.userName}</span>
 
-            <span className="flex items-center gap-1">
-              <HugeiconsIcon icon={Calendar03Icon} size={14} />
-              Joined {formatDate(profile.joinedAt)}
-            </span>
+            {profile.joinDate && (
+              <span className="flex items-center gap-1">
+                <HugeiconsIcon icon={Calendar03Icon} size={14} />
+                Joined {formatDate(profile.joinDate)}
+              </span>
+            )}
           </div>
 
-          <ProfileStats profile={profile} />
+          {/* Caldrà que adaptis ProfileStats per usar UserDTO també si hi té props */}
+          <ProfileStats profile={profile as any} />
 
-          <p className="max-w-2xl text-sm text-muted-foreground">{profile.description}</p>
+          {profile.description && <p className="max-w-2xl text-sm text-muted-foreground">{profile.description}</p>}
         </div>
 
         <div className="flex flex-col gap-2 md:flex-row md:pb-3">
