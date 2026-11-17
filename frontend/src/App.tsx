@@ -27,22 +27,13 @@ function App() {
                 <Route index element={<Home />} />
                 <Route path="/about" element={<Home />} />
 
-                <Route
-                  path="/profile"
-                  element={<Profile username="ana" />}
-                />
+                <Route path="/profile" element={<Profile username="ana" />} />
 
-                <Route
-                  path="/profile/:username"
-                  element={<Profile />}
-                />
+                <Route path="/profile/:username" element={<Profile />} />
 
                 <Route path="/upload" element={<UploadPage />} />
                 <Route path="/studio" element={<VideoStudioPage />} />
-                <Route
-                  path="/watch/:videoId"
-                  element={<VideoPlayback />}
-                />
+                <Route path="/watch/:videoId" element={<VideoPlayback />} />
               </Routes>
             </Layout>
           }

@@ -1,4 +1,4 @@
-import { VideoPlayer } from "../video-player/player";
+import { VideoPlayer } from '../video-player/player';
 import { getEnv } from '@/utils/Env';
 
 interface VideoPlayerProps {
@@ -16,7 +16,7 @@ export function VideoPlayerCmp({ poster, title, fid }: VideoPlayerProps) {
             source={{
               id: fid,
               poster,
-              src: getEnv().FILE_API_BASE_URL + "/stream/" + fid,
+              src: getEnv().FILE_API_BASE_URL + '/stream/' + fid,
             }}
             layout="fill"
             mediaProps={{ autoPlay: true, playsInline: true }}
