@@ -69,11 +69,8 @@
     "jest": "^30.0.5",
     "jest-environment-jsdom": "^30.0.5",
     "jest-fetch-mock": "^3.0.3",
-<<<<<<< HEAD
     "patch-package": "^8.0.1",
-=======
     "openapi-typescript": "^7.13.0",
->>>>>>> 7da178aa9072c6270b8a95e965a6c3d76dcd5aa4
     "ts-jest": "^29.4.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.40.0",
