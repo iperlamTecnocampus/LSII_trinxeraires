@@ -27,10 +27,7 @@ function App() {
                 <Route path="/about" element={<Home />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/upload" element={<UploadPage />} />
-                <Route
-                  path="/watch/:videoId"
-                  element={<VideoPlayback />}
-                />
+                <Route path="/watch/:videoId" element={<VideoPlayback />} />
               </Routes>
             </Layout>
           }

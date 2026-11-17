@@ -1,20 +1,9 @@
 import { useNavigate } from 'react-router';
 import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Facebook01Icon,
-  Github01Icon,
-  GoogleIcon,
-  PlayCircle02Icon,
-} from '@hugeicons/core-free-icons';
+import { Facebook01Icon, Github01Icon, GoogleIcon, PlayCircle02Icon } from '@hugeicons/core-free-icons';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
 export function LoginPage() {
@@ -37,13 +26,9 @@ export function LoginPage() {
             <span className="text-xl font-semibold">ProTube</span>
           </div>
 
-          <CardTitle className="text-2xl">
-            Log in to ProTube
-          </CardTitle>
+          <CardTitle className="text-2xl">Log in to ProTube</CardTitle>
 
-          <CardDescription>
-            Continue with one of your existing accounts
-          </CardDescription>
+          <CardDescription>Continue with one of your existing accounts</CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -83,12 +68,7 @@ export function LoginPage() {
             <Separator />
           </div>
 
-          <Button
-            type="button"
-            variant="ghost"
-            className="w-full"
-            onClick={handleGuestAccess}
-          >
+          <Button type="button" variant="ghost" className="w-full" onClick={handleGuestAccess}>
             Continue without account
           </Button>
 
