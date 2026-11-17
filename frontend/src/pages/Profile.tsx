@@ -7,23 +7,17 @@ import { ProfileTabs } from '@/components/profile/ProfileTabs';
 import { mockActivity } from '@/components/profile/mock-data';
 import { $api } from '../lib/api';
 
-// 1. Definim que el component pot rebre un username opcional
 interface ProfileProps {
   username?: string;
 }
 
-// 2. Afegim la prop al component
 export function Profile({ username: propUsername }: ProfileProps) {
-  // 3. Capturem l'usuari de la URL (si n'hi ha)
   const { username: urlUsername } = useParams<{ username: string }>();
 
-  // 4. Lògica clau: Si la URL té un usuari (ex: /profile/joan), mirem el del joan.
-  // Si la URL no en té (ex: /profile), mirem el que ens arriba per la prop (el teu).
   const targetUsername = urlUsername || propUsername;
 
   const [editing, setEditing] = useState(false);
 
-  // 5. Fem la petició fent servir el targetUsername
   const {
     data: profile,
     error,
@@ -46,7 +40,7 @@ export function Profile({ username: propUsername }: ProfileProps) {
   if (isLoading) {
     return (
       <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-6">
-        <div>Carregant perfil...</div>
+        <div>Loading profile...</div>
       </div>
     );
   }
@@ -54,7 +48,7 @@ export function Profile({ username: propUsername }: ProfileProps) {
   if (error || !profile) {
     return (
       <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-6">
-        <div>{error ? `S'ha produït un error: ${error.message}` : 'Usuari no trobat'}</div>
+        <div>{error ? `An error has occurred: ${error.message}` : 'User not found'}</div>
       </div>
     );
   }
