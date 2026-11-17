@@ -6,6 +6,7 @@ import java.util.Set;
 
 public record UserDTO(
         String pictureFid,
+        String bannerFid,
         String userName,
         String displayName,
         String description,

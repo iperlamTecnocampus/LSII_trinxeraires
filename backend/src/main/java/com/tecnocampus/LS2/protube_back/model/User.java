@@ -26,6 +26,9 @@ public class User {
     @Column(name = "picture_fid", unique = true)
     private String pictureFid;
 
+    @Column(name = "banner_fid", unique = true)
+    private String bannerFid;
+
     @Column(name = "join_date", nullable = false, updatable = false)
     private LocalDate joinDate;
 
@@ -58,6 +61,14 @@ public class User {
     public User(String username, String email) {
         this.username = username;
         this.email = email;
+    }
+
+    public String getBannerFid() {
+        return bannerFid;
+    }
+
+    public void setBannerFid(String bannerFid) {
+        this.bannerFid = bannerFid;
     }
 
     public String getDescription() {

@@ -5,6 +5,7 @@ public record CreateUserDTO(
         String displayName,
         String description,
         String email,
-        String pictureFid
+        String pictureFid,
+        String bannerFid
 ) {
 }

@@ -21,6 +21,7 @@ public class UserMapper {
 
         return new UserDTO(
                 user.getPictureFid(),
+                user.getBannerFid(),
                 user.getUsername(),
                 user.getDisplayName(),
                 user.getDescription(),
@@ -40,6 +41,7 @@ public class UserMapper {
 
         return new UserDTO(
                 user.getPictureFid(),
+                user.getBannerFid(),
                 user.getUsername(),
                 user.getDisplayName(),
                 user.getDescription(),
@@ -57,6 +59,7 @@ public class UserMapper {
         user.setDisplayName(dto.displayName());
         user.setDescription(dto.description());
         user.setPictureFid(dto.pictureFid());
+        user.setBannerFid(dto.bannerFid());
         return user;
     }
 }
