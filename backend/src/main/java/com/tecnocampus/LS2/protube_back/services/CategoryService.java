@@ -1,9 +1,8 @@
 package com.tecnocampus.LS2.protube_back.services;
 
 import com.tecnocampus.LS2.protube_back.model.Category;
-import com.tecnocampus.LS2.protube_back.persistance.CategoryRepository;
+import com.tecnocampus.LS2.protube_back.persistence.CategoryRepository;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.CategoryDTO;
-import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoInfoDTO;
 import com.tecnocampus.LS2.protube_back.services.exceptions.CategoryAlreadyExistsException;
 import com.tecnocampus.LS2.protube_back.services.exceptions.CategoryNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.mappers.CategoryMapper;

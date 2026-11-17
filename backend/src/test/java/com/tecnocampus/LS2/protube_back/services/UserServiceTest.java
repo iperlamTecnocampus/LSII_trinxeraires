@@ -1,9 +1,9 @@
 package com.tecnocampus.LS2.protube_back.services;
 
 import com.tecnocampus.LS2.protube_back.model.User;
-import com.tecnocampus.LS2.protube_back.persistance.CommentRepository;
-import com.tecnocampus.LS2.protube_back.persistance.UserRepository;
-import com.tecnocampus.LS2.protube_back.persistance.VideoRepository;
+import com.tecnocampus.LS2.protube_back.persistence.CommentRepository;
+import com.tecnocampus.LS2.protube_back.persistence.UserRepository;
+import com.tecnocampus.LS2.protube_back.persistence.VideoRepository;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateUserDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.UserDTO;
 import com.tecnocampus.LS2.protube_back.services.exceptions.UserAlreadyExistsException;
