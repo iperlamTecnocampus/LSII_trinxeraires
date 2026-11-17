@@ -32,6 +32,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/users/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get user by username
+         * @description Retrieves the basic profile information of a registered user by their username.
+         */
+        get: operations["getUser"];
+        /**
+         * Edit user profile
+         * @description Updates an existing user's profile information, such as display name, description, profile picture, and banner image. Note that the username itself cannot be modified.
+         */
+        put: operations["editUserProfile"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/videos/{id}/likes": {
         parameters: {
             query?: never;
@@ -174,26 +198,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/users/{username}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get user by username
-         * @description Retrieves the basic profile information of a registered user by their username.
-         */
-        get: operations["getUser"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/hello": {
         parameters: {
             query?: never;
@@ -250,23 +254,16 @@ export interface components {
             userName?: string;
             displayName?: string;
         };
-        CreateVideoDTO: {
-            title?: string;
-            description?: string;
-            author?: components["schemas"]["VideoUserDTO"];
-            categories?: string[];
-            videoFid?: string;
-            thumbnailFid?: string;
-        };
-        CreateUserDTO: {
+        EditUserDTO: {
             username?: string;
             displayName?: string;
             description?: string;
-            email?: string;
             pictureFid?: string;
+            bannerFid?: string;
         };
         UserDTO: {
             pictureFid?: string;
+            bannerFid?: string;
             userName?: string;
             displayName?: string;
             description?: string;
@@ -277,6 +274,20 @@ export interface components {
             /** Format: int64 */
             suscribers?: number;
             video?: components["schemas"]["VideoInfoDTO"][];
+        };
+        CreateVideoDTO: {
+            title?: string;
+            description?: string;
+            author?: components["schemas"]["VideoUserDTO"];
+            categories?: string[];
+        };
+        CreateUserDTO: {
+            username?: string;
+            displayName?: string;
+            description?: string;
+            email?: string;
+            pictureFid?: string;
+            bannerFid?: string;
         };
     };
     responses: never;
@@ -375,6 +386,84 @@ export interface operations {
         responses: {
             /** @description Video successfully deleted */
             204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Unique username of the user
+                 * @example johndoe
+                 */
+                username: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description User profile successfully retrieved */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserDTO"];
+                };
+            };
+            /** @description User not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    editUserProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Unique username of the user to be updated
+                 * @example johndoe
+                 */
+                username: string;
+            };
+            cookie?: never;
+        };
+        /** @description Updated user profile details */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditUserDTO"];
+            };
+        };
+        responses: {
+            /** @description User profile successfully updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserDTO"];
+                };
+            };
+            /** @description Unsupported operation (e.g., attempting to change the username) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description User not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -669,39 +758,6 @@ export interface operations {
                 content: {
                     "*/*": components["schemas"]["VideoInfoDTO"][];
                 };
-            };
-        };
-    };
-    getUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description Unique username of the user
-                 * @example johndoe
-                 */
-                username: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User profile successfully retrieved */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["UserDTO"];
-                };
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
