@@ -7,6 +7,7 @@ import com.tecnocampus.LS2.protube_back.services.DTO.out.CategoryDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateVideoDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoInfoDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoUserDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -81,6 +82,42 @@ class VideoMapperTest {
         Set<Category> categories = (Set<Category>) fieldValue(video, "categories");
         assertNotNull(categories);
         assertEquals(2, categories.size());
+    }
+
+    @Test
+    void toEntityMapsUploadedFileIds() {
+        CreateVideoDTO dto = new CreateVideoDTO(
+                "New Title",
+                "New Description",
+                new VideoUserDTO("pic123", "creator", "Creator Name"),
+                List.of(),
+                "video-fid",
+                "thumbnail-fid"
+        );
+
+        Video video = mapper.toEntity(dto);
+
+        assertEquals("video-fid", video.getVideoFid());
+        assertEquals("thumbnail-fid", video.getThumbnailFid());
+    }
+
+    @Test
+    void createVideoRequestDeserializesUploadedFileIds() throws Exception {
+        String json = """
+                {
+                  "title": "New Title",
+                  "description": "New Description",
+                  "author": {"userName": "creator"},
+                  "categories": [],
+                  "videoFid": "video-fid",
+                  "thumbnailFid": "thumbnail-fid"
+                }
+                """;
+
+        CreateVideoDTO dto = new ObjectMapper().readValue(json, CreateVideoDTO.class);
+
+        assertEquals("video-fid", dto.videoFid());
+        assertEquals("thumbnail-fid", dto.thumbnailFid());
     }
 
     @Test

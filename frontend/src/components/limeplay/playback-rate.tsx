@@ -1,40 +1,28 @@
-"use client"
+'use client';
 
-import * as React from "react"
+import * as React from 'react';
 
-import {
-  SelectGroup as SelectGroupPrimitive,
-  SelectItem,
-  Select as SelectPrimitive,
-} from "@/components/ui/select"
-import { usePlaybackRateStore } from "@/hooks/limeplay/use-playback-rate"
+import { SelectGroup as SelectGroupPrimitive, SelectItem, Select as SelectPrimitive } from '@/components/ui/select';
+import { usePlaybackRateStore } from '@/hooks/limeplay/use-playback-rate';
 
-export function SelectRoot(
-  props: React.ComponentProps<typeof SelectPrimitive>
-) {
-  const setPlaybackRate = usePlaybackRateStore((state) => state.setPlaybackRate)
-  const value = usePlaybackRateStore((state) => state.value)
+export function SelectRoot(props: React.ComponentProps<typeof SelectPrimitive>) {
+  const setPlaybackRate = usePlaybackRateStore((state) => state.setPlaybackRate);
+  const value = usePlaybackRateStore((state) => state.value);
 
   return (
-    <SelectPrimitive
-      onValueChange={(value) => setPlaybackRate(Number(value))}
-      value={value.toString()}
-      {...props}
-    />
-  )
+    <SelectPrimitive onValueChange={(value) => setPlaybackRate(Number(value))} value={value.toString()} {...props} />
+  );
 }
 
-SelectRoot.displayName = "PlaybackRateSelectRoot"
+SelectRoot.displayName = 'PlaybackRateSelectRoot';
 
-interface SelectGroupProps extends React.ComponentProps<
-  typeof SelectGroupPrimitive
-> {
-  suffix?: string
+interface SelectGroupProps extends React.ComponentProps<typeof SelectGroupPrimitive> {
+  suffix?: string;
 }
 
 export function SelectGroup(props: SelectGroupProps) {
-  const rates = usePlaybackRateStore((state) => state.rates)
-  const { children, suffix = "x", ...etc } = props
+  const rates = usePlaybackRateStore((state) => state.rates);
+  const { children, suffix = 'x', ...etc } = props;
 
   return (
     <SelectGroupPrimitive {...etc}>
@@ -46,7 +34,7 @@ export function SelectGroup(props: SelectGroupProps) {
         </SelectItem>
       ))}
     </SelectGroupPrimitive>
-  )
+  );
 }
 
-SelectGroup.displayName = "PlaybackRateSelectGroup"
+SelectGroup.displayName = 'PlaybackRateSelectGroup';

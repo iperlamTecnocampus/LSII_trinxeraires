@@ -15,4 +15,6 @@ public interface VideoRepository extends JpaRepository<Video, UUID> {
 
     @Query("select v from Video v where lower(v.title) like lower(concat('%', :videoName, '%'))")
     List<Video> findVideoByname(@Param("videoName") String name);
+
+    List<Video> findByAuthorUsername(String username);
 }

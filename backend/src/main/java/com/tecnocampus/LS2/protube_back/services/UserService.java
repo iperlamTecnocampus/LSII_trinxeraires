@@ -15,6 +15,7 @@ import com.tecnocampus.LS2.protube_back.services.mappers.VideoUserMapper;
 import com.tecnocampus.LS2.protube_back.services.mappers.CommentMapper;
 import com.tecnocampus.LS2.protube_back.services.mappers.CategoryMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
@@ -42,9 +43,12 @@ public class UserService {
         return userMapper.toDTOBasic(saved);
     }
 
+    @Transactional(readOnly = true)
     public UserDTO getUser(String username) {
         User user = userRepository.findById(username).orElseThrow(() -> new UserNotFoundException("User not found"));
-        return userMapper.toDTOBasic(user);
+        return userMapper.toDTO(user,
+                videoRepository.findByAuthorUsername(username),
+                userRepository.findSubscriptionsByUsername(username));
     }
     
     //suscribe to a user

@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils"
-import * as VolumeSlider from "@/components/limeplay/volume-control"
+import { cn } from '@/lib/utils';
+import * as VolumeSlider from '@/components/limeplay/volume-control';
 
 export function HorizontalVolumeSliderControl() {
   return (
@@ -10,7 +10,7 @@ export function HorizontalVolumeSliderControl() {
       "
       orientation="horizontal"
     />
-  )
+  );
 }
 
 export function VerticalVolumeSliderControl() {
@@ -24,22 +24,19 @@ export function VerticalVolumeSliderControl() {
       "
       orientation="vertical"
     />
-  )
+  );
 }
 
 function VolumeSliderControlRoot({
   className,
   orientation,
 }: {
-  className?: string
-  orientation: "horizontal" | "vertical"
+  className?: string;
+  orientation: 'horizontal' | 'vertical';
 }) {
   return (
     <VolumeSlider.Root
-      className={cn(
-        `hit-area z-10 cursor-crosshair rounded-md transition-opacity duration-300 ease-in-out`,
-        className
-      )}
+      className={cn(`hit-area z-10 cursor-crosshair rounded-md transition-opacity duration-300 ease-in-out`, className)}
       orientation={orientation}
     >
       <VolumeSlider.Track>
@@ -47,5 +44,5 @@ function VolumeSliderControlRoot({
       </VolumeSlider.Track>
       <VolumeSlider.Thumb className="size-2.5" />
     </VolumeSlider.Root>
-  )
+  );
 }

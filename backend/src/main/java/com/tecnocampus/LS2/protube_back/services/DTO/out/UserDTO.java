@@ -18,7 +18,7 @@ public record UserDTO(
         LocalDate joinDate,
         List<UserDTO> subscribedTo,
         Long suscribers,
-        List<VideoInfoDTO> video
+        List<VideoInfoDTO> videos
 
 ) {
 }

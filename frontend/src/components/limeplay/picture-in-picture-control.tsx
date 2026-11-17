@@ -1,93 +1,77 @@
-"use client"
+'use client';
 
-import { Slot } from "@radix-ui/react-slot"
-import * as React from "react"
+import { Slot } from '@radix-ui/react-slot';
+import * as React from 'react';
 
-import { Button } from "@/components/ui/button"
-import { usePictureInPictureStore } from "@/hooks/limeplay/use-picture-in-picture"
-import {
-  MediaReadyState,
-  usePlaybackStore,
-} from "@/hooks/limeplay/use-playback"
+import { Button } from '@/components/ui/button';
+import { usePictureInPictureStore } from '@/hooks/limeplay/use-picture-in-picture';
+import { MediaReadyState, usePlaybackStore } from '@/hooks/limeplay/use-playback';
 
 export interface PictureInPictureControlProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /**
    * Render as child component using Radix Slot
    * @default false
    */
-  asChild?: boolean
-  render?: React.ReactElement
+  asChild?: boolean;
+  render?: React.ReactElement;
   /**
    * Keyboard shortcut hint displayed in aria-label
    * @example "P"
    */
-  shortcut?: string
+  shortcut?: string;
 }
 
-export type PictureInPictureControlPropsDocs = Pick<
-  PictureInPictureControlProps,
-  "asChild" | "render" | "shortcut"
->
+export type PictureInPictureControlPropsDocs = Pick<PictureInPictureControlProps, 'asChild' | 'render' | 'shortcut'>;
 
-export const PictureInPictureControl = React.forwardRef<
-  HTMLButtonElement,
-  PictureInPictureControlProps
->((props, forwardedRef) => {
-  const readyState = usePlaybackStore((state) => state.readyState)
-  const isPictureInPictureActive = usePictureInPictureStore(
-    (state) => state.active
-  )
-  const isPictureInPictureSupported = usePictureInPictureStore(
-    (state) => state.supported
-  )
-  const toggle = usePictureInPictureStore((state) => state.toggle)
+export const PictureInPictureControl = React.forwardRef<HTMLButtonElement, PictureInPictureControlProps>(
+  (props, forwardedRef) => {
+    const readyState = usePlaybackStore((state) => state.readyState);
+    const isPictureInPictureActive = usePictureInPictureStore((state) => state.active);
+    const isPictureInPictureSupported = usePictureInPictureStore((state) => state.supported);
+    const toggle = usePictureInPictureStore((state) => state.toggle);
 
-  const {
-    "aria-label": ariaLabelProp,
-    asChild = false,
-    children,
-    disabled: userDisabled,
-    onClick,
-    render,
-    shortcut,
-    ...restProps
-  } = props
+    const {
+      'aria-label': ariaLabelProp,
+      asChild = false,
+      children,
+      disabled: userDisabled,
+      onClick,
+      render,
+      shortcut,
+      ...restProps
+    } = props;
 
-  const Comp = render ? Slot : asChild ? Slot : Button
+    const Comp = render ? Slot : asChild ? Slot : Button;
 
-  const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    onClick?.(event)
-    if (!event.defaultPrevented) {
-      await toggle()
-    }
+    const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
+      onClick?.(event);
+      if (!event.defaultPrevented) {
+        await toggle();
+      }
+    };
+
+    const isDisabled = readyState < MediaReadyState.HAVE_METADATA || !isPictureInPictureSupported || userDisabled;
+
+    const getDefaultAriaLabel = () => {
+      const shortcutText = shortcut ? ` (keyboard shortcut ${shortcut})` : '';
+      const label = isPictureInPictureActive ? 'Exit Picture-in-Picture' : 'Enter Picture-in-Picture';
+      return `${label}${shortcutText}`;
+    };
+
+    return (
+      <Comp
+        aria-keyshortcuts={shortcut}
+        aria-label={ariaLabelProp ?? getDefaultAriaLabel()}
+        data-label="lp-picture-in-picture-control"
+        disabled={isDisabled}
+        {...restProps}
+        onClick={handleClick}
+        ref={forwardedRef}
+      >
+        {render ? React.cloneElement(render, undefined, children) : children}
+      </Comp>
+    );
   }
+);
 
-  const isDisabled =
-    readyState < MediaReadyState.HAVE_METADATA ||
-    !isPictureInPictureSupported ||
-    userDisabled
-
-  const getDefaultAriaLabel = () => {
-    const shortcutText = shortcut ? ` (keyboard shortcut ${shortcut})` : ""
-    const label = isPictureInPictureActive
-      ? "Exit Picture-in-Picture"
-      : "Enter Picture-in-Picture"
-    return `${label}${shortcutText}`
-  }
-
-  return (
-    <Comp
-      aria-keyshortcuts={shortcut}
-      aria-label={ariaLabelProp ?? getDefaultAriaLabel()}
-      data-label="lp-picture-in-picture-control"
-      disabled={isDisabled}
-      {...restProps}
-      onClick={handleClick}
-      ref={forwardedRef}
-    >
-      {render ? React.cloneElement(render, undefined, children) : children}
-    </Comp>
-  )
-})
-
-PictureInPictureControl.displayName = "PictureInPictureControl"
+PictureInPictureControl.displayName = 'PictureInPictureControl';

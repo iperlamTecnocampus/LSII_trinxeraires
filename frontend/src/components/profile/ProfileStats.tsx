@@ -9,10 +9,10 @@ interface ProfileStatsProps {
 
 export function ProfileStats({ profile }: ProfileStatsProps) {
   // Calculem la quantitat de vídeos comptant la llargada de l'array
-  const videoCount = profile.video?.length || 0;
+  const videoCount = profile.videos?.length || 0;
 
   // Sumem les visites de tots els vídeos per treure el total
-  const totalViews = profile.video?.reduce((acc, vid) => acc + (vid.views || 0), 0) || 0;
+  const totalViews = profile.videos?.reduce((acc, vid) => acc + (vid.views || 0), 0) || 0;
 
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
