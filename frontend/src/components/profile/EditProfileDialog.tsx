@@ -134,21 +134,6 @@ export function EditProfileDialog({ open, onOpenChange, profile, isSaving = fals
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <div className="relative">
-              <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">
-                @
-              </span>
-              <Input
-                id="username"
-                className="pl-7"
-                value={draft.userName || ''}
-                onChange={(event) => set('userName', event.target.value.replace(/\s/g, '').toLowerCase())}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
