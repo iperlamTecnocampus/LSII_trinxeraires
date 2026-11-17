@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useNavigate } from 'react-router';
 
 import { ThumbnailSelector } from '@/components/upload/ThumbnailSelector';
 import { VideoDetailsForm } from '@/components/upload/VideoDetailsForm';
@@ -9,6 +10,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getEnv } from '@/utils/Env';
+import { $api } from '../lib/api';
 
 async function uploadFile(endpoint: 'videos' | 'thumbnails', file: File): Promise<string> {
   const formData = new FormData();
@@ -41,6 +43,8 @@ async function uploadFile(endpoint: 'videos' | 'thumbnails', file: File): Promis
 }
 
 export function UploadPage() {
+  const navigate = useNavigate();
+  const createVideoMutation = $api.useMutation('post', '/api/videos/');
   const [file, setFile] = useState<File | null>(null);
   const [videoFid, setVideoFid] = useState<string | null>(null);
   const [videoUploading, setVideoUploading] = useState(false);
@@ -62,7 +66,13 @@ export function UploadPage() {
   const [publishReady, setPublishReady] = useState(false);
 
   const canPublish =
-    videoFid !== null && thumbnailFid !== null && !videoUploading && !thumbnailUploading && title.trim().length > 0;
+    videoFid !== null &&
+    thumbnailFid !== null &&
+    !videoUploading &&
+    !thumbnailUploading &&
+    !createVideoMutation.isPending &&
+    !publishReady &&
+    title.trim().length > 0;
 
   async function handleVideoChange(newFile: File | null) {
     const requestId = ++videoRequestId.current;
@@ -120,12 +130,38 @@ export function UploadPage() {
     }
   }
 
-  function handlePublish() {
-    if (!canPublish) {
+  async function handlePublish() {
+    if (!canPublish || !videoFid || !thumbnailFid || createVideoMutation.isPending) {
       return;
     }
 
-    setPublishReady(true);
+    setUploadError(null);
+
+    try {
+      const { data, error } = await createVideoMutation.mutateAsync({
+        body: {
+          title: title.trim(),
+          description,
+          author: { userName: 'ana' },
+          categories: [],
+          videoFid,
+          thumbnailFid,
+        } as any,
+      });
+
+      if (error) {
+        const detail = (error as { detail?: string }).detail;
+        throw new Error(detail || 'Video submission failed. Please try again.');
+      }
+
+      setPublishReady(true);
+      if (data?.videoId) {
+        navigate(`/watch/${data.videoId}`);
+      }
+    } catch (error) {
+      setPublishReady(false);
+      setUploadError(error instanceof Error ? error.message : 'Please try again.');
+    }
   }
 
   function handleCancel() {
@@ -255,18 +291,18 @@ export function UploadPage() {
 
         {publishReady && (
           <Alert>
-            <AlertTitle>Video ready to publish</AlertTitle>
-            <AlertDescription>Your video and thumbnail have been uploaded and are ready to submit.</AlertDescription>
+            <AlertTitle>Video submitted</AlertTitle>
+            <AlertDescription>Your video and thumbnail were uploaded successfully.</AlertDescription>
           </Alert>
         )}
 
         <div className="flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-end">
-          <Button type="button" variant="outline" onClick={handleCancel}>
+          <Button type="button" variant="outline" onClick={handleCancel} disabled={createVideoMutation.isPending}>
             Cancel
           </Button>
 
           <Button type="button" disabled={!canPublish} onClick={handlePublish}>
-            Submit video
+            {createVideoMutation.isPending ? 'Submitting…' : 'Submit video'}
           </Button>
         </div>
       </div>

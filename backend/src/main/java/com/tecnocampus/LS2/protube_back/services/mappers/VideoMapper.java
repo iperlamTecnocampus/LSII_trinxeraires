@@ -48,6 +48,8 @@ public class VideoMapper {
         Video video = new Video();
         video.setTitle(dto.title());
         video.setDescription(dto.description());
+        video.setVideoFid(dto.videoFid());
+        video.setThumbnailFid(dto.thumbnailFid());
         video.setAuthor(videoUserMapper.toEntity(dto.author()));
         return video;
     }
