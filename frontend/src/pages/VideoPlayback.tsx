@@ -3,7 +3,9 @@ import { CommentsSection } from '@/components/watch/CommentsSection';
 import { RelatedVideos } from '@/components/watch/RelatedVideos';
 import { VideoDescription } from '@/components/watch/VideoDescription';
 import { VideoDetails } from '@/components/watch/VideoDetails';
-import { VideoPlayer } from '@/components/watch/VideoPlayer';
+import { VideoPlayerCmp } from '@/components/watch/VideoPlayerCmp';
+
+import { mockCommentCount, mockComments, mockRelatedVideos, mockVideo } from '@/components/watch/mock-video-data';
 import { $api } from '../lib/api';
 
 export function VideoPlayback() {
@@ -61,7 +63,7 @@ export function VideoPlayback() {
     <div className="mx-auto w-full max-w-[1600px] px-4 py-6">
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_400px]">
         <main className="min-w-0">
-          <VideoPlayer poster={video.thumbnailFid || 'https://picsum.photos/640/360'} title={video.title ?? ''} />
+          <VideoPlayerCmp poster={video.thumbnailFid || 'https://picsum.photos/640/360'} title={video.title ?? ''} />
 
           <VideoDetails video={video} />
 
