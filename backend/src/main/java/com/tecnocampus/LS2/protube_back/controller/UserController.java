@@ -1,5 +1,6 @@
 package com.tecnocampus.LS2.protube_back.controller;
 
+import com.tecnocampus.LS2.protube_back.services.DTO.in.EditUserDTO;
 import com.tecnocampus.LS2.protube_back.services.UserService;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateUserDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.UserDTO;
@@ -34,5 +35,10 @@ public class UserController {
         boolean isSub = userService.subscribeToUser(subscriberUsername, subscribedUsername);
         return ResponseEntity.ok(isSub);
 
+    }
+
+    @PutMapping("/{username}")
+    public UserDTO editUserProfile(@PathVariable String username, @RequestBody EditUserDTO dto) {
+        return userService.editUserProfile(username, dto);
     }
 }
