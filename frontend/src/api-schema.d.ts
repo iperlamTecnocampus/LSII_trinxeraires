@@ -280,6 +280,8 @@ export interface components {
             description?: string;
             author?: components["schemas"]["VideoUserDTO"];
             categories?: string[];
+            videoFid?: string;
+            thumbnailFid?: string;
         };
         CreateUserDTO: {
             username?: string;
