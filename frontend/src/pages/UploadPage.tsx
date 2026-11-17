@@ -59,7 +59,6 @@ export function UploadPage() {
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('Technology');
   const [language, setLanguage] = useState('English');
-  const [tags, setTags] = useState('');
 
   const [visibility, setVisibility] = useState<'public' | 'unlisted' | 'private'>('public');
 
@@ -178,7 +177,6 @@ export function UploadPage() {
     setDescription('');
     setCategory('Technology');
     setLanguage('English');
-    setTags('');
     setVisibility('public');
     setPublishReady(false);
   }
@@ -217,7 +215,6 @@ export function UploadPage() {
               description={description}
               category={category}
               language={language}
-              tags={tags}
               onTitleChange={(value) => {
                 setTitle(value);
                 setPublishReady(false);
@@ -225,7 +222,6 @@ export function UploadPage() {
               onDescriptionChange={setDescription}
               onCategoryChange={setCategory}
               onLanguageChange={setLanguage}
-              onTagsChange={setTags}
             />
           </CardContent>
         </Card>

@@ -7,12 +7,10 @@ interface VideoDetailsFormProps {
   description: string;
   category: string;
   language: string;
-  tags: string;
   onTitleChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
   onLanguageChange: (value: string) => void;
-  onTagsChange: (value: string) => void;
 }
 
 const categories = ['Technology', 'Education', 'Entertainment', 'Gaming', 'Music', 'Sports', 'Other'];
@@ -24,12 +22,10 @@ export function VideoDetailsForm({
   description,
   category,
   language,
-  tags,
   onTitleChange,
   onDescriptionChange,
   onCategoryChange,
   onLanguageChange,
-  onTagsChange,
 }: VideoDetailsFormProps) {
   return (
     <section>
@@ -124,20 +120,6 @@ export function VideoDetailsForm({
           </div>
         </div>
 
-        <div>
-          <label htmlFor="video-tags" className="mb-2 block text-sm font-medium">
-            Tags
-          </label>
-
-          <Input
-            id="video-tags"
-            value={tags}
-            placeholder="react, typescript, tutorial"
-            onChange={(event) => onTagsChange(event.target.value)}
-          />
-
-          <p className="mt-1 text-xs text-muted-foreground">Separate tags with commas.</p>
-        </div>
       </div>
     </section>
   );
