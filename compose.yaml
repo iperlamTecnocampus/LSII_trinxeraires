@@ -80,5 +80,18 @@ services:
       ENV_PROTUBE_DB: ${ENV_PROTUBE_DB}
       ENV_PROTUBE_DB_HOST: db
 
+  fileapi:
+    image: file-api
+    container_name: file_api
+    build:
+      context: .
+      dockerfile: fileapi/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    depends_on:
+      rustfs:
+        condition: service_healthy
+
 volumes:
   postgres_data:

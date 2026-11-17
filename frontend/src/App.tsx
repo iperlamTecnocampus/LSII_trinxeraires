@@ -9,6 +9,7 @@ import { LoginPage } from './pages/LoginPage';
 import { Profile } from './pages/Profile';
 import { UploadPage } from './pages/UploadPage';
 import { VideoPlayback } from './pages/VideoPlayback';
+import { VideoStudioPage } from './pages/VideoStudioPage';
 
 function App() {
   return (
@@ -37,7 +38,7 @@ function App() {
                 />
 
                 <Route path="/upload" element={<UploadPage />} />
-
+                <Route path="/studio" element={<VideoStudioPage />} />
                 <Route
                   path="/watch/:videoId"
                   element={<VideoPlayback />}
