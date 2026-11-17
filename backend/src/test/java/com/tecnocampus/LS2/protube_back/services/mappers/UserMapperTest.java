@@ -48,7 +48,7 @@ class UserMapperTest {
         assertNotNull(dto);
         assertEquals("johndoe", dto.userName());
         assertTrue(dto.subscribedTo().isEmpty());
-        assertTrue(dto.video().isEmpty());
+        assertTrue(dto.videos().isEmpty());
     }
 
     @Test

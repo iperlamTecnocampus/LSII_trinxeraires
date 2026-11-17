@@ -12,9 +12,9 @@ interface ProfileAboutProps {
 
 export function ProfileAbout({ profile }: ProfileAboutProps) {
   // Calculem les estadístiques basant-nos en els vídeos de l'usuari (si en té)
-  const totalViews = profile.video?.reduce((acc, vid) => acc + (vid.views || 0), 0) || 0;
-  const totalLikes = profile.video?.reduce((acc, vid) => acc + (vid.likes || 0), 0) || 0;
-  const videoCount = profile.video?.length || 0;
+  const totalViews = profile.videos?.reduce((acc, vid) => acc + (vid.views || 0), 0) || 0;
+  const totalLikes = profile.videos?.reduce((acc, vid) => acc + (vid.likes || 0), 0) || 0;
+  const videoCount = profile.videos?.length || 0;
 
   const details = [
     {

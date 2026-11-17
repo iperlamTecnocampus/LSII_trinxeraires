@@ -37,7 +37,7 @@ export function ProfileTabs({ profile, activity }: ProfileTabsProps) {
 
       <TabsContent value="videos" className="pt-6">
         {/* Ara passem els vídeos reals de l'usuari */}
-        <VideoGrid videos={profile.video || []} />
+        <VideoGrid videos={profile.videos || []} />
       </TabsContent>
 
       <TabsContent value="about" className="pt-6">

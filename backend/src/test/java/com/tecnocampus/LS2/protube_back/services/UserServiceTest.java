@@ -1,6 +1,7 @@
 package com.tecnocampus.LS2.protube_back.services;
 
 import com.tecnocampus.LS2.protube_back.model.User;
+import com.tecnocampus.LS2.protube_back.model.Video;
 import com.tecnocampus.LS2.protube_back.persistence.CommentRepository;
 import com.tecnocampus.LS2.protube_back.persistence.UserRepository;
 import com.tecnocampus.LS2.protube_back.persistence.VideoRepository;
@@ -17,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.EditUserDTO;
 import com.tecnocampus.LS2.protube_back.services.exceptions.UserNotFoundException;
 import java.util.Optional;
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -43,6 +45,29 @@ class UserServiceTest {
         userService = new UserService(userRepository, videoRepository, commentRepository);
         username = "john_doe";
         email = "john.doe@example.com";
+    }
+
+    @Test
+    @DisplayName("getUser returns videos and subscriptions loaded from their repositories")
+    void getUserIncludesVideosAndSubscriptions() {
+        User user = new User(username, email);
+        user.setDisplayName("John Doe");
+        User subscribedUser = new User("channel", "channel@example.com");
+        subscribedUser.setDisplayName("Channel");
+        Video video = new Video("Test video", "Description", user);
+
+        when(userRepository.findById(username)).thenReturn(Optional.of(user));
+        when(videoRepository.findByAuthorUsername(username)).thenReturn(List.of(video));
+        when(userRepository.findSubscriptionsByUsername(username)).thenReturn(List.of(subscribedUser));
+
+        UserDTO result = userService.getUser(username);
+
+        assertEquals(1, result.videos().size());
+        assertEquals("Test video", result.videos().get(0).title());
+        assertEquals(1, result.subscribedTo().size());
+        assertEquals("channel", result.subscribedTo().get(0).userName());
+        verify(videoRepository).findByAuthorUsername(username);
+        verify(userRepository).findSubscriptionsByUsername(username);
     }
 
     // =========================================================================

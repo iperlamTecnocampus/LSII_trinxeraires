@@ -273,7 +273,7 @@ export interface components {
             subscribedTo?: components["schemas"]["UserDTO"][];
             /** Format: int64 */
             suscribers?: number;
-            video?: components["schemas"]["VideoInfoDTO"][];
+            videos?: components["schemas"]["VideoInfoDTO"][];
         };
         CreateVideoDTO: {
             title?: string;
