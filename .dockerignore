@@ -1,2 +1,6 @@
 tooling/videoGrabber/venv/
 tooling/videoGrabber/__pycache__/
+frontend/node_modules
+frontend/dist
+backend/target
+**/.git

@@ -2,7 +2,7 @@ package com.tecnocampus.LS2.protube_back.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tecnocampus.LS2.protube_back.controller.exceptionHandler.DomainExceptionHandler;
-import com.tecnocampus.LS2.protube_back.services.DTO.in.CategoryDTO;
+import com.tecnocampus.LS2.protube_back.services.DTO.out.CategoryDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateVideoDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.EditVideoDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoInfoDTO;

@@ -17,25 +17,28 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
-import type { UserProfile } from './types';
+import { components } from '@/api-schema';
+
+type UserDTO = components['schemas']['UserDTO'];
 
 interface EditProfileDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  profile: UserProfile;
-  onSave: (profile: UserProfile) => void;
+  profile: UserDTO;
+  onSave: (profile: UserDTO) => void;
 }
 
 function readImage(event: ChangeEvent<HTMLInputElement>, callback: (url: string) => void) {
   const file = event.target.files?.[0];
 
   if (file) {
+    // Això genera una URL local per poder previsualitzar la imatge al moment
     callback(URL.createObjectURL(file));
   }
 }
 
 export function EditProfileDialog({ open, onOpenChange, profile, onSave }: EditProfileDialogProps) {
-  const [draft, setDraft] = useState(profile);
+  const [draft, setDraft] = useState<UserDTO>(profile);
 
   useEffect(() => {
     if (open) {
@@ -43,51 +46,45 @@ export function EditProfileDialog({ open, onOpenChange, profile, onSave }: EditP
     }
   }, [open, profile]);
 
-  const set = <K extends keyof UserProfile>(key: K, value: UserProfile[K]) => {
+  const set = <K extends keyof UserDTO>(key: K, value: UserDTO[K]) => {
     setDraft((currentDraft) => ({
       ...currentDraft,
       [key]: value,
     }));
   };
 
-  const canSave = draft.name.trim() !== '' && draft.username.trim() !== '';
+  // ✅ SOLUCIÓ A L'ERROR BLANC: Comprovem que existeixi abans de fer .trim()
+  const canSave = Boolean(draft.displayName?.trim()) && Boolean(draft.userName?.trim());
+
+  // Helper per a les inicials si no hi ha foto
+  const initials = (draft.displayName || draft.userName || '').slice(0, 2).toUpperCase();
+
+  // Helper per la imatge: Si és una URL local que acabem de posar començarà per 'blob:',
+  // si no, assumim que ve del backend
+  const imageSrc = draft.pictureFid?.startsWith('blob:') ? draft.pictureFid : `/api/files/${draft.pictureFid}`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Edit profile</DialogTitle>
-
           <DialogDescription>Update how your channel appears to viewers.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5">
+          {/* BANNER: El teu backend actual no té "banner", ho deixem visual però desactivat */}
           <div>
-            <Label className="mb-2 block">Banner image</Label>
-
-            <label className="group relative block aspect-[4/1] cursor-pointer overflow-hidden rounded-xl bg-muted">
-              <img src={draft.banner} alt="" className="h-full w-full object-cover" />
-
-              <span className="absolute inset-0 flex items-center justify-center gap-2 bg-black/60 text-sm font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">
-                <HugeiconsIcon icon={Camera01Icon} size={18} />
-                Change banner
-              </span>
-
-              <input
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={(event) => readImage(event, (url) => set('banner', url))}
-              />
-            </label>
+            <Label className="mb-2 block">Banner image (No disponible a la DB)</Label>
+            <div className="group relative block aspect-[4/1] overflow-hidden rounded-xl bg-muted">
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-muted to-primary/10" />
+            </div>
           </div>
 
           <div className="flex items-center gap-4">
             <label className="group relative cursor-pointer rounded-full">
               <Avatar className="size-20">
-                <AvatarImage src={draft.avatar} alt={draft.name} className="object-cover" />
-
-                <AvatarFallback>{draft.name.slice(0, 2)}</AvatarFallback>
+                <AvatarImage src={imageSrc} alt={draft.displayName || draft.userName} className="object-cover" />
+                <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>
 
               <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100">
@@ -98,52 +95,52 @@ export function EditProfileDialog({ open, onOpenChange, profile, onSave }: EditP
                 type="file"
                 accept="image/*"
                 className="sr-only"
-                onChange={(event) => readImage(event, (url) => set('avatar', url))}
+                onChange={(event) => readImage(event, (url) => set('pictureFid', url))}
               />
             </label>
 
             <div className="text-sm">
               <p className="font-semibold">Profile picture</p>
-
               <p className="text-muted-foreground">Click the image to upload a new one.</p>
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="name">Display name</Label>
-
-            <Input id="name" value={draft.name} onChange={(event) => set('name', event.target.value)} />
+            {/* Utilitzem || '' perquè React no es queixi si el valor és undefined */}
+            <Input
+              id="name"
+              value={draft.displayName || ''}
+              onChange={(event) => set('displayName', event.target.value)}
+            />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
-
             <div className="relative">
               <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">
                 @
               </span>
-
               <Input
                 id="username"
                 className="pl-7"
-                value={draft.username}
-                onChange={(event) => set('username', event.target.value.replace(/\s/g, '').toLowerCase())}
+                value={draft.userName || ''}
+                onChange={(event) => set('userName', event.target.value.replace(/\s/g, '').toLowerCase())}
               />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-
             <Textarea
               id="description"
               rows={3}
               maxLength={160}
-              value={draft.description}
+              value={draft.description || ''}
               onChange={(event) => set('description', event.target.value)}
             />
-
-            <p className="text-right text-xs text-muted-foreground">{draft.description.length}/160</p>
+            {/* Mateixa protecció aquí amb el .length */}
+            <p className="text-right text-xs text-muted-foreground">{(draft.description || '').length}/160</p>
           </div>
         </div>
 

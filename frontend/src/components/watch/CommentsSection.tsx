@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import { useParams } from 'react-router';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { $api } from '@/lib/api';
 
 import { formatCount } from './format';
 import type { Comment } from './types';
@@ -10,6 +13,9 @@ import type { Comment } from './types';
 interface CommentsSectionProps {
   comments: Comment[];
   commentCount: number;
+  videoId?: string;
+  userName?: string;
+  onCommentAdded?: () => void;
 }
 
 interface CommentItemProps {
@@ -80,15 +86,52 @@ function CommentItem({ comment }: CommentItemProps) {
   );
 }
 
-export function CommentsSection({ comments, commentCount }: CommentsSectionProps) {
+export function CommentsSection({
+  comments,
+  commentCount,
+  videoId,
+  userName = 'ana',
+  onCommentAdded,
+}: CommentsSectionProps) {
   const [newComment, setNewComment] = useState('');
+  const routeParams = useParams<{ videoId: string }>();
+  const activeVideoId = videoId ?? routeParams.videoId;
+  const queryClient = useQueryClient();
 
-  function handleSubmitComment() {
-    if (!newComment.trim()) {
+  const commentMutation = $api.useMutation('post', '/api/videos/{id}/comments');
+
+  async function handleSubmitComment() {
+    const text = newComment.trim();
+    if (!text || !activeVideoId || commentMutation.isPending) {
       return;
     }
 
-    setNewComment('');
+    try {
+      const response = await commentMutation.mutateAsync({
+        params: {
+          path: { id: activeVideoId },
+          query: { userName },
+        },
+        body: text,
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        bodySerializer: (body: unknown) => (typeof body === 'string' ? body : JSON.stringify(body)),
+      } as any);
+
+      if (response) {
+        setNewComment('');
+        if (onCommentAdded) {
+          onCommentAdded();
+        } else {
+          queryClient.invalidateQueries({
+            queryKey: ['get', '/api/videos/{id}', { params: { path: { id: activeVideoId } } }],
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to post comment:', error);
+    }
   }
 
   return (
@@ -116,7 +159,11 @@ export function CommentsSection({ comments, commentCount }: CommentsSectionProps
               </Button>
             )}
 
-            <Button type="button" disabled={!newComment.trim()} onClick={handleSubmitComment}>
+            <Button
+              type="button"
+              disabled={!newComment.trim() || commentMutation.isPending}
+              onClick={handleSubmitComment}
+            >
               Comment
             </Button>
           </div>

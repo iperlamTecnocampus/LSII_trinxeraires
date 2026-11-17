@@ -25,9 +25,23 @@ function App() {
               <Routes>
                 <Route index element={<Home />} />
                 <Route path="/about" element={<Home />} />
-                <Route path="/profile" element={<Profile />} />
+
+                <Route
+                  path="/profile"
+                  element={<Profile username="ana" />}
+                />
+
+                <Route
+                  path="/profile/:username"
+                  element={<Profile />}
+                />
+
                 <Route path="/upload" element={<UploadPage />} />
-                <Route path="/watch/:videoId" element={<VideoPlayback />} />
+
+                <Route
+                  path="/watch/:videoId"
+                  element={<VideoPlayback />}
+                />
               </Routes>
             </Layout>
           }
@@ -56,6 +70,7 @@ function ContentApp() {
       return (
         <>
           <strong>Videos availables:</strong>
+
           <ul>
             {value.map((item) => (
               <li key={item}>{item}</li>
