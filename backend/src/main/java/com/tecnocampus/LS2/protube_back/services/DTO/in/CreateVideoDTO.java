@@ -9,6 +9,11 @@ public record CreateVideoDTO(
         String title,
         String description,
         VideoUserDTO author,
-        List<String> categories
+        List<String> categories,
+        String videoFid,
+        String thumbnailFid
 ) {
+    public CreateVideoDTO(String title, String description, VideoUserDTO author, List<String> categories) {
+        this(title, description, author, categories, null, null);
+    }
 }
