@@ -25,6 +25,7 @@ interface EditProfileDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   profile: UserDTO;
+  isSaving?: boolean;
   onSave: (profile: UserDTO) => void;
 }
 
@@ -32,12 +33,12 @@ function readImage(event: ChangeEvent<HTMLInputElement>, callback: (url: string)
   const file = event.target.files?.[0];
 
   if (file) {
-    // Això genera una URL local per poder previsualitzar la imatge al moment
+    // This generates a local URL to preview the image immediately
     callback(URL.createObjectURL(file));
   }
 }
 
-export function EditProfileDialog({ open, onOpenChange, profile, onSave }: EditProfileDialogProps) {
+export function EditProfileDialog({ open, onOpenChange, profile, isSaving = false, onSave }: EditProfileDialogProps) {
   const [draft, setDraft] = useState<UserDTO>(profile);
 
   useEffect(() => {
@@ -53,14 +54,11 @@ export function EditProfileDialog({ open, onOpenChange, profile, onSave }: EditP
     }));
   };
 
-  // ✅ SOLUCIÓ A L'ERROR BLANC: Comprovem que existeixi abans de fer .trim()
   const canSave = Boolean(draft.displayName?.trim()) && Boolean(draft.userName?.trim());
 
-  // Helper per a les inicials si no hi ha foto
   const initials = (draft.displayName || draft.userName || '').slice(0, 2).toUpperCase();
 
-  // Helper per la imatge: Si és una URL local que acabem de posar començarà per 'blob:',
-  // si no, assumim que ve del backend
+
   const imageSrc = draft.pictureFid?.startsWith('blob:') ? draft.pictureFid : `/api/files/${draft.pictureFid}`;
 
   return (
@@ -72,12 +70,32 @@ export function EditProfileDialog({ open, onOpenChange, profile, onSave }: EditP
         </DialogHeader>
 
         <div className="space-y-5">
-          {/* BANNER: El teu backend actual no té "banner", ho deixem visual però desactivat */}
+          {/* Banner image upload section */}
           <div>
-            <Label className="mb-2 block">Banner image (No disponible a la DB)</Label>
-            <div className="group relative block aspect-[4/1] overflow-hidden rounded-xl bg-muted">
-              <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-muted to-primary/10" />
-            </div>
+            <Label className="mb-2 block">Banner image</Label>
+            <label className="group relative block aspect-[4/1] cursor-pointer overflow-hidden rounded-xl bg-muted">
+              {draft.bannerFid ? (
+                <img
+                  src={draft.bannerFid.startsWith('blob:') ? draft.bannerFid : `/api/files/${draft.bannerFid}`}
+                  alt="Banner"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-muted to-primary/10" />
+              )}
+
+              <span className="absolute inset-0 flex items-center justify-center gap-2 bg-black/60 text-sm font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">
+                <HugeiconsIcon icon={Camera01Icon} size={18} />
+                Change banner
+              </span>
+
+              <input
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={(event) => readImage(event, (url) => set('bannerFid', url))}
+              />
+            </label>
           </div>
 
           <div className="flex items-center gap-4">
@@ -107,7 +125,7 @@ export function EditProfileDialog({ open, onOpenChange, profile, onSave }: EditP
 
           <div className="space-y-2">
             <Label htmlFor="name">Display name</Label>
-            {/* Utilitzem || '' perquè React no es queixi si el valor és undefined */}
+            {}
             <Input
               id="name"
               value={draft.displayName || ''}
@@ -139,24 +157,18 @@ export function EditProfileDialog({ open, onOpenChange, profile, onSave }: EditP
               value={draft.description || ''}
               onChange={(event) => set('description', event.target.value)}
             />
-            {/* Mateixa protecció aquí amb el .length */}
+            {}
             <p className="text-right text-xs text-muted-foreground">{(draft.description || '').length}/160</p>
           </div>
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={isSaving}>
             Cancel
           </Button>
 
-          <Button
-            disabled={!canSave}
-            onClick={() => {
-              onSave(draft);
-              onOpenChange(false);
-            }}
-          >
-            Save changes
+          <Button disabled={!canSave || isSaving} onClick={() => onSave(draft)}>
+            {isSaving ? 'Saving...' : 'Save changes'}
           </Button>
         </DialogFooter>
       </DialogContent>
