@@ -42,26 +42,6 @@ export function LoginPage() {
               <HugeiconsIcon icon={GoogleIcon} size={20} />
               Continue with Google
             </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              className="h-12 w-full justify-start gap-3 rounded-full px-5"
-              onClick={() => handleProviderLogin('GitHub')}
-            >
-              <HugeiconsIcon icon={Github01Icon} size={20} />
-              Continue with GitHub
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              className="h-12 w-full justify-start gap-3 rounded-full px-5"
-              onClick={() => handleProviderLogin('Facebook')}
-            >
-              <HugeiconsIcon icon={Facebook01Icon} size={20} />
-              Continue with Facebook
-            </Button>
           </div>
 
           <div className="my-6">
