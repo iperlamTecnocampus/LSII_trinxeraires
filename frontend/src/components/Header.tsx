@@ -4,6 +4,7 @@ import { Logout01Icon } from '@hugeicons/core-free-icons';
 
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
 import { Searchbar } from './Searchbar';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -14,15 +15,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/auth/useAuth';
+import { getEnv } from '@/utils/Env';
+import type { CurrentUser } from '@/lib/api';
 
-function AvatarMenu() {
+function AvatarMenu({ user }: { user: CurrentUser }) {
   const navigate = useNavigate();
+  const { logout } = useAuth();
+  const avatarSrc = user.pictureUrl || (user.pictureFid ? `${getEnv().MEDIA_BASE_URL}/${user.pictureFid}` : undefined);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger render={<Avatar className="cursor-pointer" />}>
-        <AvatarImage src="https://picsum.photos/256" alt="Yourself" />
-        <AvatarFallback>US</AvatarFallback>
+        <AvatarImage src={avatarSrc} alt={user.displayName || user.userName || 'Your profile'} />
+        <AvatarFallback>{(user.displayName || user.userName || 'You').slice(0, 2).toUpperCase()}</AvatarFallback>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent>
@@ -34,7 +40,13 @@ function AvatarMenu() {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem onClick={() => navigate('/login')}>
+        <DropdownMenuItem
+          onClick={() => {
+            void logout()
+              .then(() => navigate('/'))
+              .catch((error: unknown) => console.error('Failed to log out:', error));
+          }}
+        >
           <HugeiconsIcon icon={Logout01Icon} size={18} />
           Log out
         </DropdownMenuItem>
@@ -44,6 +56,9 @@ function AvatarMenu() {
 }
 
 export function Header() {
+  const { user, isLoading } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <header className="bg-card sticky top-0 z-50 border-b w-full h-fit">
       <div className="flex items-center justify-between gap-6 px-2 py-2">
@@ -64,7 +79,17 @@ export function Header() {
 
           <div className="flex grow"></div>
 
-          <AvatarMenu />
+          {isLoading ? (
+            <Button type="button" variant="outline" disabled>
+              Checking session…
+            </Button>
+          ) : user ? (
+            <AvatarMenu user={user} />
+          ) : (
+            <Button type="button" variant="outline" onClick={() => navigate('/login')}>
+              Sign in
+            </Button>
+          )}
         </div>
       </div>
     </header>

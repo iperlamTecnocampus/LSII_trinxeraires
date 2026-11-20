@@ -14,7 +14,7 @@ type UserDTO = components['schemas']['UserDTO'];
 
 interface ProfileHeaderProps {
   profile: UserDTO;
-  onEdit: () => void;
+  onEdit?: () => void;
 }
 
 export function ProfileHeader({ profile, onEdit }: ProfileHeaderProps) {
@@ -57,27 +57,29 @@ export function ProfileHeader({ profile, onEdit }: ProfileHeaderProps) {
           </div>
 
           {/* Caldrà que adaptis ProfileStats per usar UserDTO també si hi té props */}
-          <ProfileStats profile={profile as any} />
+          <ProfileStats profile={profile} />
 
           {profile.description && <p className="max-w-2xl text-sm text-muted-foreground">{profile.description}</p>}
         </div>
 
-        <div className="flex flex-col gap-2 md:flex-row md:pb-3">
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full rounded-full md:w-auto"
-            size="lg"
-            onClick={() => navigate('/upload')}
-          >
-            Upload video
-          </Button>
+        {onEdit && (
+          <div className="flex flex-col gap-2 md:flex-row md:pb-3">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full rounded-full md:w-auto"
+              size="lg"
+              onClick={() => navigate('/upload')}
+            >
+              Upload video
+            </Button>
 
-          <Button type="button" onClick={onEdit} className="w-full rounded-full md:w-auto" size="lg">
-            <HugeiconsIcon icon={Edit02Icon} size={18} />
-            Edit profile
-          </Button>
-        </div>
+            <Button type="button" onClick={onEdit} className="w-full rounded-full md:w-auto" size="lg">
+              <HugeiconsIcon icon={Edit02Icon} size={18} />
+              Edit profile
+            </Button>
+          </div>
+        )}
       </div>
     </header>
   );

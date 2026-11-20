@@ -32,18 +32,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/users/{username}": {
+    "/api/users/me": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /**
-         * Get user by username
-         * @description Retrieves the basic profile information of a registered user by their username.
-         */
-        get: operations["getUser"];
+        get?: never;
         /**
          * Edit user profile
          * @description Updates an existing user's profile information, such as display name, description, profile picture, and banner image. Note that the username itself cannot be modified.
@@ -198,6 +194,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/users/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get user by username
+         * @description Retrieves the basic profile information of a registered user by their username.
+         */
+        get: operations["getUser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/hello": {
         parameters: {
             query?: never;
@@ -206,6 +222,38 @@ export interface paths {
             cookie?: never;
         };
         get: operations["sayHello"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["currentUser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/csrf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["csrfToken"];
         put?: never;
         post?: never;
         delete?: never;
@@ -255,7 +303,6 @@ export interface components {
             displayName?: string;
         };
         EditUserDTO: {
-            username?: string;
             displayName?: string;
             description?: string;
             pictureFid?: string;
@@ -273,13 +320,14 @@ export interface components {
             subscribedTo?: components["schemas"]["UserDTO"][];
             /** Format: int64 */
             suscribers?: number;
-            video?: components["schemas"]["VideoInfoDTO"][];
+            videos?: components["schemas"]["VideoInfoDTO"][];
         };
         CreateVideoDTO: {
             title?: string;
             description?: string;
-            author?: components["schemas"]["VideoUserDTO"];
             categories?: string[];
+            videoFid?: string;
+            thumbnailFid?: string;
         };
         CreateUserDTO: {
             username?: string;
@@ -288,6 +336,23 @@ export interface components {
             email?: string;
             pictureFid?: string;
             bannerFid?: string;
+        };
+        CurrentUserDTO: {
+            userName?: string;
+            displayName?: string;
+            email?: string;
+            pictureFid?: string;
+            pictureUrl?: string;
+        };
+        CsrfToken: {
+            token?: string;
+            parameterName?: string;
+            headerName?: string;
+        };
+        CsrfTokenDTO: {
+            token?: string;
+            headerName?: string;
+            parameterName?: string;
         };
     };
     responses: never;
@@ -393,50 +458,11 @@ export interface operations {
             };
         };
     };
-    getUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description Unique username of the user
-                 * @example johndoe
-                 */
-                username: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User profile successfully retrieved */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["UserDTO"];
-                };
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     editUserProfile: {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                /**
-                 * @description Unique username of the user to be updated
-                 * @example johndoe
-                 */
-                username: string;
-            };
+            path?: never;
             cookie?: never;
         };
         /** @description Updated user profile details */
@@ -473,13 +499,7 @@ export interface operations {
     };
     likeVideo: {
         parameters: {
-            query: {
-                /**
-                 * @description Username of the user liking the video
-                 * @example johndoe
-                 */
-                userName: string;
-            };
+            query?: never;
             header?: never;
             path: {
                 /**
@@ -512,13 +532,7 @@ export interface operations {
     };
     commentVideo: {
         parameters: {
-            query: {
-                /**
-                 * @description Username of the user posting the comment
-                 * @example johndoe
-                 */
-                userName: string;
-            };
+            query?: never;
             header?: never;
             path: {
                 /**
@@ -609,11 +623,6 @@ export interface operations {
     subscribeToUser: {
         parameters: {
             query: {
-                /**
-                 * @description Username of the user who is subscribing
-                 * @example johndoe
-                 */
-                subscriberUsername: string;
                 /**
                  * @description Username of the channel being subscribed to
                  * @example janedoe
@@ -761,6 +770,39 @@ export interface operations {
             };
         };
     };
+    getUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Unique username of the user
+                 * @example johndoe
+                 */
+                username: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description User profile successfully retrieved */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserDTO"];
+                };
+            };
+            /** @description User not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     sayHello: {
         parameters: {
             query?: never;
@@ -777,6 +819,48 @@ export interface operations {
                 };
                 content: {
                     "*/*": string;
+                };
+            };
+        };
+    };
+    currentUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CurrentUserDTO"];
+                };
+            };
+        };
+    };
+    csrfToken: {
+        parameters: {
+            query: {
+                csrfToken: components["schemas"]["CsrfToken"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CsrfTokenDTO"];
                 };
             };
         };

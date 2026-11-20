@@ -6,6 +6,7 @@ import { ProfileHeader } from '@/components/profile/ProfileHeader';
 import { ProfileTabs } from '@/components/profile/ProfileTabs';
 import { mockActivity } from '@/components/profile/mock-data';
 import { $api } from '../lib/api';
+import { useAuth } from '@/auth/useAuth';
 
 import { components } from '@/api-schema';
 type EditUserDTO = components['schemas']['EditUserDTO'];
@@ -16,7 +17,8 @@ interface ProfileProps {
 
 export function Profile({ username: propUsername }: ProfileProps) {
   const { username: urlUsername } = useParams<{ username: string }>();
-  const targetUsername = urlUsername || propUsername;
+  const { user: currentUser } = useAuth();
+  const targetUsername = urlUsername || propUsername || currentUser?.userName;
   const [editing, setEditing] = useState(false);
 
   // 1. Fetch data and extract 'refetch' to update the UI later
@@ -41,7 +43,7 @@ export function Profile({ username: propUsername }: ProfileProps) {
   );
 
   // 2. Define the mutation using $api to perform the PUT request
-  const editProfileMutation = $api.useMutation('put', '/api/users/{username}', {
+  const editProfileMutation = $api.useMutation('put', '/api/users/me', {
     onSuccess: () => {
       setEditing(false); // Close the modal
       refetch(); // Force React Query to fetch the updated user data
@@ -67,9 +69,11 @@ export function Profile({ username: propUsername }: ProfileProps) {
     );
   }
 
+  const isOwnProfile = Boolean(currentUser?.userName && currentUser.userName === profile.userName);
+
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-6">
-      <ProfileHeader profile={profile} onEdit={() => setEditing(true)} />
+      <ProfileHeader profile={profile} onEdit={isOwnProfile ? () => setEditing(true) : undefined} />
 
       <ProfileTabs profile={profile} activity={mockActivity} />
 
@@ -82,7 +86,6 @@ export function Profile({ username: propUsername }: ProfileProps) {
         onSave={(updatedProfile) => {
           // Build the payload matching the EditUserDTO schema
           const payload: EditUserDTO = {
-            username: updatedProfile.userName, // The backend will ignore changes here according to the Swagger spec
             displayName: updatedProfile.displayName,
             description: updatedProfile.description,
             pictureFid: updatedProfile.pictureFid,
@@ -91,11 +94,6 @@ export function Profile({ username: propUsername }: ProfileProps) {
 
           // Execute the request
           editProfileMutation.mutate({
-            params: {
-              path: {
-                username: profile.userName ?? '',
-              },
-            },
             body: payload,
           });
         }}
