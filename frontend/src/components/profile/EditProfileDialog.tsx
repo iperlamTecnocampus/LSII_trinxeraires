@@ -58,7 +58,6 @@ export function EditProfileDialog({ open, onOpenChange, profile, isSaving = fals
 
   const initials = (draft.displayName || draft.userName || '').slice(0, 2).toUpperCase();
 
-
   const imageSrc = draft.pictureFid?.startsWith('blob:') ? draft.pictureFid : `/api/files/${draft.pictureFid}`;
 
   return (

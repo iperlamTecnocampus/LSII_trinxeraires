@@ -25,21 +25,23 @@ jest.mock('@/components/ui/avatar', () => {
   return {
     Avatar: ({ children, ...props }: ComponentProps<'div'>) => React.createElement('div', props, children),
     AvatarImage: (props: ComponentProps<'img'>) => React.createElement('img', props),
-    AvatarFallback: ({ children, ...props }: ComponentProps<'span'>) =>
-      React.createElement('span', props, children),
+    AvatarFallback: ({ children, ...props }: ComponentProps<'span'>) => React.createElement('span', props, children),
   };
 });
 
 jest.mock('@/components/ui/button', () => {
   const React = jest.requireActual<typeof import('react')>('react');
   return {
-    Button: ({ children, nativeButton, render, ...props }: ComponentProps<'button'> & {
+    Button: ({
+      children,
+      nativeButton,
+      render,
+      ...props
+    }: ComponentProps<'button'> & {
       nativeButton?: boolean;
       render?: React.ReactElement;
     }) =>
-      render
-        ? React.cloneElement(render, { ...props }, children)
-        : React.createElement('button', props, children),
+      render ? React.cloneElement(render, { ...props }, children) : React.createElement('button', props, children),
   };
 });
 
