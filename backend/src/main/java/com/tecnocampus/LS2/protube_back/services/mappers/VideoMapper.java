@@ -50,7 +50,6 @@ public class VideoMapper {
         video.setDescription(dto.description());
         video.setVideoFid(dto.videoFid());
         video.setThumbnailFid(dto.thumbnailFid());
-        video.setAuthor(videoUserMapper.toEntity(dto.author()));
         return video;
     }
 }

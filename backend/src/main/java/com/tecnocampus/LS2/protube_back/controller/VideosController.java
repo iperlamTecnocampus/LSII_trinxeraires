@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -62,8 +64,9 @@ public class VideosController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteVideoById(
             @Parameter(description = "Unique UUID of the video to delete", example = "123e4567-e89b-12d3-a456-426614174000", required = true)
-            @PathVariable UUID id) {
-        videoService.deleteVideoById(id);
+            @PathVariable UUID id,
+            @AuthenticationPrincipal OAuth2User principal) {
+        videoService.deleteVideoById(id, principal.getName());
     }
 
     @Operation(
@@ -77,8 +80,9 @@ public class VideosController {
     @PostMapping("/")
     public VideoInfoDTO createVideo(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Video creation data including author details", required = true)
-            @RequestBody CreateVideoDTO dto) {
-        return videoService.createVideo(dto);
+            @RequestBody CreateVideoDTO dto,
+            @AuthenticationPrincipal OAuth2User principal) {
+        return videoService.createVideo(dto, principal.getName());
     }
 
     @Operation(
@@ -94,8 +98,9 @@ public class VideosController {
             @Parameter(description = "Unique UUID of the video to update", example = "123e4567-e89b-12d3-a456-426614174000", required = true)
             @PathVariable UUID id,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Updated title and description for the video", required = true)
-            @RequestBody EditVideoDTO dto) {
-        return videoService.editVideo(id, dto);
+            @RequestBody EditVideoDTO dto,
+            @AuthenticationPrincipal OAuth2User principal) {
+        return videoService.editVideo(id, dto, principal.getName());
     }
 
     @Operation(
@@ -120,13 +125,12 @@ public class VideosController {
     })
     @PostMapping("/{id}/comments")
     public ResponseEntity<Boolean> commentVideo(
-            @Parameter(description = "Username of the user posting the comment", example = "johndoe", required = true)
-            @RequestParam String userName,
             @Parameter(description = "Unique UUID of the video being commented on", example = "123e4567-e89b-12d3-a456-426614174000", required = true)
             @PathVariable("id") UUID videoId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Plain text content of the comment", required = true)
-            @RequestBody String comment) {
-        boolean isCommented = videoService.commentVideo(userName, videoId, comment);
+            @RequestBody String comment,
+            @AuthenticationPrincipal OAuth2User principal) {
+        boolean isCommented = videoService.commentVideo(principal.getName(), videoId, comment);
         return ResponseEntity.ok(isCommented);
     }
 
@@ -140,11 +144,10 @@ public class VideosController {
     })
     @PostMapping("/{id}/likes")
     public ResponseEntity<Boolean> likeVideo(
-            @Parameter(description = "Username of the user liking the video", example = "johndoe", required = true)
-            @RequestParam String userName,
             @Parameter(description = "Unique UUID of the liked video", example = "123e4567-e89b-12d3-a456-426614174000", required = true)
-            @PathVariable("id") UUID videoId) {
-        boolean liked = videoService.likeVideo(userName, videoId);
+            @PathVariable("id") UUID videoId,
+            @AuthenticationPrincipal OAuth2User principal) {
+        boolean liked = videoService.likeVideo(principal.getName(), videoId);
         return ResponseEntity.ok(liked);
     }
 }

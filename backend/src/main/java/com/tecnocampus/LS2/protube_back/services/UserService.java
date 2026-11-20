@@ -9,7 +9,6 @@ import com.tecnocampus.LS2.protube_back.services.exceptions.UserNotFoundExceptio
 import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateUserDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.UserDTO;
 import com.tecnocampus.LS2.protube_back.services.exceptions.UserAlreadyExistsException;
-import com.tecnocampus.LS2.protube_back.services.exceptions.UsernameUpdateNotAllowedException;
 import com.tecnocampus.LS2.protube_back.services.mappers.UserMapper;
 import com.tecnocampus.LS2.protube_back.services.mappers.VideoMapper;
 import com.tecnocampus.LS2.protube_back.services.mappers.VideoUserMapper;
@@ -65,11 +64,6 @@ public class UserService {
     public UserDTO editUserProfile(String currentUsername, EditUserDTO dto) {
         User user = userRepository.findById(currentUsername)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-
-        // Check if user is attempting to change their username (Primary Key)
-        if (dto.username() != null && !dto.username().isBlank() && !dto.username().equals(currentUsername)) {
-            throw new UsernameUpdateNotAllowedException("Changing the username is not supported because it is a Primary Key. Please contact support or refactor the DB to use UUIDs as keys.");
-        }
 
         // Apply updates if the fields are present in the request
         if (dto.displayName() != null) {

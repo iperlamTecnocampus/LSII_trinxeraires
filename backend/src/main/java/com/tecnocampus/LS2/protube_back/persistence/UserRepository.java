@@ -6,10 +6,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 
 public interface UserRepository extends JpaRepository<User, String> {
+
+    Optional<User> findByEmailIgnoreCase(String email);
 
     @Query("select count(l) > 0 from User u join u.likedVideos l where u.username = :userName and l.video.uuid = :videoId")
     boolean hasLiked(@Param("userName") String userName, @Param("videoId") UUID videoId);

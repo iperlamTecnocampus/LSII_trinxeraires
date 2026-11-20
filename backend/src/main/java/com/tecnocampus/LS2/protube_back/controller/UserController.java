@@ -12,7 +12,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/users")
@@ -37,7 +41,14 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserDTO createUser(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "New user registration details", required = true)
-            @RequestBody CreateUserDTO dto) {
+            @RequestBody CreateUserDTO dto,
+            @AuthenticationPrincipal OAuth2User principal) {
+        if (!principal.getName().equals(dto.username())
+                || !Objects.equals(principal.getAttribute("email"), dto.email())) {
+            throw new org.springframework.security.access.AccessDeniedException(
+                    "An authenticated user can only register their own account."
+            );
+        }
         return userService.createUser(dto);
     }
 
@@ -66,11 +77,10 @@ public class UserController {
     })
     @PostMapping("/subscribe")
     public ResponseEntity<Boolean> subscribeToUser(
-            @Parameter(description = "Username of the user who is subscribing", example = "johndoe", required = true)
-            @RequestParam String subscriberUsername,
             @Parameter(description = "Username of the channel being subscribed to", example = "janedoe", required = true)
-            @RequestParam String subscribedUsername) {
-        boolean isSub = userService.subscribeToUser(subscriberUsername, subscribedUsername);
+            @RequestParam String subscribedUsername,
+            @AuthenticationPrincipal OAuth2User principal) {
+        boolean isSub = userService.subscribeToUser(principal.getName(), subscribedUsername);
         return ResponseEntity.ok(isSub);
     }
 
@@ -83,12 +93,11 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Unsupported operation (e.g., attempting to change the username)", content = @Content),
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
     })
-    @PutMapping("/{username}")
+    @PutMapping("/me")
     public UserDTO editUserProfile(
-            @Parameter(description = "Unique username of the user to be updated", example = "johndoe", required = true)
-            @PathVariable String username,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Updated user profile details", required = true)
-            @RequestBody EditUserDTO dto) {
-        return userService.editUserProfile(username, dto);
+            @RequestBody EditUserDTO dto,
+            @AuthenticationPrincipal OAuth2User principal) {
+        return userService.editUserProfile(principal.getName(), dto);
     }
 }
