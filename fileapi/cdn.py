@@ -19,7 +19,7 @@ router = APIRouter()
 
 s3_client = boto3.client(
     "s3",
-    endpoint_url=os.getenv("S3_ENDPOINT_URL", "http://localhost:9000"),
+    endpoint_url=os.getenv("S3_ENDPOINT_URL", "http://127.0.0.1:9000"),
     aws_access_key_id=os.getenv("S3_ACCESS_KEY_ID", "admin"),
     aws_secret_access_key=os.getenv("S3_SECRET_ACCESS_KEY", "admin"),
     region_name=os.getenv("S3_REGION", "us-east-1"),
