@@ -3,6 +3,7 @@ package com.tecnocampus.LS2.protube_back.services;
 import com.tecnocampus.LS2.protube_back.model.User;
 import com.tecnocampus.LS2.protube_back.model.Video;
 import com.tecnocampus.LS2.protube_back.persistence.CommentRepository;
+import com.tecnocampus.LS2.protube_back.persistence.CategoryRepository;
 import com.tecnocampus.LS2.protube_back.persistence.UserRepository;
 import com.tecnocampus.LS2.protube_back.persistence.VideoRepository;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.EditVideoDTO;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -39,6 +41,9 @@ class VideoServiceTest {
     @Mock
     private CommentRepository commentRepository;
 
+    @Mock
+    private CategoryRepository categoryRepository;
+
     private VideoService videoService;
 
     private UUID videoId;
@@ -48,7 +53,7 @@ class VideoServiceTest {
 
     @BeforeEach
     void setUp() {
-        videoService = new VideoService(videoRepository, userRepository, commentRepository);
+        videoService = new VideoService(videoRepository, userRepository, commentRepository, categoryRepository);
         videoId = UUID.randomUUID();
         username = "john_doe";
 
@@ -147,11 +152,11 @@ class VideoServiceTest {
         @Test
         @DisplayName("deleteVideoById debe llamar al repositorio")
         void deleteVideoById_Success() {
-            doNothing().when(videoRepository).deleteById(videoId);
+            when(videoRepository.findById(videoId)).thenReturn(Optional.of(sampleVideo));
 
-            videoService.deleteVideoById(videoId);
+            videoService.deleteVideoById(videoId, username);
 
-            verify(videoRepository, times(1)).deleteById(videoId);
+            verify(videoRepository, times(1)).delete(sampleVideo);
         }
     }
 
@@ -169,11 +174,25 @@ class VideoServiceTest {
             when(videoRepository.findById(videoId)).thenReturn(Optional.of(sampleVideo));
             when(videoRepository.save(any(Video.class))).thenReturn(sampleVideo);
 
-            VideoInfoDTO result = videoService.editVideo(videoId, editDto);
+            VideoInfoDTO result = videoService.editVideo(videoId, editDto, username);
 
             assertEquals("Nuevo Título", result.title());
             assertEquals("Nueva Descripción", result.description());
             verify(videoRepository, times(1)).save(sampleVideo);
+        }
+
+        @Test
+        @DisplayName("edit and delete reject users who do not own the video")
+        void modificationsRequireVideoOwnership() {
+            when(videoRepository.findById(videoId)).thenReturn(Optional.of(sampleVideo));
+
+            assertThrows(AccessDeniedException.class,
+                    () -> videoService.editVideo(videoId, new EditVideoDTO("New", null), "another-user"));
+            assertThrows(AccessDeniedException.class,
+                    () -> videoService.deleteVideoById(videoId, "another-user"));
+
+            verify(videoRepository, never()).save(any(Video.class));
+            verify(videoRepository, never()).delete(any(Video.class));
         }
 
         @Test

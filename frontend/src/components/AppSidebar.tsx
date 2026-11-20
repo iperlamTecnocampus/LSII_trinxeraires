@@ -4,7 +4,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
-  SidebarGroupAction,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
@@ -14,7 +13,8 @@ import { Separator } from '@/components/ui/separator';
 import { Link, useLocation } from 'react-router';
 
 import { HugeiconsIcon } from '@hugeicons/react';
-import { HomeIcon, UserGroupIcon, ThumbsUpIcon, VideoReplayIcon, ChevronRightIcon } from '@hugeicons/core-free-icons';
+import { HomeIcon, ThumbsUpIcon, VideoReplayIcon, ChevronRightIcon } from '@hugeicons/core-free-icons';
+import { useAuth } from '@/auth/useAuth';
 
 type IconSvgObject =
   | [
@@ -30,7 +30,7 @@ type IconSvgObject =
       },
     ])[];
 
-function MenuItem({ path, icon, title, key }: { key: string; path: string; icon: IconSvgObject; title: string }) {
+function MenuItem({ path, icon, title }: { path: string; icon: IconSvgObject; title: string }) {
   const isActive = useLocation().pathname === path;
 
   return (
@@ -45,7 +45,7 @@ function MenuItem({ path, icon, title, key }: { key: string; path: string; icon:
 function Subscription({ profilePicture, name, username }: { profilePicture: string; username: string; name: string }) {
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton render={<Link to={'user/' + username} />} className="h-12">
+      <SidebarMenuButton render={<Link to={`/profile/${username}`} />} className="h-12">
         <div className="flex flex-row gap-2 items-center">
           <Avatar>
             <AvatarImage src={profilePicture} alt={'@' + username} />
@@ -59,6 +59,8 @@ function Subscription({ profilePicture, name, username }: { profilePicture: stri
 }
 
 export function AppSidebar() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <Sidebar>
       <SidebarHeader className="h-[57px] shrink-0" />
@@ -66,28 +68,36 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarMenu>
             <MenuItem key="home" path="/" icon={HomeIcon} title="Home" />
-            <MenuItem key="liked_videos" path="/liked" icon={ThumbsUpIcon} title="Liked videos" />
-            <MenuItem key="your_videos" path="/studio" icon={VideoReplayIcon} title="Your videos" />
+            {isAuthenticated && (
+              <>
+                <MenuItem key="liked_videos" path="/liked" icon={ThumbsUpIcon} title="Liked videos" />
+                <MenuItem key="your_videos" path="/studio" icon={VideoReplayIcon} title="Your videos" />
+              </>
+            )}
           </SidebarMenu>
         </SidebarGroup>
-        <div className="w-full px-4">
-          <Separator />
-        </div>
-        <SidebarGroup>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton render={<Link to="subscriptions" />}>
-                Subscriptions <HugeiconsIcon icon={ChevronRightIcon} strokeWidth={2}></HugeiconsIcon>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+        {isAuthenticated && (
+          <>
+            <div className="w-full px-4">
+              <Separator />
+            </div>
+            <SidebarGroup>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton render={<Link to="/subscriptions" />}>
+                    Subscriptions <HugeiconsIcon icon={ChevronRightIcon} strokeWidth={2} />
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
 
-            <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
-            <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
-            <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
-            <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
-            <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
-          </SidebarMenu>
-        </SidebarGroup>
+                <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
+                <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
+                <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
+                <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
+                <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
+              </SidebarMenu>
+            </SidebarGroup>
+          </>
+        )}
       </SidebarContent>
       <SidebarFooter />
     </Sidebar>

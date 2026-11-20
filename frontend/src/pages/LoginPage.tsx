@@ -1,20 +1,30 @@
-import { useNavigate } from 'react-router';
+import { Navigate, useNavigate } from 'react-router';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Facebook01Icon, Github01Icon, GoogleIcon, PlayCircle02Icon } from '@hugeicons/core-free-icons';
+import { GoogleIcon, PlayCircle02Icon } from '@hugeicons/core-free-icons';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/auth/useAuth';
 
 export function LoginPage() {
   const navigate = useNavigate();
-
-  function handleProviderLogin(provider: string) {
-    console.log(`Login with ${provider}`);
-  }
+  const { isAuthenticated, isLoading } = useAuth();
 
   function handleGuestAccess() {
     navigate('/');
+  }
+
+  if (isLoading) {
+    return (
+      <div className="p-6" role="status">
+        Checking your session…
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
   }
 
   return (
@@ -34,33 +44,14 @@ export function LoginPage() {
         <CardContent>
           <div className="flex flex-col gap-3">
             <Button
-              type="button"
+              nativeButton={false}
+              role="link"
+              render={<a href="/oauth2/authorization/google" />}
               variant="outline"
               className="h-12 w-full justify-start gap-3 rounded-full px-5"
-              onClick={() => handleProviderLogin('Google')}
             >
               <HugeiconsIcon icon={GoogleIcon} size={20} />
               Continue with Google
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              className="h-12 w-full justify-start gap-3 rounded-full px-5"
-              onClick={() => handleProviderLogin('GitHub')}
-            >
-              <HugeiconsIcon icon={Github01Icon} size={20} />
-              Continue with GitHub
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              className="h-12 w-full justify-start gap-3 rounded-full px-5"
-              onClick={() => handleProviderLogin('Facebook')}
-            >
-              <HugeiconsIcon icon={Facebook01Icon} size={20} />
-              Continue with Facebook
             </Button>
           </div>
 

@@ -156,7 +156,6 @@ class UserServiceTest {
         void editUserProfile_Success() {
             // Arrange
             EditUserDTO dto = new EditUserDTO(
-                    username, // Mismo username, no debería lanzar excepción
                     "Nou Display Name",
                     "Nova descripció",
                     "new_pic_fid",
@@ -188,7 +187,7 @@ class UserServiceTest {
         void editUserProfile_PartialUpdate_Success() {
             // Arrange
             // Solo pasamos la descripción, el resto nulo
-            EditUserDTO dto = new EditUserDTO(null, null, "Solo actualizo la descripción", null, null);
+            EditUserDTO dto = new EditUserDTO(null, "Solo actualizo la descripción", null, null);
 
             User existingUser = new User(username, email);
             existingUser.setDisplayName("Nom Original");
@@ -209,32 +208,10 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("Debe lanzar UnsupportedOperationException al intentar cambiar el username (PK)")
-        void editUserProfile_ChangeUsername_ThrowsException() {
-            // Arrange
-            EditUserDTO dto = new EditUserDTO(
-                    "username_diferent_ilegal",
-                    "Nom",
-                    "Desc",
-                    "pic",
-                    "banner"
-            );
-            User existingUser = new User(username, email);
-
-            when(userRepository.findById(username)).thenReturn(Optional.of(existingUser));
-
-            // Act & Assert
-            assertThrows(UnsupportedOperationException.class, () -> userService.editUserProfile(username, dto));
-
-            verify(userRepository, times(1)).findById(username);
-            verify(userRepository, never()).save(any(User.class)); // Ens assegurem que no es desa res
-        }
-
-        @Test
         @DisplayName("Debe lanzar UserNotFoundException cuando el usuario no existe en la base de datos")
         void editUserProfile_UserNotFound_ThrowsException() {
             // Arrange
-            EditUserDTO dto = new EditUserDTO(username, "Nom", "Desc", "pic", "banner");
+            EditUserDTO dto = new EditUserDTO("Nom", "Desc", "pic", "banner");
             when(userRepository.findById(username)).thenReturn(Optional.empty());
 
             // Act & Assert

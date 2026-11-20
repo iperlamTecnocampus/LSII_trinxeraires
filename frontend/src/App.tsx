@@ -1,8 +1,8 @@
 import './App.css';
 
-import { useAllVideos } from './useAllVideos';
 import { BrowserRouter, Route, Routes } from 'react-router';
 
+import { RequireAuth } from './auth/RequireAuth';
 import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { LoginPage } from './pages/LoginPage';
@@ -27,12 +27,33 @@ function App() {
                 <Route index element={<Home />} />
                 <Route path="/about" element={<Home />} />
 
-                <Route path="/profile" element={<Profile username="ana" />} />
+                <Route
+                  path="/profile"
+                  element={
+                    <RequireAuth>
+                      <Profile />
+                    </RequireAuth>
+                  }
+                />
 
                 <Route path="/profile/:username" element={<Profile />} />
 
-                <Route path="/upload" element={<UploadPage />} />
-                <Route path="/studio" element={<VideoStudioPage />} />
+                <Route
+                  path="/upload"
+                  element={
+                    <RequireAuth>
+                      <UploadPage />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/studio"
+                  element={
+                    <RequireAuth>
+                      <VideoStudioPage />
+                    </RequireAuth>
+                  }
+                />
                 <Route path="/watch/:videoId" element={<VideoPlayback />} />
               </Routes>
             </Layout>
@@ -41,38 +62,6 @@ function App() {
       </Routes>
     </BrowserRouter>
   );
-}
-
-function ContentApp() {
-  const { loading, message, value } = useAllVideos();
-
-  switch (loading) {
-    case 'loading':
-      return <div>Loading...</div>;
-
-    case 'error':
-      return (
-        <div>
-          <h3>Error</h3>
-          <p>{message}</p>
-        </div>
-      );
-
-    case 'success':
-      return (
-        <>
-          <strong>Videos availables:</strong>
-
-          <ul>
-            {value.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </>
-      );
-  }
-
-  return <div>Idle...</div>;
 }
 
 export default App;

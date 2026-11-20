@@ -14,9 +14,9 @@ class CategoryTest {
 
     @Test
     void constructorSetsIdAndNameAndInitializesVideos() {
-        Category category = new Category(111L, "Music");
+        Category category = new Category("111", "Music");
 
-        assertEquals(111L, category.getId());
+        assertEquals("111", category.getId());
         assertEquals("Music", category.getName());
         assertNotNull(category.getVideos());
         assertTrue(category.getVideos().isEmpty());

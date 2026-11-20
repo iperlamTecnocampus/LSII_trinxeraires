@@ -149,7 +149,6 @@ export function UploadPage() {
         body: {
           title: title.trim(),
           description,
-          author: { userName: 'ana' },
           categories: category ? [category] : [],
           videoFid,
           thumbnailFid,
