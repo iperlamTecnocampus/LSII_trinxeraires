@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,10 +29,19 @@ public class ProTubeOAuth2UserService implements OAuth2UserService<OAuth2UserReq
     private static final int MAX_USERNAME_LENGTH = 50;
 
     private final UserRepository userRepository;
-    private final DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
+    private final OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate;
 
+    @Autowired
     public ProTubeOAuth2UserService(UserRepository userRepository) {
+        this(userRepository, new DefaultOAuth2UserService());
+    }
+
+    ProTubeOAuth2UserService(
+            UserRepository userRepository,
+            OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate
+    ) {
         this.userRepository = userRepository;
+        this.delegate = delegate;
     }
 
     @Override

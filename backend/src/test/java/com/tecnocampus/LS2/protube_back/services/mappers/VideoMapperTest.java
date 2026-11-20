@@ -3,10 +3,8 @@ package com.tecnocampus.LS2.protube_back.services.mappers;
 import com.tecnocampus.LS2.protube_back.model.Category;
 import com.tecnocampus.LS2.protube_back.model.User;
 import com.tecnocampus.LS2.protube_back.model.Video;
-import com.tecnocampus.LS2.protube_back.services.DTO.out.CategoryDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateVideoDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoInfoDTO;
-import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoUserDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
@@ -26,11 +24,21 @@ class VideoMapperTest {
     private final VideoMapper mapper = new VideoMapper(videoUserMapper, commentMapper, categoryMapper);
 
     @Test
+    void createVideoDtoShortConstructorDefaultsFileIds() {
+        CreateVideoDTO dto = new CreateVideoDTO("Title", "Description", List.of("gaming"));
+
+        assertEquals("Title", dto.title());
+        assertEquals(List.of("gaming"), dto.categories());
+        assertNull(dto.videoFid());
+        assertNull(dto.thumbnailFid());
+    }
+
+    @Test
     void toDtoMapsVideoFieldsCorrectly() throws Exception {
         User author = new User("creator", "creator@example.com");
         author.setDisplayName("Creator");
 
-        Category category = new Category(1L, "Gaming");
+        Category category = new Category("1", "Gaming");
         Video video = new Video("Video Title", "Video Description", author, Set.of(category));
         video.setVideoFid("video123");
         video.setThumbnailFid("thumb123");
@@ -45,7 +53,7 @@ class VideoMapperTest {
         assertNotNull(dto.author());
         assertEquals("creator", dto.author().userName());
         assertEquals(1, dto.categories().size());
-        assertEquals(1L, dto.categories().get(0));
+        assertEquals("1", dto.categories().get(0).id());
         assertEquals(0L, dto.likes());
         assertEquals(0L, dto.views());
     }
@@ -57,15 +65,10 @@ class VideoMapperTest {
 
     @Test
     void toEntityMapsCreateVideoDtoToVideoCorrectly() throws Exception {
-        VideoUserDTO authorDto = new VideoUserDTO("pic123", "creator", "Creator Name");
-        CategoryDTO categoryDto1 = new CategoryDTO(1L, "Gaming");
-        CategoryDTO categoryDto2 = new CategoryDTO(2L, "Tech");
-
         CreateVideoDTO dto = new CreateVideoDTO(
                 "New Title",
                 "New Description",
-                authorDto,
-                List.of(categoryDto1, categoryDto2)
+                List.of("1", "2")
         );
 
         Video video = mapper.toEntity(dto);
@@ -74,14 +77,12 @@ class VideoMapperTest {
         assertEquals("New Title", fieldValue(video, "title"));
         assertEquals("New Description", fieldValue(video, "description"));
 
-        User author = (User) fieldValue(video, "author");
-        assertNotNull(author);
-        assertEquals("creator", fieldValue(author, "username"));
+        assertNull(fieldValue(video, "author"));
 
         @SuppressWarnings("unchecked")
         Set<Category> categories = (Set<Category>) fieldValue(video, "categories");
         assertNotNull(categories);
-        assertEquals(2, categories.size());
+        assertEquals(0, categories.size());
     }
 
     @Test
@@ -89,7 +90,6 @@ class VideoMapperTest {
         CreateVideoDTO dto = new CreateVideoDTO(
                 "New Title",
                 "New Description",
-                new VideoUserDTO("pic123", "creator", "Creator Name"),
                 List.of(),
                 "video-fid",
                 "thumbnail-fid"
@@ -107,7 +107,6 @@ class VideoMapperTest {
                 {
                   "title": "New Title",
                   "description": "New Description",
-                  "author": {"userName": "creator"},
                   "categories": [],
                   "videoFid": "video-fid",
                   "thumbnailFid": "thumbnail-fid"

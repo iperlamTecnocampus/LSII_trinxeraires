@@ -46,7 +46,7 @@ export const apiFetch: typeof fetch = async (input, init) => {
     headers.set(csrfToken.headerName || 'X-CSRF-TOKEN', csrfToken.token);
   }
 
-  return fetch(new Request(request, { credentials: 'include', headers }));
+  return fetch(new Request(request, { headers }), { credentials: 'include' });
 };
 
 const fetchClient = createFetchClient<paths>({

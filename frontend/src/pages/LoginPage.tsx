@@ -11,10 +11,6 @@ export function LoginPage() {
   const navigate = useNavigate();
   const { isAuthenticated, isLoading } = useAuth();
 
-  function handleGoogleLogin() {
-    window.location.assign('/oauth2/authorization/google');
-  }
-
   function handleGuestAccess() {
     navigate('/');
   }
@@ -48,10 +44,11 @@ export function LoginPage() {
         <CardContent>
           <div className="flex flex-col gap-3">
             <Button
-              type="button"
+              nativeButton={false}
+              role="link"
+              render={<a href="/oauth2/authorization/google" />}
               variant="outline"
               className="h-12 w-full justify-start gap-3 rounded-full px-5"
-              onClick={handleGoogleLogin}
             >
               <HugeiconsIcon icon={GoogleIcon} size={20} />
               Continue with Google

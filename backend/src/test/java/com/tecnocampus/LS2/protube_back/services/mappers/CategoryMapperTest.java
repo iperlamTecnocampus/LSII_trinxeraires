@@ -16,12 +16,12 @@ class CategoryMapperTest {
 
     @Test
     void toDtoMapsCategoryFieldsCorrectly() {
-        Category category = new Category(1L, "Music");
+        Category category = new Category("1", "Music");
 
         CategoryDTO dto = mapper.toDTO(category);
 
         assertNotNull(dto);
-        assertEquals(1L, dto.id());
+        assertEquals("1", dto.id());
         assertEquals("Music", dto.name());
     }
 
@@ -32,12 +32,12 @@ class CategoryMapperTest {
 
     @Test
     void toEntityMapsDtoFieldsToCategoryCorrectly() throws Exception {
-        CategoryDTO dto = new CategoryDTO(1L, "Music");
+        CategoryDTO dto = new CategoryDTO("1", "Music");
 
         Category category = mapper.toEntity(dto);
 
         assertNotNull(category);
-        assertEquals(1L, fieldValue(category, "id"));
+        assertEquals("1", fieldValue(category, "id"));
         assertEquals("Music", fieldValue(category, "name"));
     }
 

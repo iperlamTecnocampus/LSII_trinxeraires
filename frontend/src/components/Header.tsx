@@ -26,9 +26,11 @@ function AvatarMenu({ user }: { user: CurrentUser }) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={<Avatar className="cursor-pointer" />}>
-        <AvatarImage src={avatarSrc} alt={user.displayName || user.userName || 'Your profile'} />
-        <AvatarFallback>{(user.displayName || user.userName || 'You').slice(0, 2).toUpperCase()}</AvatarFallback>
+      <DropdownMenuTrigger className="rounded-full p-0">
+        <Avatar className="cursor-pointer">
+          <AvatarImage src={avatarSrc} alt={user.displayName || user.userName || 'Your profile'} />
+          <AvatarFallback>{(user.displayName || user.userName || 'You').slice(0, 2).toUpperCase()}</AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent>

@@ -1,38 +1,40 @@
 package com.tecnocampus.LS2.protube_back.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tecnocampus.LS2.protube_back.configuration.SecurityConfig;
 import com.tecnocampus.LS2.protube_back.controller.exceptionHandler.DomainExceptionHandler;
-import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateUserDTO;
-import com.tecnocampus.LS2.protube_back.services.DTO.out.UserDTO;
+import com.tecnocampus.LS2.protube_back.services.ProTubeOAuth2UserService;
 import com.tecnocampus.LS2.protube_back.services.UserService;
-import com.tecnocampus.LS2.protube_back.services.exceptions.UserAlreadyExistsException;
-import com.tecnocampus.LS2.protube_back.services.exceptions.UserNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
+import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateUserDTO;
+import com.tecnocampus.LS2.protube_back.services.DTO.in.EditUserDTO;
+import com.tecnocampus.LS2.protube_back.services.DTO.out.UserDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.List;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(value = UserController.class, properties = {
-        "ENV_PROTUBE_STORE_DIR=C:/tmp/test-storage"
-})
-@Import(DomainExceptionHandler.class)
+@WebMvcTest(value = UserController.class, properties = "pro_tube.frontend.url=http://localhost:5173")
+@Import({SecurityConfig.class, DomainExceptionHandler.class})
 class UserControllerTest {
+    private static final String SESSION_USERNAME = "session-user";
 
     @Autowired
     private MockMvc mockMvc;
@@ -43,150 +45,90 @@ class UserControllerTest {
     @MockBean
     private UserService userService;
 
-    @Autowired
-    private UserController userController;
+    @MockBean
+    private ProTubeOAuth2UserService oauth2UserService;
 
-    private String username;
-    private UUID videoId;
+    @Test
+    void publicProfileReadDoesNotRequireAuthentication() throws Exception {
+        when(userService.getUser("public-user")).thenReturn(userDto("public-user"));
 
-    @BeforeEach
-    void setUp() {
-        username = "john_doe";
-        videoId = UUID.randomUUID();
+        mockMvc.perform(get("/api/users/{username}", "public-user"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userName").value("public-user"));
+
+        verify(userService).getUser("public-user");
     }
 
-    // =========================================================================
-    // ENDPOINT: POST /api/users/
-    // =========================================================================
-    @Nested
-    @DisplayName("Tests para POST /api/users/")
-    class CreateUserEndpointTests {
+    @Test
+    void userCreationIsProtectedAndConstrainedToTheSessionIdentity() throws Exception {
+        CreateUserDTO request = new CreateUserDTO(
+                SESSION_USERNAME,
+                "Session User",
+                null,
+                SESSION_USERNAME + "@example.com",
+                null,
+                null
+        );
+        when(userService.createUser(any(CreateUserDTO.class))).thenReturn(userDto(SESSION_USERNAME));
 
-        @Test
-        @DisplayName("Debe devolver HTTP 201 y el UserDTO al crear un usuario exitosamente")
-        void createUser_Success() throws Exception {
-            CreateUserDTO createDto = new CreateUserDTO(
-                    username,
-                    "John Doe",
-                    "Descripción de prueba",
-                    "john.doe@example.com",
-                    "pic_fid_123",
-                    "banner_fid_456"
-            );
+        mockMvc.perform(post("/api/users/")
+                        .with(authentication(authenticatedUser(SESSION_USERNAME)))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated());
 
-            UserDTO expectedUser = new UserDTO(
-                    "pic_fid_123",
-                    "banner_fid_456", // <-- AFEGIT: Nou paràmetre bannerFid
-                    username,
-                    "John Doe",
-                    "Descripción de prueba",
-                    "john.doe@example.com",
-                    LocalDate.now(),
-                    Collections.emptyList(),
-                    0L,
-                    Collections.emptyList()
-            );
+        verify(userService).createUser(request);
 
-            when(userService.createUser(any(CreateUserDTO.class))).thenReturn(expectedUser);
-
-            mockMvc.perform(post("/api/users/")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(createDto)))
-                    .andExpect(status().isCreated())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.userName").value(username))
-                    .andExpect(jsonPath("$.displayName").value("John Doe"))
-                    .andExpect(jsonPath("$.email").value("john.doe@example.com"));
-
-            verify(userService, times(1)).createUser(any(CreateUserDTO.class));
-        }
-
-        @Test
-        @DisplayName("Debe lanzar UserAlreadyExistsException cuando el usuario ya existe")
-        void createUser_AlreadyExists_AssertThrows() {
-            CreateUserDTO createDto = new CreateUserDTO(
-                    username,
-                    "John Doe",
-                    "Descripción de prueba",
-                    "john.doe@example.com",
-                    "pic_fid_123",
-                    "banner_fid_456"
-            );
-
-            when(userService.createUser(any(CreateUserDTO.class)))
-                    .thenThrow(new UserAlreadyExistsException("User already exists"));
-
-            assertThrows(
-                    UserAlreadyExistsException.class,
-                    () -> userController.createUser(createDto)
-            );
-
-            verify(userService, times(1)).createUser(any(CreateUserDTO.class));
-        }
-
-        @Test
-        @DisplayName("Debe lanzar IllegalArgumentException cuando faltan datos obligatorios")
-        void createUser_InvalidArguments_AssertThrows() {
-            CreateUserDTO invalidDto = new CreateUserDTO(
-                    "",
-                    "John Doe",
-                    "Descripción",
-                    "",
-                    "pic_fid_123",
-                    "banner_fid_456"
-            );
-
-            when(userService.createUser(any(CreateUserDTO.class)))
-                    .thenThrow(new IllegalArgumentException("username and email are required"));
-
-            assertThrows(
-                    IllegalArgumentException.class,
-                    () -> userController.createUser(invalidDto)
-            );
-
-            verify(userService, times(1)).createUser(any(CreateUserDTO.class));
-        }
+        mockMvc.perform(post("/api/users/")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
     }
 
-    // =========================================================================
-    // ENDPOINT: POST /api/users/subscribe
-    // =========================================================================
-    @Nested
-    @DisplayName("Tests para POST /api/users/subscribe")
-    class SubscribeToUserEndpointTests {
+    @Test
+    void subscribeUsesTheSessionUsernameAndOnlyAcceptsTheTargetUsername() throws Exception {
+        when(userService.subscribeToUser(SESSION_USERNAME, "target-user")).thenReturn(true);
 
-        @Test
-        @DisplayName("Debe devolver HTTP 200 y true al suscribirse exitosamente")
-        void subscribeToUser_Success() throws Exception {
-            String subscriber = "john_doe";
-            String subscribed = "jane_doe";
-            when(userService.subscribeToUser(subscriber, subscribed)).thenReturn(true);
+        mockMvc.perform(post("/api/users/subscribe")
+                        .param("subscribedUsername", "target-user")
+                        .param("subscriberUsername", "forged-user")
+                        .with(authentication(authenticatedUser(SESSION_USERNAME)))
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
 
-            mockMvc.perform(post("/api/users/subscribe")
-                            .param("subscriberUsername", subscriber)
-                            .param("subscribedUsername", subscribed))
-                    .andExpect(status().isOk())
-                    .andExpect(content().string("true"));
+        verify(userService).subscribeToUser(SESSION_USERNAME, "target-user");
+    }
 
-            verify(userService, times(1)).subscribeToUser(subscriber, subscribed);
-        }
+    @Test
+    void profileEditTargetsTheCurrentSessionUserWithoutAUsernameInTheRequest() throws Exception {
+        EditUserDTO request = new EditUserDTO("Updated display name", null, null, null);
+        when(userService.editUserProfile(eq(SESSION_USERNAME), any(EditUserDTO.class)))
+                .thenReturn(userDto(SESSION_USERNAME));
 
-        @Test
-        @DisplayName("Debe devolver HTTP 404 Not Found cuando el usuario a suscribir no existe")
-        void subscribeToUser_UserNotFound_Returns404() throws Exception {
-            String subscriber = "john_doe";
-            String subscribed = "non_existent_user";
-            when(userService.subscribeToUser(subscriber, subscribed))
-                    .thenThrow(new UserNotFoundException("Subscribed user not found"));
+        mockMvc.perform(put("/api/users/me")
+                        .with(authentication(authenticatedUser(SESSION_USERNAME)))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
 
-            mockMvc.perform(post("/api/users/subscribe")
-                            .param("subscriberUsername", subscriber)
-                            .param("subscribedUsername", subscribed))
-                    .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.title").value("User Not Found"))
-                    .andExpect(jsonPath("$.detail").value("Subscribed user not found"));
+        verify(userService).editUserProfile(SESSION_USERNAME, request);
+    }
 
-            verify(userService, times(1)).subscribeToUser(subscriber, subscribed);
-        }
+    private static UserDTO userDto(String username) {
+        return new UserDTO(null, null, username, "Display Name", null, username + "@example.com",
+                LocalDate.now(), List.of(), 0L, List.of());
+    }
+
+    private static OAuth2AuthenticationToken authenticatedUser(String username) {
+        DefaultOAuth2User principal = new DefaultOAuth2User(
+                List.of(new SimpleGrantedAuthority("ROLE_USER")),
+                Map.of("username", username, "email", username + "@example.com"),
+                "username"
+        );
+        return new OAuth2AuthenticationToken(principal, principal.getAuthorities(), "google");
     }
 }
