@@ -19,6 +19,7 @@ import com.tecnocampus.LS2.protube_back.services.mappers.CategoryMapper;
 import com.tecnocampus.LS2.protube_back.services.mappers.CommentMapper;
 import com.tecnocampus.LS2.protube_back.services.mappers.VideoMapper;
 import com.tecnocampus.LS2.protube_back.services.mappers.VideoUserMapper;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -49,8 +50,10 @@ public class VideoService {
         return videoRepository.findAll().stream().map(video -> videoMapper.toDTO(video)).toList();
     }
 
-    public void deleteVideoById(UUID id) {
-        videoRepository.deleteById(id);
+    public void deleteVideoById(UUID id, String currentUsername) {
+        Video video = videoRepository.findById(id).orElseThrow(() -> new VideoNotFoundException("Video not found"));
+        ensureOwner(video, currentUsername);
+        videoRepository.delete(video);
     }
 
     //fetch info video
@@ -59,11 +62,11 @@ public class VideoService {
         return videoMapper.toDTO(video);
     }
 
-    public VideoInfoDTO createVideo(CreateVideoDTO dto) {
+    public VideoInfoDTO createVideo(CreateVideoDTO dto, String currentUsername) {
         Video video = videoMapper.toEntity(dto);
 
         Set<Category> categories = new HashSet<>();
-        List<String> categoryIds = dto.categories();
+        List<String> categoryIds = dto.categories() == null ? List.of() : dto.categories();
         for (String cid : categoryIds) {
             categories.add(this.categoryRepository.findById(cid)
                     .orElseThrow(
@@ -72,8 +75,7 @@ public class VideoService {
         }
         video.setCategories(categories);
 
-        String authorName = dto.author() != null ? dto.author().userName() : null;
-        User author = userRepository.findById(authorName != null ? authorName : "")
+        User author = userRepository.findById(currentUsername)
                 .orElseThrow(() -> new UserNotFoundException("Author not found"));
         video.setAuthor(author);
         videoRepository.save(video);
@@ -81,8 +83,9 @@ public class VideoService {
     }
 
     //edit title and description
-    public VideoInfoDTO editVideo(UUID id, EditVideoDTO dto) {
+    public VideoInfoDTO editVideo(UUID id, EditVideoDTO dto, String currentUsername) {
         Video video = videoRepository.findById(id).orElseThrow(() -> new VideoNotFoundException("Video not found"));
+        ensureOwner(video, currentUsername);
         video.setTitle(dto.title() != null ? dto.title() : video.getTitle());
         video.setDescription(dto.description() != null ? dto.description() : video.getDescription());
         videoRepository.save(video);
@@ -121,5 +124,11 @@ public class VideoService {
         userRepository.save(user);
         videoRepository.save(video);
         return userRepository.hasLiked(userName, videoId);
+    }
+
+    private static void ensureOwner(Video video, String currentUsername) {
+        if (video.getAuthor() == null || !video.getAuthor().getUsername().equals(currentUsername)) {
+            throw new AccessDeniedException("Only the video owner can modify this video.");
+        }
     }
 }
