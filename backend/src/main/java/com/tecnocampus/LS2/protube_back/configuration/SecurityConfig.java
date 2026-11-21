@@ -25,6 +25,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
+                                "/assets/**",
                                 "/oauth2/**",
                                 "/login/**",
                                 "/api/auth/me",
