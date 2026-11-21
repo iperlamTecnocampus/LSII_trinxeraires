@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-quer
 
 import { useAuth } from '@/auth/useAuth';
 import { $api } from '@/lib/api';
-import { VideoDetails } from './VideoDetails';
+import { SubscriptionButton } from './SubscriptionButton';
 
 jest.mock('@/auth/useAuth', () => ({
   useAuth: jest.fn(),
@@ -20,16 +20,10 @@ jest.mock('react-router', () => ({
   useNavigate: () => jest.fn(),
 }));
 
-const video = {
-  title: 'Test video',
-  likes: 0,
-  author: {
-    userName: 'creator',
-    displayName: 'Creator',
-  },
-} as NonNullable<Parameters<typeof VideoDetails>[0]['video']>;
+const authorQueryKey = ['get', '/api/users/{username}', { params: { path: { username: 'creator' } } }] as const;
+const currentUserQueryKey = ['get', '/api/users/{username}', { params: { path: { username: 'viewer' } } }] as const;
 
-describe('VideoDetails subscribe button', () => {
+describe('SubscriptionButton', () => {
   let queryClient: QueryClient;
   let mutationOptions: {
     post: { onSuccess: (subscribed: boolean) => void; onError: (error: Error) => void };
@@ -55,11 +49,9 @@ describe('VideoDetails subscribe button', () => {
     });
 
     ($api.useQuery as jest.Mock).mockImplementation((_method, path, query, options) => {
-      const username = query.params.path.username;
       return useQuery({
         queryKey: ['get', path, query],
-        queryFn: async () =>
-          username === 'viewer' ? { userName: 'viewer', subscribedTo: [] } : { userName: 'creator', suscribers: 10 },
+        queryFn: async () => ({ userName: 'viewer', subscribedTo: [] }),
         enabled: options.enabled,
       });
     });
@@ -68,11 +60,11 @@ describe('VideoDetails subscribe button', () => {
       return { mutate, isPending: false };
     });
 
-    queryClient.setQueryData(['get', '/api/users/{username}', { params: { path: { username: 'creator' } } }], {
+    queryClient.setQueryData(authorQueryKey, {
       userName: 'creator',
       suscribers: 10,
     });
-    queryClient.setQueryData(['get', '/api/users/{username}', { params: { path: { username: 'viewer' } } }], {
+    queryClient.setQueryData(currentUserQueryKey, {
       userName: 'viewer',
       subscribedTo: [],
     });
@@ -83,16 +75,20 @@ describe('VideoDetails subscribe button', () => {
     jest.clearAllMocks();
   });
 
-  function renderDetails() {
+  function renderButton() {
     return render(
       <QueryClientProvider client={queryClient}>
-        <VideoDetails video={video} />
+        <SubscriptionButton username="creator" />
       </QueryClientProvider>
     );
   }
 
+  function subscriberCount() {
+    return queryClient.getQueryData<{ suscribers: number }>(authorQueryKey)?.suscribers;
+  }
+
   it('optimistically updates the button and subscriber count, then confirms the subscription', () => {
-    renderDetails();
+    renderButton();
 
     fireEvent.click(screen.getByRole('button', { name: 'Subscribe' }));
 
@@ -104,52 +100,45 @@ describe('VideoDetails subscribe button', () => {
       },
     });
     expect(screen.getByRole('button', { name: 'Unsubscribe' })).toBeEnabled();
-    expect(screen.getByText('11 subscribers')).toBeInTheDocument();
+    expect(subscriberCount()).toBe(11);
 
     act(() => mutationOptions.post.onSuccess(true));
 
     expect(screen.getByRole('button', { name: 'Unsubscribe' })).toBeEnabled();
-    expect(screen.getByText('11 subscribers')).toBeInTheDocument();
-    expect(
-      queryClient.getQueryData<{ suscribers: number }>([
-        'get',
-        '/api/users/{username}',
-        { params: { path: { username: 'creator' } } },
-      ])?.suscribers
-    ).toBe(11);
+    expect(subscriberCount()).toBe(11);
   });
 
   it('rolls back the optimistic UI when the request fails', () => {
-    renderDetails();
+    renderButton();
 
     fireEvent.click(screen.getByRole('button', { name: 'Subscribe' }));
     act(() => mutationOptions.post.onError(new Error('Network unavailable')));
 
     expect(screen.getByRole('button', { name: 'Subscribe' })).toBeEnabled();
-    expect(screen.getByText('10 subscribers')).toBeInTheDocument();
+    expect(subscriberCount()).toBe(10);
     expect(screen.getByRole('alert')).toHaveTextContent('Network unavailable');
   });
 
   it('does not increment the count or send a request when already subscribed', () => {
-    queryClient.setQueryData(['get', '/api/users/{username}', { params: { path: { username: 'viewer' } } }], {
+    queryClient.setQueryData(currentUserQueryKey, {
       userName: 'viewer',
       subscribedTo: [{ userName: 'creator' }],
     });
 
-    renderDetails();
+    renderButton();
 
     expect(screen.getByRole('button', { name: 'Unsubscribe' })).toBeEnabled();
-    expect(screen.getByText('10 subscribers')).toBeInTheDocument();
+    expect(subscriberCount()).toBe(10);
     expect(mutate).not.toHaveBeenCalled();
   });
 
   it('optimistically unsubscribes, calls the DELETE endpoint, and updates cached subscription data', () => {
-    queryClient.setQueryData(['get', '/api/users/{username}', { params: { path: { username: 'viewer' } } }], {
+    queryClient.setQueryData(currentUserQueryKey, {
       userName: 'viewer',
       subscribedTo: [{ userName: 'creator' }],
     });
 
-    renderDetails();
+    renderButton();
     fireEvent.click(screen.getByRole('button', { name: 'Unsubscribe' }));
 
     expect(mutate).toHaveBeenCalledWith({
@@ -160,40 +149,29 @@ describe('VideoDetails subscribe button', () => {
       },
     });
     expect(screen.getByRole('button', { name: 'Subscribe' })).toBeEnabled();
-    expect(screen.getByText('9 subscribers')).toBeInTheDocument();
+    expect(subscriberCount()).toBe(9);
 
     act(() => mutationOptions.delete.onSuccess());
 
     expect(screen.getByRole('button', { name: 'Subscribe' })).toBeEnabled();
-    expect(screen.getByText('9 subscribers')).toBeInTheDocument();
+    expect(subscriberCount()).toBe(9);
     expect(
-      queryClient.getQueryData<{ suscribers: number }>([
-        'get',
-        '/api/users/{username}',
-        { params: { path: { username: 'creator' } } },
-      ])?.suscribers
-    ).toBe(9);
-    expect(
-      queryClient.getQueryData<{ subscribedTo: { userName?: string }[] }>([
-        'get',
-        '/api/users/{username}',
-        { params: { path: { username: 'viewer' } } },
-      ])?.subscribedTo
+      queryClient.getQueryData<{ subscribedTo: { userName?: string }[] }>(currentUserQueryKey)?.subscribedTo
     ).toEqual([]);
   });
 
   it('rolls back the optimistic unsubscribe when the request fails', () => {
-    queryClient.setQueryData(['get', '/api/users/{username}', { params: { path: { username: 'viewer' } } }], {
+    queryClient.setQueryData(currentUserQueryKey, {
       userName: 'viewer',
       subscribedTo: [{ userName: 'creator' }],
     });
 
-    renderDetails();
+    renderButton();
     fireEvent.click(screen.getByRole('button', { name: 'Unsubscribe' }));
     act(() => mutationOptions.delete.onError(new Error('Network unavailable')));
 
     expect(screen.getByRole('button', { name: 'Unsubscribe' })).toBeEnabled();
-    expect(screen.getByText('10 subscribers')).toBeInTheDocument();
+    expect(subscriberCount()).toBe(10);
     expect(screen.getByRole('alert')).toHaveTextContent('Network unavailable');
   });
 });
