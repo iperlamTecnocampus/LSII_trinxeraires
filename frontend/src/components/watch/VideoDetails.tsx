@@ -20,6 +20,7 @@ interface VideoDetailsProps {
 export function VideoDetails({ video }: VideoDetailsProps) {
   const [optimisticSubscription, setOptimisticSubscription] = useState<{
     username: string;
+    isSubscribed: boolean;
     isPending: boolean;
   } | null>(null);
   const [subscribeError, setSubscribeError] = useState<string | null>(null);
@@ -59,39 +60,55 @@ export function VideoDetails({ video }: VideoDetailsProps) {
   const isAlreadySubscribed = Boolean(
     currentUserData?.subscribedTo?.some((subscription) => subscription.userName === authorUsername)
   );
-  const isOptimisticallySubscribed = optimisticSubscription?.username === authorUsername;
-  const isSubscribed = isOptimisticallySubscribed || isAlreadySubscribed;
+  const hasOptimisticSubscription = optimisticSubscription?.username === authorUsername;
+  const isSubscribed = hasOptimisticSubscription ? optimisticSubscription.isSubscribed : isAlreadySubscribed;
+
+  function updateSubscriptionCache(isSubscribing: boolean) {
+    if (!authorUsername) {
+      return;
+    }
+
+    const authorQueryKey = ['get', '/api/users/{username}', authorQuery] as const;
+    queryClient.setQueryData<UserDTO>(authorQueryKey, (currentAuthor) =>
+      currentAuthor
+        ? {
+            ...currentAuthor,
+            suscribers: Math.max(0, (currentAuthor.suscribers ?? 0) + (isSubscribing ? 1 : -1)),
+          }
+        : currentAuthor
+    );
+    if (user?.userName && currentUserData) {
+      const currentUserQueryKey = ['get', '/api/users/{username}', currentUserQuery] as const;
+      queryClient.setQueryData<UserDTO>(currentUserQueryKey, {
+        ...currentUserData,
+        subscribedTo: isSubscribing
+          ? [...(currentUserData.subscribedTo ?? []), { userName: authorUsername }]
+          : (currentUserData.subscribedTo ?? []).filter((subscription) => subscription.userName !== authorUsername),
+      });
+    }
+    setOptimisticSubscription({ username: authorUsername, isSubscribed: isSubscribing, isPending: false });
+  }
+
+  function handleMutationError(error: unknown) {
+    setOptimisticSubscription(null);
+    setSubscribeError(error instanceof Error ? error.message : 'Could not update this subscription.');
+  }
 
   const subscribeMutation = $api.useMutation('post', '/api/users/subscribe', {
     onSuccess: (subscribed) => {
-      if (!subscribed || !authorUsername) {
+      if (!subscribed) {
         setOptimisticSubscription(null);
         setSubscribeError('Could not subscribe to this channel.');
         return;
       }
 
-      const authorQueryKey = ['get', '/api/users/{username}', authorQuery] as const;
-      queryClient.setQueryData<UserDTO>(authorQueryKey, (currentAuthor) =>
-        currentAuthor
-          ? {
-              ...currentAuthor,
-              suscribers: (currentAuthor.suscribers ?? 0) + 1,
-            }
-          : currentAuthor
-      );
-      if (user?.userName && currentUserData) {
-        const currentUserQueryKey = ['get', '/api/users/{username}', currentUserQuery] as const;
-        queryClient.setQueryData<UserDTO>(currentUserQueryKey, {
-          ...currentUserData,
-          subscribedTo: [...(currentUserData.subscribedTo ?? []), { userName: authorUsername }],
-        });
-      }
-      setOptimisticSubscription({ username: authorUsername, isPending: false });
+      updateSubscriptionCache(true);
     },
-    onError: (error) => {
-      setOptimisticSubscription(null);
-      setSubscribeError(error instanceof Error ? error.message : 'Could not subscribe to this channel.');
-    },
+    onError: handleMutationError,
+  });
+  const unsubscribeMutation = $api.useMutation('delete', '/api/users/subscribe', {
+    onSuccess: () => updateSubscriptionCache(false),
+    onError: handleMutationError,
   });
 
   const channelName = video.author?.displayName || video.author?.userName || 'Unknown Channel';
@@ -99,11 +116,15 @@ export function VideoDetails({ video }: VideoDetailsProps) {
   const avatarFallback = channelName.charAt(0).toUpperCase();
   const subscriberCount =
     (authorData?.suscribers ?? 0) +
-    (optimisticSubscription?.username === authorUsername && optimisticSubscription.isPending ? 1 : 0);
+    (hasOptimisticSubscription && optimisticSubscription.isPending
+      ? optimisticSubscription.isSubscribed
+        ? 1
+        : -1
+      : 0);
   const baseLikes = video.likes ?? 0;
 
-  function handleSubscribe() {
-    if (!authorUsername || subscribeMutation.isPending || isSubscribed) {
+  function handleSubscriptionToggle() {
+    if (!authorUsername || subscribeMutation.isPending || unsubscribeMutation.isPending) {
       return;
     }
 
@@ -113,14 +134,21 @@ export function VideoDetails({ video }: VideoDetailsProps) {
     }
 
     setSubscribeError(null);
-    setOptimisticSubscription({ username: authorUsername, isPending: true });
-    subscribeMutation.mutate({
+    const nextIsSubscribed = !isSubscribed;
+    setOptimisticSubscription({ username: authorUsername, isSubscribed: nextIsSubscribed, isPending: true });
+    const mutationOptions = {
       params: {
         query: {
           subscribedUsername: authorUsername,
         },
       },
-    });
+    };
+
+    if (nextIsSubscribed) {
+      subscribeMutation.mutate(mutationOptions);
+    } else {
+      unsubscribeMutation.mutate(mutationOptions);
+    }
   }
 
   return (
@@ -144,17 +172,17 @@ export function VideoDetails({ video }: VideoDetailsProps) {
             type="button"
             variant={isSubscribed ? 'secondary' : 'default'}
             className="ml-2 rounded-full"
-            onClick={handleSubscribe}
+            onClick={handleSubscriptionToggle}
             disabled={
               isAuthLoading ||
               isAuthorLoading ||
               subscribeMutation.isPending ||
-              isSubscribed ||
+              unsubscribeMutation.isPending ||
               isOwnChannel ||
               (isAuthenticated && isCurrentUserProfileLoading)
             }
           >
-            {isSubscribed ? 'Subscribed' : 'Subscribe'}
+            {isSubscribed ? 'Unsubscribe' : 'Subscribe'}
           </Button>
         </div>
 

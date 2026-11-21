@@ -31,7 +31,10 @@ const video = {
 
 describe('VideoDetails subscribe button', () => {
   let queryClient: QueryClient;
-  let mutationOptions: { onSuccess: (subscribed: boolean) => void; onError: (error: Error) => void };
+  let mutationOptions: {
+    post: { onSuccess: (subscribed: boolean) => void; onError: (error: Error) => void };
+    delete: { onSuccess: () => void; onError: (error: Error) => void };
+  };
   let mutate: jest.Mock;
 
   beforeEach(() => {
@@ -41,6 +44,7 @@ describe('VideoDetails subscribe button', () => {
       },
     });
     mutate = jest.fn();
+    mutationOptions = {} as typeof mutationOptions;
     jest.mocked(useAuth).mockReturnValue({
       user: { userName: 'viewer' },
       isAuthenticated: true,
@@ -59,8 +63,8 @@ describe('VideoDetails subscribe button', () => {
         enabled: options.enabled,
       });
     });
-    ($api.useMutation as jest.Mock).mockImplementation((_method, _path, options) => {
-      mutationOptions = options;
+    ($api.useMutation as jest.Mock).mockImplementation((method, _path, options) => {
+      mutationOptions[method] = options;
       return { mutate, isPending: false };
     });
 
@@ -99,12 +103,12 @@ describe('VideoDetails subscribe button', () => {
         },
       },
     });
-    expect(screen.getByRole('button', { name: 'Subscribed' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Unsubscribe' })).toBeEnabled();
     expect(screen.getByText('11 subscribers')).toBeInTheDocument();
 
-    act(() => mutationOptions.onSuccess(true));
+    act(() => mutationOptions.post.onSuccess(true));
 
-    expect(screen.getByRole('button', { name: 'Subscribed' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Unsubscribe' })).toBeEnabled();
     expect(screen.getByText('11 subscribers')).toBeInTheDocument();
     expect(
       queryClient.getQueryData<{ suscribers: number }>([
@@ -119,7 +123,7 @@ describe('VideoDetails subscribe button', () => {
     renderDetails();
 
     fireEvent.click(screen.getByRole('button', { name: 'Subscribe' }));
-    act(() => mutationOptions.onError(new Error('Network unavailable')));
+    act(() => mutationOptions.post.onError(new Error('Network unavailable')));
 
     expect(screen.getByRole('button', { name: 'Subscribe' })).toBeEnabled();
     expect(screen.getByText('10 subscribers')).toBeInTheDocument();
@@ -134,8 +138,62 @@ describe('VideoDetails subscribe button', () => {
 
     renderDetails();
 
-    expect(screen.getByRole('button', { name: 'Subscribed' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Unsubscribe' })).toBeEnabled();
     expect(screen.getByText('10 subscribers')).toBeInTheDocument();
     expect(mutate).not.toHaveBeenCalled();
+  });
+
+  it('optimistically unsubscribes, calls the DELETE endpoint, and updates cached subscription data', () => {
+    queryClient.setQueryData(['get', '/api/users/{username}', { params: { path: { username: 'viewer' } } }], {
+      userName: 'viewer',
+      subscribedTo: [{ userName: 'creator' }],
+    });
+
+    renderDetails();
+    fireEvent.click(screen.getByRole('button', { name: 'Unsubscribe' }));
+
+    expect(mutate).toHaveBeenCalledWith({
+      params: {
+        query: {
+          subscribedUsername: 'creator',
+        },
+      },
+    });
+    expect(screen.getByRole('button', { name: 'Subscribe' })).toBeEnabled();
+    expect(screen.getByText('9 subscribers')).toBeInTheDocument();
+
+    act(() => mutationOptions.delete.onSuccess());
+
+    expect(screen.getByRole('button', { name: 'Subscribe' })).toBeEnabled();
+    expect(screen.getByText('9 subscribers')).toBeInTheDocument();
+    expect(
+      queryClient.getQueryData<{ suscribers: number }>([
+        'get',
+        '/api/users/{username}',
+        { params: { path: { username: 'creator' } } },
+      ])?.suscribers
+    ).toBe(9);
+    expect(
+      queryClient.getQueryData<{ subscribedTo: { userName?: string }[] }>([
+        'get',
+        '/api/users/{username}',
+        { params: { path: { username: 'viewer' } } },
+      ])?.subscribedTo
+    ).toEqual([]);
+  });
+
+  it('rolls back the optimistic unsubscribe when the request fails', () => {
+    queryClient.setQueryData(['get', '/api/users/{username}', { params: { path: { username: 'viewer' } } }], {
+      userName: 'viewer',
+      subscribedTo: [{ userName: 'creator' }],
+    });
+
+    renderDetails();
+    fireEvent.click(screen.getByRole('button', { name: 'Unsubscribe' }));
+    act(() => mutationOptions.delete.onError(new Error('Network unavailable')));
+
+    expect(screen.getByRole('button', { name: 'Unsubscribe' })).toBeEnabled();
+    expect(screen.getByText('10 subscribers')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('Network unavailable');
   });
 });
