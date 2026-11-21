@@ -103,6 +103,19 @@ class UserControllerTest {
     }
 
     @Test
+    void unsubscribeUsesTheSessionUsernameAndOnlyAcceptsTheTargetUsername() throws Exception {
+        mockMvc.perform(delete("/api/users/subscribe")
+                        .param("subscribedUsername", "target-user")
+                        .param("subscriberUsername", "forged-user")
+                        .with(authentication(authenticatedUser(SESSION_USERNAME)))
+                        .with(csrf()))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        verify(userService).unsubscribeFromUser(SESSION_USERNAME, "target-user");
+    }
+
+    @Test
     void profileEditTargetsTheCurrentSessionUserWithoutAUsernameInTheRequest() throws Exception {
         EditUserDTO request = new EditUserDTO("Updated display name", null, null, null);
         when(userService.editUserProfile(eq(SESSION_USERNAME), any(EditUserDTO.class)))

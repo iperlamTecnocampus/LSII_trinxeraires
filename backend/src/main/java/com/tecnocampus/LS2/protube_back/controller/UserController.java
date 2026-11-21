@@ -85,6 +85,23 @@ public class UserController {
     }
 
     @Operation(
+            summary = "Unsubscribe from another user",
+            description = "Removes the subscription from the authenticated user to the target user channel."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Subscription removed successfully"),
+            @ApiResponse(responseCode = "404", description = "Subscriber or target subscribed user not found", content = @Content)
+    })
+    @DeleteMapping("/subscribe")
+    public ResponseEntity<Void> unsubscribeFromUser(
+            @Parameter(description = "Username of the channel being unsubscribed from", example = "janedoe", required = true)
+            @RequestParam String subscribedUsername,
+            @AuthenticationPrincipal OAuth2User principal) {
+        userService.unsubscribeFromUser(principal.getName(), subscribedUsername);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
             summary = "Edit user profile",
             description = "Updates an existing user's profile information, such as display name, description, profile picture, and banner image. Note that the username itself cannot be modified."
     )
