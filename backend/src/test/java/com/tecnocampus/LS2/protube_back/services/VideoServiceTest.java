@@ -200,13 +200,28 @@ class VideoServiceTest {
         void likeVideo_Success() {
             when(userRepository.findById(username)).thenReturn(Optional.of(author));
             when(videoRepository.findById(videoId)).thenReturn(Optional.of(sampleVideo));
-            when(userRepository.hasLiked(username, videoId)).thenReturn(true);
+            when(userRepository.hasLiked(username, videoId)).thenReturn(false, true);
 
             boolean liked = videoService.likeVideo(username, videoId);
 
             assertTrue(liked);
             verify(userRepository, times(1)).save(author);
             verify(videoRepository, times(1)).save(sampleVideo);
+            verify(userRepository, times(2)).hasLiked(username, videoId);
+        }
+
+        @Test
+        @DisplayName("likeVideo no debe guardar un like que ya existe")
+        void likeVideo_AlreadyLiked() {
+            when(userRepository.findById(username)).thenReturn(Optional.of(author));
+            when(videoRepository.findById(videoId)).thenReturn(Optional.of(sampleVideo));
+            when(userRepository.hasLiked(username, videoId)).thenReturn(true);
+
+            boolean liked = videoService.likeVideo(username, videoId);
+
+            assertTrue(liked);
+            verify(userRepository, never()).save(any(User.class));
+            verify(videoRepository, never()).save(any(Video.class));
         }
     }
 }

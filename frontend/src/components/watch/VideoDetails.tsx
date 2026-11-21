@@ -11,11 +11,15 @@ type VideoInfoDTO = components['schemas']['VideoInfoDTO'];
 
 interface VideoDetailsProps {
   video: VideoInfoDTO;
+  onLikeAdded?: () => void;
 }
 
-export function VideoDetails({ video }: VideoDetailsProps) {
+export function VideoDetails({ video, onLikeAdded }: VideoDetailsProps) {
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
+  const [likedVideoId, setLikedVideoId] = useState<string | null>(null);
+  const [likeError, setLikeError] = useState<string | null>(null);
+  const videoId = video.videoId ?? '';
+  const isLiked = likedVideoId === videoId && Boolean(videoId);
 
   const authorUsername = video.author?.userName;
   const { data: authorData } = $api.useQuery(
@@ -38,6 +42,33 @@ export function VideoDetails({ video }: VideoDetailsProps) {
   const avatarFallback = channelName.charAt(0).toUpperCase();
   const subscriberCount = authorData?.suscribers ?? 0;
   const baseLikes = video.likes ?? 0;
+  const likeMutation = $api.useMutation('post', '/api/videos/{id}/likes');
+
+  async function handleLike() {
+    if (isLiked || likeMutation.isPending) {
+      return;
+    }
+
+    setLikeError(null);
+    try {
+      const liked = await likeMutation.mutateAsync({
+        params: {
+          path: {
+            id: videoId,
+          },
+        },
+      });
+
+      if (!liked) {
+        throw new Error('Could not like this video. Please try again.');
+      }
+
+      setLikedVideoId(videoId);
+      onLikeAdded?.();
+    } catch (error) {
+      setLikeError(error instanceof Error ? error.message : 'Could not like this video. Please try again.');
+    }
+  }
 
   return (
     <section className="mt-4">
@@ -71,9 +102,11 @@ export function VideoDetails({ video }: VideoDetailsProps) {
             type="button"
             variant={isLiked ? 'default' : 'secondary'}
             className="rounded-full"
-            onClick={() => setIsLiked((value) => !value)}
+            onClick={handleLike}
+            disabled={!videoId || isLiked || likeMutation.isPending}
+            aria-pressed={isLiked}
           >
-            Like · {formatCount(baseLikes + (isLiked ? 1 : 0))}
+            Like · {formatCount(baseLikes)}
           </Button>
 
           <Button type="button" variant="secondary" className="rounded-full">
@@ -89,6 +122,11 @@ export function VideoDetails({ video }: VideoDetailsProps) {
           </Button>
         </div>
       </div>
+      {likeError && (
+        <p className="mt-2 text-sm text-destructive" role="alert">
+          {likeError}
+        </p>
+      )}
     </section>
   );
 }

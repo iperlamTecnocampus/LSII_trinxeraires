@@ -5,7 +5,6 @@ import { VideoDescription } from '@/components/watch/VideoDescription';
 import { VideoDetails } from '@/components/watch/VideoDetails';
 import { VideoPlayerCmp } from '@/components/watch/VideoPlayerCmp';
 
-import { mockCommentCount, mockComments, mockRelatedVideos, mockVideo } from '@/components/watch/mock-video-data';
 import { $api } from '../lib/api';
 
 export function VideoPlayback() {
@@ -69,7 +68,12 @@ export function VideoPlayback() {
             fid={video.videoFid}
           />
 
-          <VideoDetails video={video} />
+          <VideoDetails
+            video={video}
+            onLikeAdded={() => {
+              void refetch();
+            }}
+          />
 
           <VideoDescription video={video} />
 

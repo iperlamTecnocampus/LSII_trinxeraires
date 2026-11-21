@@ -119,6 +119,10 @@ public class VideoService {
         User user = userRepository.findById(userName).orElseThrow(() -> new UserNotFoundException("User not found"));
         Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException("Video not found"));
 
+        if (userRepository.hasLiked(userName, videoId)) {
+            return true;
+        }
+
         user.addLikedVideo(video);
 
         userRepository.save(user);
