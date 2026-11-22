@@ -21,6 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -55,6 +56,25 @@ class CommentsControllerTest {
     @Test
     void likingCommentRequiresAuthentication() throws Exception {
         mockMvc.perform(post("/api/comments/{id}/likes", COMMENT_ID)
+                        .with(csrf()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void unlikeUsesAuthenticatedPrincipal() throws Exception {
+        when(videoService.unlikeComment(SESSION_USERNAME, COMMENT_ID)).thenReturn(true);
+
+        mockMvc.perform(delete("/api/comments/{id}/likes", COMMENT_ID)
+                        .with(authentication(authenticatedUser(SESSION_USERNAME)))
+                        .with(csrf()))
+                .andExpect(status().isOk());
+
+        verify(videoService).unlikeComment(SESSION_USERNAME, COMMENT_ID);
+    }
+
+    @Test
+    void unlikingCommentRequiresAuthentication() throws Exception {
+        mockMvc.perform(delete("/api/comments/{id}/likes", COMMENT_ID)
                         .with(csrf()))
                 .andExpect(status().isUnauthorized());
     }

@@ -12,10 +12,10 @@ type VideoInfoDTO = components['schemas']['VideoInfoDTO'];
 
 interface VideoDetailsProps {
   video: VideoInfoDTO;
-  onLikeAdded?: () => void;
+  onLikeChanged?: () => void;
 }
 
-export function VideoDetails({ video, onLikeAdded }: VideoDetailsProps) {
+export function VideoDetails({ video, onLikeChanged }: VideoDetailsProps) {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const videoId = video.videoId ?? '';
 
@@ -73,7 +73,7 @@ export function VideoDetails({ video, onLikeAdded }: VideoDetailsProps) {
             videoId={videoId}
             likes={baseLikes}
             likedByCurrentUser={Boolean(video.likedByCurrentUser)}
-            onLikeAdded={onLikeAdded}
+            onLikeChanged={onLikeChanged}
           />
 
           <Button type="button" variant="secondary" className="rounded-full">

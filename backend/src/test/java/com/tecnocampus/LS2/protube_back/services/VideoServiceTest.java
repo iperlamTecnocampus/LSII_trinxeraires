@@ -250,6 +250,34 @@ class VideoServiceTest {
             verify(userRepository, never()).save(any(User.class));
             verify(videoRepository, never()).save(any(Video.class));
         }
+
+        @Test
+        void unlikeVideoRemovesLikeFromBothCollections() {
+            author.addLikedVideo(sampleVideo);
+            when(userRepository.findById(username)).thenReturn(Optional.of(author));
+            when(videoRepository.findById(videoId)).thenReturn(Optional.of(sampleVideo));
+            when(userRepository.hasLiked(username, videoId)).thenReturn(true, false);
+
+            assertTrue(videoService.unlikeVideo(username, videoId));
+
+            assertTrue(author.getLikedVideos().isEmpty());
+            assertTrue(sampleVideo.getLikes().isEmpty());
+            verify(userRepository).save(author);
+            verify(videoRepository).save(sampleVideo);
+            verify(userRepository, times(2)).hasLiked(username, videoId);
+        }
+
+        @Test
+        void unlikeVideoIsIdempotentWhenVideoIsNotLiked() {
+            when(userRepository.findById(username)).thenReturn(Optional.of(author));
+            when(videoRepository.findById(videoId)).thenReturn(Optional.of(sampleVideo));
+            when(userRepository.hasLiked(username, videoId)).thenReturn(false);
+
+            assertTrue(videoService.unlikeVideo(username, videoId));
+
+            verify(userRepository, never()).save(any(User.class));
+            verify(videoRepository, never()).save(any(Video.class));
+        }
     }
 
     @Nested
@@ -281,6 +309,34 @@ class VideoServiceTest {
 
             assertTrue(author.getLikedComments().isEmpty());
             assertTrue(sampleComment.getLikes().isEmpty());
+            verify(userRepository, never()).save(any(User.class));
+            verify(commentRepository, never()).save(any(Comment.class));
+        }
+
+        @Test
+        void unlikeCommentRemovesLikeFromBothCollections() {
+            author.addLikedComment(sampleComment);
+            when(userRepository.findById(username)).thenReturn(Optional.of(author));
+            when(commentRepository.findById(commentId)).thenReturn(Optional.of(sampleComment));
+            when(userRepository.hasLikedComment(username, commentId)).thenReturn(true, false);
+
+            assertTrue(videoService.unlikeComment(username, commentId));
+
+            assertTrue(author.getLikedComments().isEmpty());
+            assertTrue(sampleComment.getLikes().isEmpty());
+            verify(userRepository).save(author);
+            verify(commentRepository).save(sampleComment);
+            verify(userRepository, times(2)).hasLikedComment(username, commentId);
+        }
+
+        @Test
+        void unlikeCommentIsIdempotentWhenCommentIsNotLiked() {
+            when(userRepository.findById(username)).thenReturn(Optional.of(author));
+            when(commentRepository.findById(commentId)).thenReturn(Optional.of(sampleComment));
+            when(userRepository.hasLikedComment(username, commentId)).thenReturn(false);
+
+            assertTrue(videoService.unlikeComment(username, commentId));
+
             verify(userRepository, never()).save(any(User.class));
             verify(commentRepository, never()).save(any(Comment.class));
         }

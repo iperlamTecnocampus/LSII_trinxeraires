@@ -10,30 +10,35 @@ interface CommentLikeButtonProps {
   commentId: string;
   likes: number;
   likedByCurrentUser?: boolean;
-  onLikeAdded?: () => void;
+  onLikeChanged?: () => void;
 }
 
 export function CommentLikeButton({
   commentId,
   likes,
   likedByCurrentUser = false,
-  onLikeAdded,
+  onLikeChanged,
 }: CommentLikeButtonProps) {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
-  const [hasNewLike, setHasNewLike] = useState(false);
+  const [localLikeState, setLocalLikeState] = useState<{ commentId: string; liked: boolean } | null>(null);
   const [likeError, setLikeError] = useState<string | null>(null);
   const likeMutation = $api.useMutation('post', '/api/comments/{id}/likes');
-  const isLiked = likedByCurrentUser || hasNewLike;
+  const unlikeMutation = $api.useMutation('delete', '/api/comments/{id}/likes');
+  const serverLikeState = Boolean(likedByCurrentUser);
+  const isLiked = localLikeState?.commentId === commentId ? localLikeState.liked : serverLikeState;
+  const displayedLikes = likes + (isLiked === serverLikeState ? 0 : isLiked ? 1 : -1);
   const numericCommentId = Number(commentId);
   const isValidCommentId = Number.isSafeInteger(numericCommentId) && numericCommentId > 0;
-  const isDisabled = !isValidCommentId || isAuthLoading || !isAuthenticated || isLiked || likeMutation.isPending;
+  const isPending = likeMutation.isPending || unlikeMutation.isPending;
+  const isDisabled = !isValidCommentId || isAuthLoading || !isAuthenticated || isPending;
 
-  async function handleLike() {
+  async function handleToggleLike() {
     if (isDisabled) return;
 
     setLikeError(null);
     try {
-      const liked = await likeMutation.mutateAsync({
+      const mutation = isLiked ? unlikeMutation : likeMutation;
+      const result = await mutation.mutateAsync({
         params: {
           path: {
             id: numericCommentId,
@@ -41,14 +46,24 @@ export function CommentLikeButton({
         },
       });
 
-      if (!liked) {
-        throw new Error('Could not like this comment. Please try again.');
+      if (!result) {
+        throw new Error(
+          isLiked
+            ? 'Could not remove the like from this comment. Please try again.'
+            : 'Could not like this comment. Please try again.'
+        );
       }
 
-      setHasNewLike(true);
-      onLikeAdded?.();
+      setLocalLikeState({ commentId, liked: !isLiked });
+      onLikeChanged?.();
     } catch (error) {
-      setLikeError(error instanceof Error ? error.message : 'Could not like this comment. Please try again.');
+      setLikeError(
+        error instanceof Error
+          ? error.message
+          : isLiked
+            ? 'Could not remove the like from this comment. Please try again.'
+            : 'Could not like this comment. Please try again.'
+      );
     }
   }
 
@@ -59,12 +74,12 @@ export function CommentLikeButton({
         size="sm"
         className="h-8 px-2"
         variant={isLiked ? 'default' : 'ghost'}
-        onClick={handleLike}
+        onClick={handleToggleLike}
         disabled={isDisabled}
         aria-pressed={isLiked}
         title={!isAuthLoading && !isAuthenticated ? 'Sign in to like comments' : undefined}
       >
-        Like · {formatCount(likes + (hasNewLike && !likedByCurrentUser ? 1 : 0))}
+        Like · {formatCount(displayedLikes)}
       </Button>
       {likeError && (
         <p className="mt-1 text-sm text-destructive" role="alert">

@@ -152,4 +152,20 @@ public class VideosController {
         boolean liked = videoService.likeVideo(principal.getName(), videoId);
         return ResponseEntity.ok(liked);
     }
+
+    @Operation(
+            summary = "Unlike a video",
+            description = "Removes the authenticated user's like from a video. Returns true when the video is no longer liked by the user."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Unlike processed successfully"),
+            @ApiResponse(responseCode = "404", description = "User or Video not found", content = @Content)
+    })
+    @DeleteMapping("/{id}/likes")
+    public ResponseEntity<Boolean> unlikeVideo(
+            @Parameter(description = "Unique UUID of the video to unlike", example = "123e4567-e89b-12d3-a456-426614174000", required = true)
+            @PathVariable("id") UUID videoId,
+            @AuthenticationPrincipal OAuth2User principal) {
+        return ResponseEntity.ok(videoService.unlikeVideo(principal.getName(), videoId));
+    }
 }

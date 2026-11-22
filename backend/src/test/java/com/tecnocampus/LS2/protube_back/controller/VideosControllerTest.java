@@ -145,6 +145,18 @@ class VideosControllerTest {
     }
 
     @Test
+    void unlikeUsesAuthenticatedPrincipal() throws Exception {
+        when(videoService.unlikeVideo(SESSION_USERNAME, videoId)).thenReturn(true);
+
+        mockMvc.perform(delete("/api/videos/{id}/likes", videoId)
+                        .with(authentication(authenticatedUser(SESSION_USERNAME)))
+                        .with(csrf()))
+                .andExpect(status().isOk());
+
+        verify(videoService).unlikeVideo(SESSION_USERNAME, videoId);
+    }
+
+    @Test
     void editAndDeletePassTheAuthenticatedPrincipalToTheService() throws Exception {
         when(videoService.editVideo(eq(videoId), any(EditVideoDTO.class), eq(SESSION_USERNAME)))
                 .thenReturn(new VideoInfoDTO(videoId, null, null, "Updated", null,

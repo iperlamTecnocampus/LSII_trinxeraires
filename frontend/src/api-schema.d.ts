@@ -66,7 +66,11 @@ export interface paths {
      * @description Registers a like from a user on a specific video. Returns true if the user has liked the video.
      */
     post: operations['likeVideo'];
-    delete?: never;
+    /**
+     * Unlike a video
+     * @description Removes the authenticated user's like from a video.
+     */
+    delete: operations['unlikeVideo'];
     options?: never;
     head?: never;
     patch?: never;
@@ -106,7 +110,11 @@ export interface paths {
      * @description Registers a like from the authenticated user on a comment. Repeated likes do not create duplicates.
      */
     post: operations['likeComment'];
-    delete?: never;
+    /**
+     * Unlike a comment
+     * @description Removes the authenticated user's like from a comment.
+     */
+    delete: operations['unlikeComment'];
     options?: never;
     head?: never;
     patch?: never;
@@ -554,6 +562,36 @@ export interface operations {
       };
     };
   };
+  unlikeVideo: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Unique UUID of the video to unlike */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Unlike processed successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': boolean;
+        };
+      };
+      /** @description User or Video not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   likeComment: {
     parameters: {
       query?: never;
@@ -567,6 +605,36 @@ export interface operations {
     requestBody?: never;
     responses: {
       /** @description Like registered successfully (returns true) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': boolean;
+        };
+      };
+      /** @description User or comment not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  unlikeComment: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID of the comment to unlike */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Unlike processed successfully */
       200: {
         headers: {
           [name: string]: unknown;

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { CommentsSection } from './CommentsSection';
-import { apiFetch } from '@/lib/api';
+import { $api, apiFetch } from '@/lib/api';
 
 const mockMutateAsync = jest.fn();
 const mockUseAuth = jest.fn();
@@ -94,9 +94,9 @@ beforeEach(() => {
 describe('CommentsSection comment likes', () => {
   it('posts a like once, updates the count, and removes the Reply button', async () => {
     mockMutateAsync.mockResolvedValue(true);
-    const onLikeAdded = jest.fn();
+    const onLikeChanged = jest.fn();
 
-    render(<CommentsSection comments={comments} commentCount={1} videoId="video-123" onLikeAdded={onLikeAdded} />);
+    render(<CommentsSection comments={comments} commentCount={1} videoId="video-123" onLikeChanged={onLikeChanged} />);
 
     const likeButton = screen.getByRole('button', { name: 'Like · 5' });
     expect(screen.queryByRole('button', { name: 'Reply' })).not.toBeInTheDocument();
@@ -106,9 +106,17 @@ describe('CommentsSection comment likes', () => {
       expect(mockMutateAsync).toHaveBeenCalledWith({
         params: { path: { id: 123 } },
       });
-      expect(onLikeAdded).toHaveBeenCalledTimes(1);
-      expect(screen.getByRole('button', { name: 'Like · 6' })).toBeDisabled();
+      expect(onLikeChanged).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole('button', { name: 'Like · 6' })).toBeEnabled();
       expect(screen.getByRole('button', { name: 'Like · 6' })).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Like · 6' }));
+
+    await waitFor(() => {
+      expect($api.useMutation).toHaveBeenCalledWith('delete', '/api/comments/{id}/likes');
+      expect(screen.getByRole('button', { name: 'Like · 5' })).toHaveAttribute('aria-pressed', 'false');
+      expect(onLikeChanged).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -137,13 +145,13 @@ describe('CommentsSection comment likes', () => {
     expect(likeButton).toHaveAttribute('title', 'Sign in to like comments');
   });
 
-  it('does not allow a second like when the backend reports that this user already liked', () => {
+  it('allows unliking when the backend reports that this user already liked', () => {
     render(
       <CommentsSection comments={[{ ...comments[0], likedByCurrentUser: true }]} commentCount={1} videoId="video-123" />
     );
 
     const likeButton = screen.getByRole('button', { name: 'Like · 5' });
-    expect(likeButton).toBeDisabled();
+    expect(likeButton).toBeEnabled();
     expect(likeButton).toHaveAttribute('aria-pressed', 'true');
   });
 

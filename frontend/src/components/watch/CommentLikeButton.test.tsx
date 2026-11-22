@@ -35,27 +35,37 @@ beforeEach(() => {
 });
 
 describe('CommentLikeButton', () => {
-  it('posts the comment ID, updates the count, and prevents duplicate likes', async () => {
+  it('toggles a comment like on and off', async () => {
     mutateAsync.mockResolvedValue(true);
-    const onLikeAdded = jest.fn();
+    const onLikeChanged = jest.fn();
 
-    render(<CommentLikeButton commentId="42" likes={7} onLikeAdded={onLikeAdded} />);
+    render(<CommentLikeButton commentId="42" likes={7} onLikeChanged={onLikeChanged} />);
     fireEvent.click(screen.getByRole('button', { name: 'Like · 7' }));
 
     await waitFor(() => {
       expect(mutateAsync).toHaveBeenCalledWith({
         params: { path: { id: 42 } },
       });
-      expect(onLikeAdded).toHaveBeenCalledTimes(1);
-      expect(screen.getByRole('button', { name: 'Like · 8' })).toBeDisabled();
+      expect(onLikeChanged).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole('button', { name: 'Like · 8' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'Like · 8' })).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Like · 8' }));
+
+    await waitFor(() => {
+      expect(mutateAsync).toHaveBeenCalledTimes(2);
+      expect($api.useMutation).toHaveBeenCalledWith('delete', '/api/comments/{id}/likes');
+      expect(screen.getByRole('button', { name: 'Like · 7' })).toHaveAttribute('aria-pressed', 'false');
+      expect(onLikeChanged).toHaveBeenCalledTimes(2);
     });
   });
 
-  it('disables the button when the user already liked the comment', () => {
+  it('allows unliking when the comment DTO says the user already liked', () => {
     render(<CommentLikeButton commentId="42" likes={7} likedByCurrentUser />);
 
     const likeButton = screen.getByRole('button', { name: 'Like · 7' });
-    expect(likeButton).toBeDisabled();
+    expect(likeButton).toBeEnabled();
     expect(likeButton).toHaveAttribute('aria-pressed', 'true');
   });
 

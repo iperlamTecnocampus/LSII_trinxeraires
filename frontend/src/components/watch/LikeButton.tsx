@@ -10,23 +10,28 @@ interface LikeButtonProps {
   videoId: string;
   likes: number;
   likedByCurrentUser: boolean;
-  onLikeAdded?: () => void;
+  onLikeChanged?: () => void;
 }
 
-export function LikeButton({ videoId, likes, likedByCurrentUser, onLikeAdded }: LikeButtonProps) {
+export function LikeButton({ videoId, likes, likedByCurrentUser, onLikeChanged }: LikeButtonProps) {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
-  const [likedVideoId, setLikedVideoId] = useState<string | null>(null);
+  const [localLikeState, setLocalLikeState] = useState<{ videoId: string; liked: boolean } | null>(null);
   const [likeError, setLikeError] = useState<string | null>(null);
   const likeMutation = $api.useMutation('post', '/api/videos/{id}/likes');
-  const isLiked = likedByCurrentUser || (likedVideoId === videoId && Boolean(videoId));
-  const isDisabled = !videoId || isAuthLoading || !isAuthenticated || isLiked || likeMutation.isPending;
+  const unlikeMutation = $api.useMutation('delete', '/api/videos/{id}/likes');
+  const serverLikeState = Boolean(likedByCurrentUser);
+  const isLiked = localLikeState?.videoId === videoId ? localLikeState.liked : serverLikeState;
+  const displayedLikes = likes + (isLiked === serverLikeState ? 0 : isLiked ? 1 : -1);
+  const isPending = likeMutation.isPending || unlikeMutation.isPending;
+  const isDisabled = !videoId || isAuthLoading || !isAuthenticated || isPending;
 
-  async function handleLike() {
+  async function handleToggleLike() {
     if (isDisabled) return;
 
     setLikeError(null);
     try {
-      const liked = await likeMutation.mutateAsync({
+      const mutation = isLiked ? unlikeMutation : likeMutation;
+      const result = await mutation.mutateAsync({
         params: {
           path: {
             id: videoId,
@@ -34,14 +39,24 @@ export function LikeButton({ videoId, likes, likedByCurrentUser, onLikeAdded }: 
         },
       });
 
-      if (!liked) {
-        throw new Error('Could not like this video. Please try again.');
+      if (!result) {
+        throw new Error(
+          isLiked
+            ? 'Could not remove the like from this video. Please try again.'
+            : 'Could not like this video. Please try again.'
+        );
       }
 
-      setLikedVideoId(videoId);
-      onLikeAdded?.();
+      setLocalLikeState({ videoId, liked: !isLiked });
+      onLikeChanged?.();
     } catch (error) {
-      setLikeError(error instanceof Error ? error.message : 'Could not like this video. Please try again.');
+      setLikeError(
+        error instanceof Error
+          ? error.message
+          : isLiked
+            ? 'Could not remove the like from this video. Please try again.'
+            : 'Could not like this video. Please try again.'
+      );
     }
   }
 
@@ -51,12 +66,12 @@ export function LikeButton({ videoId, likes, likedByCurrentUser, onLikeAdded }: 
         type="button"
         variant={isLiked ? 'default' : 'secondary'}
         className="rounded-full"
-        onClick={handleLike}
+        onClick={handleToggleLike}
         disabled={isDisabled}
         aria-pressed={isLiked}
         title={!isAuthLoading && !isAuthenticated ? 'Sign in to like videos' : undefined}
       >
-        Like · {formatCount(likes)}
+        Like · {formatCount(displayedLikes)}
       </Button>
       {likeError && (
         <p className="mt-2 text-sm text-destructive" role="alert">

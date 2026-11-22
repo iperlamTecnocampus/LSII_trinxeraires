@@ -71,7 +71,7 @@ export function VideoPlayback() {
 
           <VideoDetails
             video={video}
-            onLikeAdded={() => {
+            onLikeChanged={() => {
               void refetch();
             }}
           />
@@ -85,7 +85,7 @@ export function VideoPlayback() {
             onCommentAdded={() => {
               refetch();
             }}
-            onLikeAdded={() => {
+            onLikeChanged={() => {
               refetch();
             }}
           />

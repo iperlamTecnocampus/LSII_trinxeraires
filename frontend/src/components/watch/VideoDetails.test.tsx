@@ -58,10 +58,10 @@ beforeEach(() => {
 });
 
 describe('VideoDetails likes', () => {
-  it('sends one like request and disables the button after success', async () => {
+  it('toggles a video like on and off', async () => {
     mutateAsync.mockResolvedValue(true);
-    const onLikeAdded = jest.fn();
-    render(<VideoDetails video={video} onLikeAdded={onLikeAdded} />);
+    const onLikeChanged = jest.fn();
+    render(<VideoDetails video={video} onLikeChanged={onLikeChanged} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Like · 12' }));
 
@@ -69,12 +69,19 @@ describe('VideoDetails likes', () => {
       expect(mutateAsync).toHaveBeenCalledWith({
         params: { path: { id: 'video-123' } },
       });
-      expect(screen.getByRole('button', { name: 'Like · 12' })).toBeDisabled();
-      expect(onLikeAdded).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole('button', { name: 'Like · 13' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'Like · 13' })).toHaveAttribute('aria-pressed', 'true');
+      expect(onLikeChanged).toHaveBeenCalledTimes(1);
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Like · 12' }));
-    expect(mutateAsync).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole('button', { name: 'Like · 13' }));
+
+    await waitFor(() => {
+      expect(mutateAsync).toHaveBeenCalledTimes(2);
+      expect($api.useMutation).toHaveBeenCalledWith('delete', '/api/videos/{id}/likes');
+      expect(screen.getByRole('button', { name: 'Like · 12' })).toHaveAttribute('aria-pressed', 'false');
+      expect(onLikeChanged).toHaveBeenCalledTimes(2);
+    });
   });
 
   it('shows an error and allows retrying when the request fails', async () => {
@@ -87,11 +94,11 @@ describe('VideoDetails likes', () => {
     expect(screen.getByRole('button', { name: 'Like · 12' })).toBeEnabled();
   });
 
-  it('shows the like as active when the video DTO says the current user liked it', () => {
+  it('allows removing a like already recorded on the video DTO', () => {
     render(<VideoDetails video={{ ...video, likedByCurrentUser: true }} />);
 
     const likeButton = screen.getByRole('button', { name: 'Like · 12' });
-    expect(likeButton).toBeDisabled();
+    expect(likeButton).toBeEnabled();
     expect(likeButton).toHaveAttribute('aria-pressed', 'true');
   });
 

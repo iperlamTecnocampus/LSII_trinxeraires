@@ -22,6 +22,7 @@ import com.tecnocampus.LS2.protube_back.services.mappers.VideoMapper;
 import com.tecnocampus.LS2.protube_back.services.mappers.VideoUserMapper;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -132,6 +133,20 @@ public class VideoService {
         return userRepository.hasLiked(userName, videoId);
     }
 
+    @Transactional
+    public boolean unlikeVideo(String userName, UUID videoId) {
+        User user = userRepository.findById(userName).orElseThrow(() -> new UserNotFoundException("User not found"));
+        Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException("Video not found"));
+
+        if (userRepository.hasLiked(userName, videoId)) {
+            user.removeLikedVideo(video);
+            userRepository.save(user);
+            videoRepository.save(video);
+        }
+
+        return !userRepository.hasLiked(userName, videoId);
+    }
+
     public boolean likeComment(String userName, Long commentId) {
         User user = userRepository.findById(userName)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -146,6 +161,22 @@ public class VideoService {
         userRepository.save(user);
         commentRepository.save(comment);
         return userRepository.hasLikedComment(userName, commentId);
+    }
+
+    @Transactional
+    public boolean unlikeComment(String userName, Long commentId) {
+        User user = userRepository.findById(userName)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("Comment not found"));
+
+        if (userRepository.hasLikedComment(userName, commentId)) {
+            user.removeLikedComment(comment);
+            userRepository.save(user);
+            commentRepository.save(comment);
+        }
+
+        return !userRepository.hasLikedComment(userName, commentId);
     }
 
     private static void ensureOwner(Video video, String currentUsername) {

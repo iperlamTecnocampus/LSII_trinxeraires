@@ -17,15 +17,15 @@ interface CommentsSectionProps {
   commentCount: number;
   videoId?: string;
   onCommentAdded?: () => void;
-  onLikeAdded?: () => void;
+  onLikeChanged?: () => void;
 }
 
 interface CommentItemProps {
   comment: Comment;
-  onLikeAdded?: () => void;
+  onLikeChanged?: () => void;
 }
 
-function CommentItem({ comment, onLikeAdded }: CommentItemProps) {
+function CommentItem({ comment, onLikeChanged }: CommentItemProps) {
   const [showReplies, setShowReplies] = useState(false);
 
   return (
@@ -49,7 +49,7 @@ function CommentItem({ comment, onLikeAdded }: CommentItemProps) {
             commentId={comment.id}
             likes={comment.likes}
             likedByCurrentUser={comment.likedByCurrentUser}
-            onLikeAdded={onLikeAdded}
+            onLikeChanged={onLikeChanged}
           />
         </div>
 
@@ -70,7 +70,7 @@ function CommentItem({ comment, onLikeAdded }: CommentItemProps) {
             {showReplies && (
               <div className="mt-3 flex flex-col gap-4 border-l pl-4">
                 {comment.replies.map((reply) => (
-                  <CommentItem key={reply.id} comment={reply} onLikeAdded={onLikeAdded} />
+                  <CommentItem key={reply.id} comment={reply} onLikeChanged={onLikeChanged} />
                 ))}
               </div>
             )}
@@ -86,7 +86,7 @@ export function CommentsSection({
   commentCount,
   videoId,
   onCommentAdded,
-  onLikeAdded,
+  onLikeChanged,
 }: CommentsSectionProps) {
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -189,7 +189,7 @@ export function CommentsSection({
 
       <div className="mt-8 flex flex-col gap-6">
         {comments.map((comment) => (
-          <CommentItem key={comment.id} comment={comment} onLikeAdded={onLikeAdded} />
+          <CommentItem key={comment.id} comment={comment} onLikeChanged={onLikeChanged} />
         ))}
       </div>
     </section>
