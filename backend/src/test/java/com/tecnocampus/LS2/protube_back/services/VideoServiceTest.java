@@ -82,7 +82,7 @@ class VideoServiceTest {
 
             when(videoRepository.findVideoByname(searchQuery)).thenReturn(List.of(sampleVideo));
 
-            List<VideoInfoDTO> result = videoService.searchVideo(searchQuery);
+            List<VideoInfoDTO> result = videoService.searchVideo(searchQuery, username);
 
             assertNotNull(result);
             assertEquals(1, result.size());
@@ -101,7 +101,7 @@ class VideoServiceTest {
 
             when(videoRepository.findVideoByname(searchQuery)).thenReturn(Collections.emptyList());
 
-            List<VideoInfoDTO> result = videoService.searchVideo(searchQuery);
+            List<VideoInfoDTO> result = videoService.searchVideo(searchQuery, username);
 
             assertNotNull(result);
             assertTrue(result.isEmpty());
@@ -122,7 +122,7 @@ class VideoServiceTest {
         void getVideos_ReturnsList() {
             when(videoRepository.findAll()).thenReturn(List.of(sampleVideo));
 
-            List<VideoInfoDTO> result = videoService.getVideos();
+            List<VideoInfoDTO> result = videoService.getVideos(username);
 
             assertEquals(1, result.size());
             assertEquals(videoId, result.get(0).videoId());
@@ -134,11 +134,15 @@ class VideoServiceTest {
         void getVideoInfo_Success() {
             when(videoRepository.findById(videoId)).thenReturn(Optional.of(sampleVideo));
 
-            VideoInfoDTO result = videoService.getVideoInfo(videoId);
+            when(userRepository.hasLiked(username, videoId)).thenReturn(true);
+
+            VideoInfoDTO result = videoService.getVideoInfo(videoId, username);
 
             assertNotNull(result);
             assertEquals(videoId, result.videoId());
+            assertTrue(result.likedByCurrentUser());
             verify(videoRepository, times(1)).findById(videoId);
+            verify(userRepository).hasLiked(username, videoId);
         }
 
         @Test
@@ -146,7 +150,7 @@ class VideoServiceTest {
         void getVideoInfo_NotFound_ThrowsException() {
             when(videoRepository.findById(videoId)).thenReturn(Optional.empty());
 
-            assertThrows(VideoNotFoundException.class, () -> videoService.getVideoInfo(videoId));
+            assertThrows(VideoNotFoundException.class, () -> videoService.getVideoInfo(videoId, username));
         }
 
         @Test

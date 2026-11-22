@@ -296,6 +296,7 @@ export interface components {
       likes?: number;
       /** Format: int64 */
       views?: number;
+      likedByCurrentUser?: boolean;
     };
     VideoUserDTO: {
       pictureFid?: string;

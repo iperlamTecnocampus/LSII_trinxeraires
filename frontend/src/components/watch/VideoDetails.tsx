@@ -6,6 +6,7 @@ import type { components } from '@/api-schema.d.ts';
 import { $api } from '@/lib/api';
 
 import { formatCount } from './format';
+import { LikeButton } from './LikeButton';
 
 type VideoInfoDTO = components['schemas']['VideoInfoDTO'];
 
@@ -16,10 +17,7 @@ interface VideoDetailsProps {
 
 export function VideoDetails({ video, onLikeAdded }: VideoDetailsProps) {
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [likedVideoId, setLikedVideoId] = useState<string | null>(null);
-  const [likeError, setLikeError] = useState<string | null>(null);
   const videoId = video.videoId ?? '';
-  const isLiked = likedVideoId === videoId && Boolean(videoId);
 
   const authorUsername = video.author?.userName;
   const { data: authorData } = $api.useQuery(
@@ -42,33 +40,6 @@ export function VideoDetails({ video, onLikeAdded }: VideoDetailsProps) {
   const avatarFallback = channelName.charAt(0).toUpperCase();
   const subscriberCount = authorData?.suscribers ?? 0;
   const baseLikes = video.likes ?? 0;
-  const likeMutation = $api.useMutation('post', '/api/videos/{id}/likes');
-
-  async function handleLike() {
-    if (isLiked || likeMutation.isPending) {
-      return;
-    }
-
-    setLikeError(null);
-    try {
-      const liked = await likeMutation.mutateAsync({
-        params: {
-          path: {
-            id: videoId,
-          },
-        },
-      });
-
-      if (!liked) {
-        throw new Error('Could not like this video. Please try again.');
-      }
-
-      setLikedVideoId(videoId);
-      onLikeAdded?.();
-    } catch (error) {
-      setLikeError(error instanceof Error ? error.message : 'Could not like this video. Please try again.');
-    }
-  }
 
   return (
     <section className="mt-4">
@@ -98,16 +69,12 @@ export function VideoDetails({ video, onLikeAdded }: VideoDetailsProps) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant={isLiked ? 'default' : 'secondary'}
-            className="rounded-full"
-            onClick={handleLike}
-            disabled={!videoId || isLiked || likeMutation.isPending}
-            aria-pressed={isLiked}
-          >
-            Like · {formatCount(baseLikes)}
-          </Button>
+          <LikeButton
+            videoId={videoId}
+            likes={baseLikes}
+            likedByCurrentUser={Boolean(video.likedByCurrentUser)}
+            onLikeAdded={onLikeAdded}
+          />
 
           <Button type="button" variant="secondary" className="rounded-full">
             Share
@@ -122,11 +89,6 @@ export function VideoDetails({ video, onLikeAdded }: VideoDetailsProps) {
           </Button>
         </div>
       </div>
-      {likeError && (
-        <p className="mt-2 text-sm text-destructive" role="alert">
-          {likeError}
-        </p>
-      )}
     </section>
   );
 }

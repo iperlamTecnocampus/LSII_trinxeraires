@@ -36,8 +36,8 @@ public class VideosController {
     )
     @ApiResponse(responseCode = "200", description = "List of videos successfully retrieved")
     @GetMapping("/")
-    public ResponseEntity<List<VideoInfoDTO>> getVideosInfo() {
-        return ResponseEntity.ok().body(videoService.getVideos());
+    public ResponseEntity<List<VideoInfoDTO>> getVideosInfo(@AuthenticationPrincipal OAuth2User principal) {
+        return ResponseEntity.ok().body(videoService.getVideos(principal == null ? null : principal.getName()));
     }
 
     @Operation(
@@ -51,8 +51,9 @@ public class VideosController {
     @GetMapping("/{id}")
     public ResponseEntity<VideoInfoDTO> getVideoInfo(
             @Parameter(description = "Unique UUID of the video", example = "123e4567-e89b-12d3-a456-426614174000", required = true)
-            @PathVariable UUID id) {
-        return ResponseEntity.ok().body(videoService.getVideoInfo(id));
+            @PathVariable UUID id,
+            @AuthenticationPrincipal OAuth2User principal) {
+        return ResponseEntity.ok().body(videoService.getVideoInfo(id, principal == null ? null : principal.getName()));
     }
 
     @Operation(
@@ -111,8 +112,9 @@ public class VideosController {
     @GetMapping("/search/{name}")
     public ResponseEntity<List<VideoInfoDTO>> searchVideo(
             @Parameter(description = "Video title or keyword to search for", example = "gameplay", required = true)
-            @PathVariable String name) {
-        return ResponseEntity.ok().body(videoService.searchVideo(name));
+            @PathVariable String name,
+            @AuthenticationPrincipal OAuth2User principal) {
+        return ResponseEntity.ok().body(videoService.searchVideo(name, principal == null ? null : principal.getName()));
     }
 
     @Operation(

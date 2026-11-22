@@ -25,6 +25,10 @@ public class VideoMapper {
     }
 
     public VideoInfoDTO toDTO(Video video) {
+        return toDTO(video, false);
+    }
+
+    public VideoInfoDTO toDTO(Video video, boolean likedByCurrentUser) {
         if (video == null) return null;
 
         return new VideoInfoDTO(
@@ -39,7 +43,8 @@ public class VideoMapper {
                 video.getComments() != null ?
                         video.getComments().stream().map(commentMapper::toDTO).toList() : Collections.emptyList(),
                 video.getLikes() != null ? (long) video.getLikes().size() : 0L,
-                video.getViews() != null ? (long) video.getViews().size() : 0L
+                video.getViews() != null ? (long) video.getViews().size() : 0L,
+                likedByCurrentUser
         );
     }
 

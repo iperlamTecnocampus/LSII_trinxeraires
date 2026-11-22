@@ -46,8 +46,8 @@ public class VideoService {
         this.videoMapper = new VideoMapper(videoUserMapper, commentMapper, categoryMapper);
 
     }
-    public List<VideoInfoDTO> getVideos() {
-        return videoRepository.findAll().stream().map(video -> videoMapper.toDTO(video)).toList();
+    public List<VideoInfoDTO> getVideos(String currentUsername) {
+        return videoRepository.findAll().stream().map(video -> toDTO(video, currentUsername)).toList();
     }
 
     public void deleteVideoById(UUID id, String currentUsername) {
@@ -57,9 +57,9 @@ public class VideoService {
     }
 
     //fetch info video
-    public VideoInfoDTO getVideoInfo(UUID id) {
+    public VideoInfoDTO getVideoInfo(UUID id, String currentUsername) {
         Video video = videoRepository.findById(id).orElseThrow(() -> new VideoNotFoundException("Video not found"));
-        return videoMapper.toDTO(video);
+        return toDTO(video, currentUsername);
     }
 
     public VideoInfoDTO createVideo(CreateVideoDTO dto, String currentUsername) {
@@ -79,7 +79,7 @@ public class VideoService {
                 .orElseThrow(() -> new UserNotFoundException("Author not found"));
         video.setAuthor(author);
         videoRepository.save(video);
-        return videoMapper.toDTO(video);
+        return toDTO(video, currentUsername);
     }
 
     //edit title and description
@@ -89,7 +89,7 @@ public class VideoService {
         video.setTitle(dto.title() != null ? dto.title() : video.getTitle());
         video.setDescription(dto.description() != null ? dto.description() : video.getDescription());
         videoRepository.save(video);
-        return videoMapper.toDTO(video);
+        return toDTO(video, currentUsername);
     }
 
 
@@ -109,8 +109,9 @@ public class VideoService {
         return video.getComments().stream().map(comment -> commentMapper.toDTO(comment)).toList();
     }
 
-    public List<VideoInfoDTO> searchVideo(String name) {
-        List<VideoInfoDTO> videos = videoRepository.findVideoByname(name).stream().map(video -> videoMapper.toDTO(video)).toList();
+    public List<VideoInfoDTO> searchVideo(String name, String currentUsername) {
+        List<VideoInfoDTO> videos = videoRepository.findVideoByname(name).stream()
+                .map(video -> toDTO(video, currentUsername)).toList();
         System.out.println(videos);
         return videos;
     }
@@ -134,5 +135,11 @@ public class VideoService {
         if (video.getAuthor() == null || !video.getAuthor().getUsername().equals(currentUsername)) {
             throw new AccessDeniedException("Only the video owner can modify this video.");
         }
+    }
+
+    private VideoInfoDTO toDTO(Video video, String currentUsername) {
+        boolean likedByCurrentUser = currentUsername != null
+                && userRepository.hasLiked(currentUsername, video.getUuid());
+        return videoMapper.toDTO(video, likedByCurrentUser);
     }
 }

@@ -1,8 +1,14 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import type { components } from '@/api-schema';
+import { useAuth } from '@/auth/useAuth';
 import { $api } from '@/lib/api';
+import { LikeButton } from './LikeButton';
 import { VideoDetails } from './VideoDetails';
+
+jest.mock('@/auth/useAuth', () => ({
+  useAuth: jest.fn(),
+}));
 
 jest.mock('@/lib/api', () => ({
   $api: {
@@ -43,6 +49,7 @@ const mutateAsync = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.mocked(useAuth).mockReturnValue({ isAuthenticated: true, isLoading: false } as never);
   jest.mocked($api.useQuery).mockReturnValue({ data: undefined } as never);
   jest.mocked($api.useMutation).mockReturnValue({
     mutateAsync,
@@ -78,5 +85,25 @@ describe('VideoDetails likes', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Could not like this video. Please try again.');
     expect(screen.getByRole('button', { name: 'Like · 12' })).toBeEnabled();
+  });
+
+  it('shows the like as active when the video DTO says the current user liked it', () => {
+    render(<VideoDetails video={{ ...video, likedByCurrentUser: true }} />);
+
+    const likeButton = screen.getByRole('button', { name: 'Like · 12' });
+    expect(likeButton).toBeDisabled();
+    expect(likeButton).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('disables the like button for users without an account', () => {
+    jest.mocked(useAuth).mockReturnValue({ isAuthenticated: false, isLoading: false } as never);
+
+    render(<LikeButton videoId="video-123" likes={12} likedByCurrentUser={false} />);
+
+    const likeButton = screen.getByRole('button', { name: 'Like · 12' });
+    expect(likeButton).toBeDisabled();
+    expect(likeButton).toHaveAttribute('title', 'Sign in to like videos');
+    fireEvent.click(likeButton);
+    expect(mutateAsync).not.toHaveBeenCalled();
   });
 });

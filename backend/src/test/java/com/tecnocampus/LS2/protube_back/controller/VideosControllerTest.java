@@ -58,12 +58,25 @@ class VideosControllerTest {
 
     @Test
     void listingVideosIsPublic() throws Exception {
-        when(videoService.getVideos()).thenReturn(List.of());
+        when(videoService.getVideos(null)).thenReturn(List.of());
 
         mockMvc.perform(get("/api/videos/"))
                 .andExpect(status().isOk());
 
-        verify(videoService).getVideos();
+        verify(videoService).getVideos(null);
+    }
+
+    @Test
+    void videoInfoUsesAuthenticatedPrincipalWhenAvailable() throws Exception {
+        when(videoService.getVideoInfo(videoId, SESSION_USERNAME)).thenReturn(
+                new VideoInfoDTO(videoId, null, null, "Video", null, null, null,
+                        List.of(), List.of(), 0L, 0L, true));
+
+        mockMvc.perform(get("/api/videos/{id}", videoId)
+                        .with(authentication(authenticatedUser(SESSION_USERNAME))))
+                .andExpect(status().isOk());
+
+        verify(videoService).getVideoInfo(videoId, SESSION_USERNAME);
     }
 
     @Test
@@ -82,7 +95,7 @@ class VideosControllerTest {
     @Test
     void createdVideoUsesTheAuthenticatedPrincipalInsteadOfRequestAuthor() throws Exception {
         VideoInfoDTO result = new VideoInfoDTO(videoId, "video-fid", "thumbnail-fid",
-                "Video", "Description", null, null, List.of(), List.of(), 0L, 0L);
+                "Video", "Description", null, null, List.of(), List.of(), 0L, 0L, false);
         when(videoService.createVideo(any(CreateVideoDTO.class), eq(SESSION_USERNAME))).thenReturn(result);
 
         mockMvc.perform(post("/api/videos/")
@@ -135,7 +148,7 @@ class VideosControllerTest {
     void editAndDeletePassTheAuthenticatedPrincipalToTheService() throws Exception {
         when(videoService.editVideo(eq(videoId), any(EditVideoDTO.class), eq(SESSION_USERNAME)))
                 .thenReturn(new VideoInfoDTO(videoId, null, null, "Updated", null,
-                        null, null, List.of(), List.of(), 0L, 0L));
+                        null, null, List.of(), List.of(), 0L, 0L, false));
 
         mockMvc.perform(put("/api/videos/{id}", videoId)
                         .with(authentication(authenticatedUser(SESSION_USERNAME)))
