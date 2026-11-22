@@ -39,6 +39,16 @@ public class VideosController {
     public ResponseEntity<List<VideoInfoDTO>> getVideosInfo() {
         return ResponseEntity.ok().body(videoService.getVideos());
     }
+    @Operation(
+        summary = "Get liked videos",
+        description = "Retrieves all videos liked by the currently authenticated user."
+        )
+        @ApiResponse(responseCode = "200", description = "Liked videos successfully retrieved")
+        @GetMapping("/liked")
+        public ResponseEntity<List<VideoInfoDTO>> getLikedVideos(
+                @AuthenticationPrincipal OAuth2User principal) {
+        return ResponseEntity.ok(videoService.getLikedVideos(principal.getName()));
+        }
 
     @Operation(
             summary = "Get video by ID",

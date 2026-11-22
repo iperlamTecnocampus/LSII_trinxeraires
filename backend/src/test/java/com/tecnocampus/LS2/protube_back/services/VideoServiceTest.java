@@ -128,6 +128,21 @@ class VideoServiceTest {
             assertEquals(videoId, result.get(0).videoId());
             verify(videoRepository, times(1)).findAll();
         }
+        @Test
+        @DisplayName("getLikedVideos debe devolver los vídeos con like del usuario")
+        void getLikedVideos_ReturnsLikedVideos() {
+            when(userRepository.findLikedVideosByUsername(username))
+                    .thenReturn(List.of(sampleVideo));
+
+            List<VideoInfoDTO> result = videoService.getLikedVideos(username);
+
+            assertEquals(1, result.size());
+            assertEquals(videoId, result.get(0).videoId());
+            assertEquals("Tutorial de Java", result.get(0).title());
+
+            verify(userRepository, times(1))
+                    .findLikedVideosByUsername(username);
+        }
 
         @Test
         @DisplayName("getVideoInfo debe devolver el DTO si el vídeo existe")
