@@ -25,6 +25,7 @@ class UserTest {
         assertEmptyRelation(user, "subscribedTo");
         assertEmptyRelation(user, "subscribers");
         assertEmptyRelation(user, "videos");
+        assertEmptyRelation(user, "likedComments");
     }
 
     @Test

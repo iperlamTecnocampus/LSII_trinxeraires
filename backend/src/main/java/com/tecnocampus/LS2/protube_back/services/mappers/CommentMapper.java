@@ -16,12 +16,18 @@ public class CommentMapper {
     }
 
     public CommentDTO toDTO(Comment comment) {
+        return toDTO(comment, false);
+    }
+
+    public CommentDTO toDTO(Comment comment, boolean likedByCurrentUser) {
         if (comment == null) return null;
 
         return new CommentDTO(
                 videoUserMapper.toDTO(comment.getUser()),
                 comment.getComment(),
-                comment.getId()
+                comment.getId(),
+                comment.getLikes() != null ? (long) comment.getLikes().size() : 0L,
+                likedByCurrentUser
         );
     }
 

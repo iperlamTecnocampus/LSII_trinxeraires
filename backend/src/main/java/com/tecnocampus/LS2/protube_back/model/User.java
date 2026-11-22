@@ -48,6 +48,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private Set<Like> likedVideos = new HashSet<>();
 
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    private Set<LikeComment> likedComments = new HashSet<>();
+
     public User() {
 
     }
@@ -170,5 +173,24 @@ public class User {
 
     public void removeLikedVideo(Video video) {
         video.getLikes().removeIf(like -> like.getUser().equals(this));
+    }
+
+    public Set<LikeComment> getLikedComments() {
+        return likedComments;
+    }
+
+    public void setLikedComments(Set<LikeComment> likedComments) {
+        this.likedComments = likedComments;
+    }
+
+    public void addLikedComment(Comment comment) {
+        LikeComment like = new LikeComment(this, comment);
+        this.likedComments.add(like);
+        comment.addLike(like);
+    }
+
+    public void removeLikedComment(Comment comment) {
+        comment.getLikes().removeIf(like -> like.getUser().equals(this));
+        this.likedComments.removeIf(like -> like.getComment().equals(comment));
     }
 }

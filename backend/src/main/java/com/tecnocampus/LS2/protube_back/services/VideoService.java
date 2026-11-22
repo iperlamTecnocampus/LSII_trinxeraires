@@ -13,6 +13,7 @@ import com.tecnocampus.LS2.protube_back.services.DTO.in.EditVideoDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.CommentDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoInfoDTO;
 import com.tecnocampus.LS2.protube_back.services.exceptions.CategoryNotFoundException;
+import com.tecnocampus.LS2.protube_back.services.exceptions.CommentNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.exceptions.UserNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.exceptions.VideoNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.mappers.CategoryMapper;
@@ -131,6 +132,22 @@ public class VideoService {
         return userRepository.hasLiked(userName, videoId);
     }
 
+    public boolean likeComment(String userName, Long commentId) {
+        User user = userRepository.findById(userName)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("Comment not found"));
+
+        if (userRepository.hasLikedComment(userName, commentId)) {
+            return true;
+        }
+
+        user.addLikedComment(comment);
+        userRepository.save(user);
+        commentRepository.save(comment);
+        return userRepository.hasLikedComment(userName, commentId);
+    }
+
     private static void ensureOwner(Video video, String currentUsername) {
         if (video.getAuthor() == null || !video.getAuthor().getUsername().equals(currentUsername)) {
             throw new AccessDeniedException("Only the video owner can modify this video.");
@@ -140,6 +157,20 @@ public class VideoService {
     private VideoInfoDTO toDTO(Video video, String currentUsername) {
         boolean likedByCurrentUser = currentUsername != null
                 && userRepository.hasLiked(currentUsername, video.getUuid());
-        return videoMapper.toDTO(video, likedByCurrentUser);
+        List<CommentDTO> comments = toCommentDTOs(video, currentUsername);
+        return videoMapper.toDTO(video, likedByCurrentUser, comments);
+    }
+
+    private List<CommentDTO> toCommentDTOs(Video video, String currentUsername) {
+        if (video.getComments() == null) {
+            return List.of();
+        }
+        if (currentUsername == null) {
+            return video.getComments().stream().map(commentMapper::toDTO).toList();
+        }
+        return video.getComments().stream()
+                .map(comment -> commentMapper.toDTO(comment,
+                        userRepository.hasLikedComment(currentUsername, comment.getId())))
+                .toList();
     }
 }
