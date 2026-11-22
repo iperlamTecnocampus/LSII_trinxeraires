@@ -55,7 +55,8 @@ export function VideoPlayback() {
     avatar: c.author?.pictureFid || 'https://picsum.photos/256',
     text: c.comment ?? '',
     createdAt: '',
-    likes: 0,
+    likes: c.likes ?? 0,
+    likedByCurrentUser: Boolean(c.likedByCurrentUser),
   }));
 
   return (
@@ -82,6 +83,9 @@ export function VideoPlayback() {
             commentCount={comments.length}
             videoId={videoId}
             onCommentAdded={() => {
+              refetch();
+            }}
+            onLikeAdded={() => {
               refetch();
             }}
           />
