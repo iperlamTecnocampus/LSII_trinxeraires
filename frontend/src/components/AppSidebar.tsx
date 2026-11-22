@@ -8,13 +8,15 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Link, useLocation } from 'react-router';
 
 import { HugeiconsIcon } from '@hugeicons/react';
-import { HomeIcon, ThumbsUpIcon, VideoReplayIcon, ChevronRightIcon } from '@hugeicons/core-free-icons';
+import { ChevronRightIcon, HomeIcon, ThumbsUpIcon, VideoReplayIcon } from '@hugeicons/core-free-icons';
+
 import { useAuth } from '@/auth/useAuth';
+import { $api } from '@/lib/api';
 
 type IconSvgObject =
   | [
@@ -36,21 +38,26 @@ function MenuItem({ path, icon, title }: { path: string; icon: IconSvgObject; ti
   return (
     <SidebarMenuItem>
       <SidebarMenuButton isActive={isActive} render={<Link to={path} />} className="h-12">
-        <HugeiconsIcon icon={icon} strokeWidth={2} /> {title}
+        <HugeiconsIcon icon={icon} strokeWidth={2} />
+        {title}
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
 }
 
-function Subscription({ profilePicture, name, username }: { profilePicture: string; username: string; name: string }) {
+function Subscription({ pictureFid, name, username }: { pictureFid?: string; username: string; name: string }) {
+  const profilePicture = pictureFid ? `/api/files/${pictureFid}` : undefined;
+
   return (
     <SidebarMenuItem>
       <SidebarMenuButton render={<Link to={`/profile/${username}`} />} className="h-12">
-        <div className="flex flex-row gap-2 items-center">
+        <div className="flex flex-row items-center gap-2">
           <Avatar>
-            <AvatarImage src={profilePicture} alt={'@' + username} />
-            <AvatarFallback>US</AvatarFallback>
+            <AvatarImage src={profilePicture} alt={`@${username}`} />
+
+            <AvatarFallback>{name.slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
+
           <span>{name}</span>
         </div>
       </SidebarMenuButton>
@@ -59,46 +66,93 @@ function Subscription({ profilePicture, name, username }: { profilePicture: stri
 }
 
 export function AppSidebar() {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+
+  const { data: profile, isLoading: subscriptionsLoading } = $api.useQuery(
+    'get',
+    '/api/users/{username}',
+    {
+      params: {
+        path: {
+          username: user?.userName ?? '',
+        },
+      },
+    },
+    {
+      enabled: isAuthenticated && Boolean(user?.userName),
+    }
+  );
+
+  const subscriptions = profile?.subscribedTo ?? [];
 
   return (
     <Sidebar>
       <SidebarHeader className="h-[57px] shrink-0" />
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
             <MenuItem key="home" path="/" icon={HomeIcon} title="Home" />
+
             {isAuthenticated && (
               <>
                 <MenuItem key="liked_videos" path="/liked" icon={ThumbsUpIcon} title="Liked videos" />
+
                 <MenuItem key="your_videos" path="/studio" icon={VideoReplayIcon} title="Your videos" />
               </>
             )}
           </SidebarMenu>
         </SidebarGroup>
+
         {isAuthenticated && (
           <>
             <div className="w-full px-4">
               <Separator />
             </div>
+
             <SidebarGroup>
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton render={<Link to="/subscriptions" />}>
-                    Subscriptions <HugeiconsIcon icon={ChevronRightIcon} strokeWidth={2} />
+                    Subscriptions
+                    <HugeiconsIcon icon={ChevronRightIcon} strokeWidth={2} />
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
-                <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
-                <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
-                <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
-                <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
-                <Subscription profilePicture="https://picsum.photos/256" name="Channel name" username="channelname" />
+                {subscriptionsLoading && (
+                  <SidebarMenuItem>
+                    <span className="px-2 text-sm text-muted-foreground">Loading subscriptions...</span>
+                  </SidebarMenuItem>
+                )}
+
+                {!subscriptionsLoading && subscriptions.length === 0 && (
+                  <SidebarMenuItem>
+                    <span className="px-2 text-sm text-muted-foreground">No subscriptions yet</span>
+                  </SidebarMenuItem>
+                )}
+
+                {subscriptions.map((subscription) => {
+                  const username = subscription.userName;
+
+                  if (!username) {
+                    return null;
+                  }
+
+                  return (
+                    <Subscription
+                      key={username}
+                      username={username}
+                      name={subscription.displayName || username}
+                      pictureFid={subscription.pictureFid}
+                    />
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroup>
           </>
         )}
       </SidebarContent>
+
       <SidebarFooter />
     </Sidebar>
   );
