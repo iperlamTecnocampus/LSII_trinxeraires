@@ -4,900 +4,900 @@
  */
 
 export interface paths {
-    "/api/videos/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get video by ID
-         * @description Retrieves the details and metadata of a specific video by its unique UUID identifier.
-         */
-        get: operations["getVideoInfo"];
-        /**
-         * Edit video title and description
-         * @description Updates the title and/or description of an existing video. Null fields will keep their current values.
-         */
-        put: operations["editVideo"];
-        post?: never;
-        /**
-         * Delete a video by ID
-         * @description Permanently deletes a video from the database using its unique UUID.
-         */
-        delete: operations["deleteVideoById"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  '/api/videos/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/users/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Edit user profile
-         * @description Updates an existing user's profile information, such as display name, description, profile picture, and banner image. Note that the username itself cannot be modified.
-         */
-        put: operations["editUserProfile"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Get video by ID
+     * @description Retrieves the details and metadata of a specific video by its unique UUID identifier.
+     */
+    get: operations['getVideoInfo'];
+    /**
+     * Edit video title and description
+     * @description Updates the title and/or description of an existing video. Null fields will keep their current values.
+     */
+    put: operations['editVideo'];
+    post?: never;
+    /**
+     * Delete a video by ID
+     * @description Permanently deletes a video from the database using its unique UUID.
+     */
+    delete: operations['deleteVideoById'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/users/me': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/videos/{id}/likes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Like a video
-         * @description Registers a like from a user on a specific video. Returns true if the user has liked the video.
-         */
-        post: operations["likeVideo"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    /**
+     * Edit user profile
+     * @description Updates an existing user's profile information, such as display name, description, profile picture, and banner image. Note that the username itself cannot be modified.
+     */
+    put: operations['editUserProfile'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/videos/{id}/likes': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/videos/{id}/comments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Add a comment to a video
-         * @description Posts a new text comment on a specific video by a registered user. Returns true if the comment was successfully saved.
-         */
-        post: operations["commentVideo"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Like a video
+     * @description Registers a like from a user on a specific video. Returns true if the user has liked the video.
+     */
+    post: operations['likeVideo'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/videos/{id}/comments': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/videos/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get all videos
-         * @description Retrieves a list of all available videos on the platform with their full metadata.
-         */
-        get: operations["getVideosInfo"];
-        put?: never;
-        /**
-         * Create a new video
-         * @description Creates and saves a new video associated with an existing author username.
-         */
-        post: operations["createVideo"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Add a comment to a video
+     * @description Posts a new text comment on a specific video by a registered user. Returns true if the comment was successfully saved.
+     */
+    post: operations['commentVideo'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/videos/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/users/subscribe": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Subscribe to another user
-         * @description Adds a subscription from the subscriber user to the target user channel. Returns true if the subscription is active.
-         */
-        post: operations["subscribeToUser"];
-        /**
-         * Unsubscribe from another user
-         * @description Removes the subscription from the authenticated user to the target user channel.
-         */
-        delete: operations["unsubscribeFromUser"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Get all videos
+     * @description Retrieves a list of all available videos on the platform with their full metadata.
+     */
+    get: operations['getVideosInfo'];
+    put?: never;
+    /**
+     * Create a new video
+     * @description Creates and saves a new video associated with an existing author username.
+     */
+    post: operations['createVideo'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/users/subscribe': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/users/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Register a new user
-         * @description Creates a new user account. Both username and email are required and the username must be unique.
-         */
-        post: operations["createUser"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Subscribe to another user
+     * @description Adds a subscription from the subscriber user to the target user channel. Returns true if the subscription is active.
+     */
+    post: operations['subscribeToUser'];
+    /**
+     * Unsubscribe from another user
+     * @description Removes the subscription from the authenticated user to the target user channel.
+     */
+    delete: operations['unsubscribeFromUser'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/users/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/categories/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all categories */
-        get: operations["getCategories"];
-        put?: never;
-        /** Create a new category */
-        post: operations["createCategory"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Register a new user
+     * @description Creates a new user account. Both username and email are required and the username must be unique.
+     */
+    post: operations['createUser'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/categories/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/videos/search/{name}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Search videos by name
-         * @description Finds and returns a list of videos matching the specified name query.
-         */
-        get: operations["searchVideo"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Get all categories */
+    get: operations['getCategories'];
+    put?: never;
+    /** Create a new category */
+    post: operations['createCategory'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/videos/search/{name}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/users/{username}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get user by username
-         * @description Retrieves the basic profile information of a registered user by their username.
-         */
-        get: operations["getUser"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Search videos by name
+     * @description Finds and returns a list of videos matching the specified name query.
+     */
+    get: operations['searchVideo'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/users/{username}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/hello": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["sayHello"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Get user by username
+     * @description Retrieves the basic profile information of a registered user by their username.
+     */
+    get: operations['getUser'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/hello': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/auth/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["currentUser"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations['sayHello'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/auth/me': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/auth/csrf": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["csrfToken"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations['currentUser'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/auth/csrf': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    get: operations['csrfToken'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        EditVideoDTO: {
-            title?: string;
-            description?: string;
-        };
-        CategoryDTO: {
-            id?: string;
-            name?: string;
-        };
-        CommentDTO: {
-            author?: components["schemas"]["VideoUserDTO"];
-            comment?: string;
-            /** Format: int64 */
-            id?: number;
-        };
-        VideoInfoDTO: {
-            /** Format: uuid */
-            videoId?: string;
-            videoFid?: string;
-            thumbnailFid?: string;
-            title?: string;
-            description?: string;
-            /** Format: date-time */
-            uploadedAt?: string;
-            author?: components["schemas"]["VideoUserDTO"];
-            categories?: components["schemas"]["CategoryDTO"][];
-            comments?: components["schemas"]["CommentDTO"][];
-            /** Format: int64 */
-            likes?: number;
-            /** Format: int64 */
-            views?: number;
-        };
-        VideoUserDTO: {
-            pictureFid?: string;
-            userName?: string;
-            displayName?: string;
-        };
-        EditUserDTO: {
-            displayName?: string;
-            description?: string;
-            pictureFid?: string;
-            bannerFid?: string;
-        };
-        UserDTO: {
-            pictureFid?: string;
-            bannerFid?: string;
-            userName?: string;
-            displayName?: string;
-            description?: string;
-            email?: string;
-            /** Format: date */
-            joinDate?: string;
-            subscribedTo?: components["schemas"]["UserDTO"][];
-            /** Format: int64 */
-            suscribers?: number;
-            videos?: components["schemas"]["VideoInfoDTO"][];
-        };
-        CreateVideoDTO: {
-            title?: string;
-            description?: string;
-            categories?: string[];
-            videoFid?: string;
-            thumbnailFid?: string;
-        };
-        CreateUserDTO: {
-            username?: string;
-            displayName?: string;
-            description?: string;
-            email?: string;
-            pictureFid?: string;
-            bannerFid?: string;
-        };
-        CurrentUserDTO: {
-            userName?: string;
-            displayName?: string;
-            email?: string;
-            pictureFid?: string;
-            pictureUrl?: string;
-        };
-        CsrfToken: {
-            token?: string;
-            parameterName?: string;
-            headerName?: string;
-        };
-        CsrfTokenDTO: {
-            token?: string;
-            headerName?: string;
-            parameterName?: string;
-        };
+  schemas: {
+    EditVideoDTO: {
+      title?: string;
+      description?: string;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    CategoryDTO: {
+      id?: string;
+      name?: string;
+    };
+    CommentDTO: {
+      author?: components['schemas']['VideoUserDTO'];
+      comment?: string;
+      /** Format: int64 */
+      id?: number;
+    };
+    VideoInfoDTO: {
+      /** Format: uuid */
+      videoId?: string;
+      videoFid?: string;
+      thumbnailFid?: string;
+      title?: string;
+      description?: string;
+      /** Format: date-time */
+      uploadedAt?: string;
+      author?: components['schemas']['VideoUserDTO'];
+      categories?: components['schemas']['CategoryDTO'][];
+      comments?: components['schemas']['CommentDTO'][];
+      /** Format: int64 */
+      likes?: number;
+      /** Format: int64 */
+      views?: number;
+    };
+    VideoUserDTO: {
+      pictureFid?: string;
+      userName?: string;
+      displayName?: string;
+    };
+    EditUserDTO: {
+      displayName?: string;
+      description?: string;
+      pictureFid?: string;
+      bannerFid?: string;
+    };
+    UserDTO: {
+      pictureFid?: string;
+      bannerFid?: string;
+      userName?: string;
+      displayName?: string;
+      description?: string;
+      email?: string;
+      /** Format: date */
+      joinDate?: string;
+      subscribedTo?: components['schemas']['UserDTO'][];
+      /** Format: int64 */
+      suscribers?: number;
+      videos?: components['schemas']['VideoInfoDTO'][];
+    };
+    CreateVideoDTO: {
+      title?: string;
+      description?: string;
+      categories?: string[];
+      videoFid?: string;
+      thumbnailFid?: string;
+    };
+    CreateUserDTO: {
+      username?: string;
+      displayName?: string;
+      description?: string;
+      email?: string;
+      pictureFid?: string;
+      bannerFid?: string;
+    };
+    CurrentUserDTO: {
+      userName?: string;
+      displayName?: string;
+      email?: string;
+      pictureFid?: string;
+      pictureUrl?: string;
+    };
+    CsrfToken: {
+      token?: string;
+      parameterName?: string;
+      headerName?: string;
+    };
+    CsrfTokenDTO: {
+      token?: string;
+      headerName?: string;
+      parameterName?: string;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    getVideoInfo: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description Unique UUID of the video
-                 * @example 123e4567-e89b-12d3-a456-426614174000
-                 */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Video successfully retrieved */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["VideoInfoDTO"];
-                };
-            };
-            /** @description Video not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  getVideoInfo: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Unique UUID of the video
+         * @example 123e4567-e89b-12d3-a456-426614174000
+         */
+        id: string;
+      };
+      cookie?: never;
     };
-    editVideo: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description Unique UUID of the video to update
-                 * @example 123e4567-e89b-12d3-a456-426614174000
-                 */
-                id: string;
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Video successfully retrieved */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        /** @description Updated title and description for the video */
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EditVideoDTO"];
-            };
+        content: {
+          '*/*': components['schemas']['VideoInfoDTO'];
         };
-        responses: {
-            /** @description Video successfully updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["VideoInfoDTO"];
-                };
-            };
-            /** @description Video not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+      };
+      /** @description Video not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
         };
+        content?: never;
+      };
     };
-    deleteVideoById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description Unique UUID of the video to delete
-                 * @example 123e4567-e89b-12d3-a456-426614174000
-                 */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Video successfully deleted */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  editVideo: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Unique UUID of the video to update
+         * @example 123e4567-e89b-12d3-a456-426614174000
+         */
+        id: string;
+      };
+      cookie?: never;
     };
-    editUserProfile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Updated user profile details */
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EditUserDTO"];
-            };
-        };
-        responses: {
-            /** @description User profile successfully updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["UserDTO"];
-                };
-            };
-            /** @description Unsupported operation (e.g., attempting to change the username) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+    /** @description Updated title and description for the video */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['EditVideoDTO'];
+      };
     };
-    likeVideo: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description Unique UUID of the liked video
-                 * @example 123e4567-e89b-12d3-a456-426614174000
-                 */
-                id: string;
-            };
-            cookie?: never;
+    responses: {
+      /** @description Video successfully updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Like registered successfully (returns true) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": boolean;
-                };
-            };
-            /** @description User or Video not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+        content: {
+          '*/*': components['schemas']['VideoInfoDTO'];
         };
+      };
+      /** @description Video not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
-    commentVideo: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description Unique UUID of the video being commented on
-                 * @example 123e4567-e89b-12d3-a456-426614174000
-                 */
-                id: string;
-            };
-            cookie?: never;
-        };
-        /** @description Plain text content of the comment */
-        requestBody: {
-            content: {
-                "application/json": string;
-            };
-        };
-        responses: {
-            /** @description Comment processed (returns true if saved) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": boolean;
-                };
-            };
-            /** @description User or Video not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  deleteVideoById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Unique UUID of the video to delete
+         * @example 123e4567-e89b-12d3-a456-426614174000
+         */
+        id: string;
+      };
+      cookie?: never;
     };
-    getVideosInfo: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Video successfully deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description List of videos successfully retrieved */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["VideoInfoDTO"][];
-                };
-            };
-        };
+        content?: never;
+      };
     };
-    createVideo: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Video creation data including author details */
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateVideoDTO"];
-            };
-        };
-        responses: {
-            /** @description Video successfully created */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["VideoInfoDTO"];
-                };
-            };
-            /** @description Author user not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  editUserProfile: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    subscribeToUser: {
-        parameters: {
-            query: {
-                /**
-                 * @description Username of the channel being subscribed to
-                 * @example janedoe
-                 */
-                subscribedUsername: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Subscription processed successfully (returns true if subscribed) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": boolean;
-                };
-            };
-            /** @description Subscriber or target subscribed user not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+    /** @description Updated user profile details */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['EditUserDTO'];
+      };
     };
-    unsubscribeFromUser: {
-        parameters: {
-            query: {
-                /**
-                 * @description Username of the channel being unsubscribed from
-                 * @example janedoe
-                 */
-                subscribedUsername: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
+    responses: {
+      /** @description User profile successfully updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Subscription removed successfully */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Subscriber or target subscribed user not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+        content: {
+          '*/*': components['schemas']['UserDTO'];
         };
+      };
+      /** @description Unsupported operation (e.g., attempting to change the username) */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description User not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
-    createUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description New user registration details */
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateUserDTO"];
-            };
-        };
-        responses: {
-            /** @description User successfully created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["UserDTO"];
-                };
-            };
-            /** @description Missing required fields (username or email is blank) */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description User with this username already exists */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  likeVideo: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Unique UUID of the liked video
+         * @example 123e4567-e89b-12d3-a456-426614174000
+         */
+        id: string;
+      };
+      cookie?: never;
     };
-    getCategories: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Like registered successfully (returns true) */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description List of categories successfully retrieved */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["CategoryDTO"][];
-                };
-            };
+        content: {
+          '*/*': boolean;
         };
+      };
+      /** @description User or Video not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
-    createCategory: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description Category creation data */
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CategoryDTO"];
-            };
-        };
-        responses: {
-            /** @description Category successfully created */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-            /** @description Category already exists */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  commentVideo: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Unique UUID of the video being commented on
+         * @example 123e4567-e89b-12d3-a456-426614174000
+         */
+        id: string;
+      };
+      cookie?: never;
     };
-    searchVideo: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description Video title or keyword to search for
-                 * @example gameplay
-                 */
-                name: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Search results successfully retrieved */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["VideoInfoDTO"][];
-                };
-            };
-        };
+    /** @description Plain text content of the comment */
+    requestBody: {
+      content: {
+        'application/json': string;
+      };
     };
-    getUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description Unique username of the user
-                 * @example johndoe
-                 */
-                username: string;
-            };
-            cookie?: never;
+    responses: {
+      /** @description Comment processed (returns true if saved) */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description User profile successfully retrieved */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["UserDTO"];
-                };
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+        content: {
+          '*/*': boolean;
         };
+      };
+      /** @description User or Video not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
-    sayHello: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
+  };
+  getVideosInfo: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    currentUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description List of videos successfully retrieved */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["CurrentUserDTO"];
-                };
-            };
+        content: {
+          '*/*': components['schemas']['VideoInfoDTO'][];
         };
+      };
     };
-    csrfToken: {
-        parameters: {
-            query: {
-                csrfToken: components["schemas"]["CsrfToken"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["CsrfTokenDTO"];
-                };
-            };
-        };
+  };
+  createVideo: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    /** @description Video creation data including author details */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateVideoDTO'];
+      };
+    };
+    responses: {
+      /** @description Video successfully created */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['VideoInfoDTO'];
+        };
+      };
+      /** @description Author user not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  subscribeToUser: {
+    parameters: {
+      query: {
+        /**
+         * @description Username of the channel being subscribed to
+         * @example janedoe
+         */
+        subscribedUsername: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Subscription processed successfully (returns true if subscribed) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': boolean;
+        };
+      };
+      /** @description Subscriber or target subscribed user not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  unsubscribeFromUser: {
+    parameters: {
+      query: {
+        /**
+         * @description Username of the channel being unsubscribed from
+         * @example janedoe
+         */
+        subscribedUsername: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Subscription removed successfully */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Subscriber or target subscribed user not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  createUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description New user registration details */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateUserDTO'];
+      };
+    };
+    responses: {
+      /** @description User successfully created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['UserDTO'];
+        };
+      };
+      /** @description Missing required fields (username or email is blank) */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description User with this username already exists */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  getCategories: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of categories successfully retrieved */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['CategoryDTO'][];
+        };
+      };
+    };
+  };
+  createCategory: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Category creation data */
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CategoryDTO'];
+      };
+    };
+    responses: {
+      /** @description Category successfully created */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': string;
+        };
+      };
+      /** @description Category already exists */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  searchVideo: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Video title or keyword to search for
+         * @example gameplay
+         */
+        name: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Search results successfully retrieved */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['VideoInfoDTO'][];
+        };
+      };
+    };
+  };
+  getUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Unique username of the user
+         * @example johndoe
+         */
+        username: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description User profile successfully retrieved */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['UserDTO'];
+        };
+      };
+      /** @description User not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  sayHello: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': string;
+        };
+      };
+    };
+  };
+  currentUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['CurrentUserDTO'];
+        };
+      };
+    };
+  };
+  csrfToken: {
+    parameters: {
+      query: {
+        csrfToken: components['schemas']['CsrfToken'];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['CsrfTokenDTO'];
+        };
+      };
+    };
+  };
 }
