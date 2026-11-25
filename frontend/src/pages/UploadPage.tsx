@@ -9,38 +9,8 @@ import { VisibilitySelector } from '@/components/upload/VisibilitySelector';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getEnv } from '@/utils/Env';
+import { uploadFile } from '@/lib/fileApi';
 import { $api } from '../lib/api';
-
-async function uploadFile(endpoint: 'videos' | 'thumbnails', file: File): Promise<string> {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  const response = await fetch(`${getEnv().FILE_API_BASE_URL}/${endpoint}`, {
-    method: 'POST',
-    body: formData,
-  });
-
-  if (!response.ok) {
-    let message = `Upload failed (${response.status})`;
-    try {
-      const error = (await response.json()) as { detail?: string };
-      if (error.detail) {
-        message = error.detail;
-      }
-    } catch {
-      // Keep the status-based message when the server doesn't return JSON.
-    }
-    throw new Error(message);
-  }
-
-  const result = (await response.json()) as { fid?: string };
-  if (!result.fid) {
-    throw new Error('The upload server did not return a file ID.');
-  }
-
-  return result.fid;
-}
 
 export function UploadPage() {
   const navigate = useNavigate();
@@ -122,7 +92,7 @@ export function UploadPage() {
     }
 
     try {
-      const fid = await uploadFile('thumbnails', newFile);
+      const fid = await uploadFile('images', newFile);
       if (requestId === thumbnailRequestId.current) {
         setThumbnailFid(fid);
       }
