@@ -158,7 +158,11 @@ export interface paths {
      * @description Adds a subscription from the subscriber user to the target user channel. Returns true if the subscription is active.
      */
     post: operations['subscribeToUser'];
-    delete?: never;
+    /**
+     * Unsubscribe from another user
+     * @description Removes the subscription from the authenticated user to the target user channel.
+     */
+    delete: operations['unsubscribeFromUser'];
     options?: never;
     head?: never;
     patch?: never;
@@ -765,6 +769,37 @@ export interface operations {
         content: {
           '*/*': boolean;
         };
+      };
+      /** @description Subscriber or target subscribed user not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  unsubscribeFromUser: {
+    parameters: {
+      query: {
+        /**
+         * @description Username of the channel being unsubscribed from
+         * @example janedoe
+         */
+        subscribedUsername: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Subscription removed successfully */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Subscriber or target subscribed user not found */
       404: {
