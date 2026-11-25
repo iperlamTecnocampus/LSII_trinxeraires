@@ -17,6 +17,7 @@ import { ChevronRightIcon, HomeIcon, ThumbsUpIcon, VideoReplayIcon } from '@huge
 
 import { useAuth } from '@/auth/useAuth';
 import { $api } from '@/lib/api';
+import { getImageUrl } from '@/lib/fileApi';
 
 type IconSvgObject =
   | [
@@ -46,7 +47,7 @@ function MenuItem({ path, icon, title }: { path: string; icon: IconSvgObject; ti
 }
 
 function Subscription({ pictureFid, name, username }: { pictureFid?: string; username: string; name: string }) {
-  const profilePicture = pictureFid ? `/api/files/${pictureFid}` : undefined;
+  const profilePicture = getImageUrl(pictureFid) || null;
 
   return (
     <SidebarMenuItem>
