@@ -41,6 +41,10 @@ jest.mock('@/lib/api', () => ({
   },
 }));
 
+jest.mock('@/lib/fileApi', () => ({
+  getImageUrl: (fid?: string | null) => (fid ? `/api/files/${fid}` : undefined),
+}));
+
 jest.mock('@/components/ui/avatar', () => {
   const React = jest.requireActual<typeof import('react')>('react');
   return {
