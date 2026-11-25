@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getEnv } from '@/utils/Env';
 import { $api } from '../lib/api';
 
-async function uploadFile(endpoint: 'videos' | 'thumbnails', file: File): Promise<string> {
+async function uploadFile(endpoint: 'videos' | 'images', file: File): Promise<string> {
   const formData = new FormData();
   formData.append('file', file);
 
@@ -122,7 +122,7 @@ export function UploadPage() {
     }
 
     try {
-      const fid = await uploadFile('thumbnails', newFile);
+      const fid = await uploadFile('images', newFile);
       if (requestId === thumbnailRequestId.current) {
         setThumbnailFid(fid);
       }
