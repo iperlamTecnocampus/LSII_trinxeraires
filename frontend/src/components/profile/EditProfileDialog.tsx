@@ -1,4 +1,5 @@
 import { useEffect, useState, type ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Camera01Icon } from '@hugeicons/core-free-icons';
@@ -39,6 +40,7 @@ function readImage(event: ChangeEvent<HTMLInputElement>, callback: (url: string)
 }
 
 export function EditProfileDialog({ open, onOpenChange, profile, isSaving = false, onSave }: EditProfileDialogProps) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState<UserDTO>(profile);
 
   useEffect(() => {
@@ -64,19 +66,19 @@ export function EditProfileDialog({ open, onOpenChange, profile, isSaving = fals
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Edit profile</DialogTitle>
-          <DialogDescription>Update how your channel appears to viewers.</DialogDescription>
+          <DialogTitle>{t('profile.edit.title')}</DialogTitle>
+          <DialogDescription>{t('profile.edit.subtitle')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5">
           {/* Banner image upload section */}
           <div>
-            <Label className="mb-2 block">Banner image</Label>
+            <Label className="mb-2 block">{t('profile.edit.bannerLabel')}</Label>
             <label className="group relative block aspect-[4/1] cursor-pointer overflow-hidden rounded-xl bg-muted">
               {draft.bannerFid ? (
                 <img
                   src={draft.bannerFid.startsWith('blob:') ? draft.bannerFid : `/api/files/${draft.bannerFid}`}
-                  alt="Banner"
+                  alt={t('profile.edit.bannerAlt')}
                   className="h-full w-full object-cover"
                 />
               ) : (
@@ -85,7 +87,7 @@ export function EditProfileDialog({ open, onOpenChange, profile, isSaving = fals
 
               <span className="absolute inset-0 flex items-center justify-center gap-2 bg-black/60 text-sm font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">
                 <HugeiconsIcon icon={Camera01Icon} size={18} />
-                Change banner
+                {t('profile.edit.changeBanner')}
               </span>
 
               <input
@@ -117,14 +119,13 @@ export function EditProfileDialog({ open, onOpenChange, profile, isSaving = fals
             </label>
 
             <div className="text-sm">
-              <p className="font-semibold">Profile picture</p>
-              <p className="text-muted-foreground">Click the image to upload a new one.</p>
+              <p className="font-semibold">{t('profile.edit.pictureLabel')}</p>
+              <p className="text-muted-foreground">{t('profile.edit.pictureHint')}</p>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="name">Display name</Label>
-            {}
+            <Label htmlFor="name">{t('profile.edit.displayName')}</Label>
             <Input
               id="name"
               value={draft.displayName || ''}
@@ -133,7 +134,7 @@ export function EditProfileDialog({ open, onOpenChange, profile, isSaving = fals
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('profile.edit.description')}</Label>
             <Textarea
               id="description"
               rows={3}
@@ -141,18 +142,17 @@ export function EditProfileDialog({ open, onOpenChange, profile, isSaving = fals
               value={draft.description || ''}
               onChange={(event) => set('description', event.target.value)}
             />
-            {}
             <p className="text-right text-xs text-muted-foreground">{(draft.description || '').length}/160</p>
           </div>
         </div>
 
         <DialogFooter className="gap-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={isSaving}>
-            Cancel
+            {t('common.cancel')}
           </Button>
 
           <Button disabled={!canSave || isSaving} onClick={() => onSave(draft)}>
-            {isSaving ? 'Saving...' : 'Save changes'}
+            {isSaving ? t('common.saving') : t('common.saveChanges')}
           </Button>
         </DialogFooter>
       </DialogContent>

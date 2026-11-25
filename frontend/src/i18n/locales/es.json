@@ -1,0 +1,20 @@
+{
+  "common": {
+    "cancel": "Cancelar",
+    "saving": "Guardando...",
+    "saveChanges": "Guardar cambios"
+  },
+  "profile": {
+    "edit": {
+      "title": "Editar perfil",
+      "subtitle": "Actualiza cómo se muestra tu canal a los espectadores.",
+      "bannerLabel": "Imagen de banner",
+      "bannerAlt": "Banner",
+      "changeBanner": "Cambiar banner",
+      "pictureLabel": "Foto de perfil",
+      "pictureHint": "Haz clic en la imagen para subir una nueva.",
+      "displayName": "Nombre visible",
+      "description": "Descripción"
+    }
+  }
+}

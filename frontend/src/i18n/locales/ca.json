@@ -1,0 +1,20 @@
+{
+  "common": {
+    "cancel": "Cancel·lar",
+    "saving": "Desant...",
+    "saveChanges": "Desar els canvis"
+  },
+  "profile": {
+    "edit": {
+      "title": "Editar el perfil",
+      "subtitle": "Actualitza com es mostra el teu canal als espectadors.",
+      "bannerLabel": "Imatge del bàner",
+      "bannerAlt": "Bàner",
+      "changeBanner": "Canviar el bàner",
+      "pictureLabel": "Foto de perfil",
+      "pictureHint": "Fes clic a la imatge per pujar-ne una de nova.",
+      "displayName": "Nom visible",
+      "description": "Descripció"
+    }
+  }
+}
