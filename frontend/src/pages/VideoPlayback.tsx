@@ -5,7 +5,6 @@ import { VideoDescription } from '@/components/watch/VideoDescription';
 import { VideoDetails } from '@/components/watch/VideoDetails';
 import { VideoPlayerCmp } from '@/components/watch/VideoPlayerCmp';
 
-import { mockCommentCount, mockComments, mockRelatedVideos, mockVideo } from '@/components/watch/mock-video-data';
 import { $api } from '../lib/api';
 
 export function VideoPlayback() {
@@ -56,7 +55,8 @@ export function VideoPlayback() {
     avatar: c.author?.pictureFid || 'https://picsum.photos/256',
     text: c.comment ?? '',
     createdAt: '',
-    likes: 0,
+    likes: c.likes ?? 0,
+    likedByCurrentUser: Boolean(c.likedByCurrentUser),
   }));
 
   return (
@@ -69,7 +69,12 @@ export function VideoPlayback() {
             fid={video.videoFid}
           />
 
-          <VideoDetails video={video} />
+          <VideoDetails
+            video={video}
+            onLikeChanged={() => {
+              void refetch();
+            }}
+          />
 
           <VideoDescription video={video} />
 
@@ -78,6 +83,9 @@ export function VideoPlayback() {
             commentCount={comments.length}
             videoId={videoId}
             onCommentAdded={() => {
+              refetch();
+            }}
+            onLikeChanged={() => {
               refetch();
             }}
           />

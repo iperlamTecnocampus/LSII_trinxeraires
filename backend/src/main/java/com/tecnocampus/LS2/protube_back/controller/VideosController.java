@@ -36,9 +36,19 @@ public class VideosController {
     )
     @ApiResponse(responseCode = "200", description = "List of videos successfully retrieved")
     @GetMapping("/")
-    public ResponseEntity<List<VideoInfoDTO>> getVideosInfo() {
-        return ResponseEntity.ok().body(videoService.getVideos());
+    public ResponseEntity<List<VideoInfoDTO>> getVideosInfo(@AuthenticationPrincipal OAuth2User principal) {
+        return ResponseEntity.ok().body(videoService.getVideos(principal == null ? null : principal.getName()));
     }
+    @Operation(
+        summary = "Get liked videos",
+        description = "Retrieves all videos liked by the currently authenticated user."
+        )
+        @ApiResponse(responseCode = "200", description = "Liked videos successfully retrieved")
+        @GetMapping("/liked")
+        public ResponseEntity<List<VideoInfoDTO>> getLikedVideos(
+                @AuthenticationPrincipal OAuth2User principal) {
+        return ResponseEntity.ok(videoService.getLikedVideos(principal.getName()));
+        }
 
     @Operation(
             summary = "Get video by ID",
@@ -51,8 +61,9 @@ public class VideosController {
     @GetMapping("/{id}")
     public ResponseEntity<VideoInfoDTO> getVideoInfo(
             @Parameter(description = "Unique UUID of the video", example = "123e4567-e89b-12d3-a456-426614174000", required = true)
-            @PathVariable UUID id) {
-        return ResponseEntity.ok().body(videoService.getVideoInfo(id));
+            @PathVariable UUID id,
+            @AuthenticationPrincipal OAuth2User principal) {
+        return ResponseEntity.ok().body(videoService.getVideoInfo(id, principal == null ? null : principal.getName()));
     }
 
     @Operation(
@@ -111,8 +122,9 @@ public class VideosController {
     @GetMapping("/search/{name}")
     public ResponseEntity<List<VideoInfoDTO>> searchVideo(
             @Parameter(description = "Video title or keyword to search for", example = "gameplay", required = true)
-            @PathVariable String name) {
-        return ResponseEntity.ok().body(videoService.searchVideo(name));
+            @PathVariable String name,
+            @AuthenticationPrincipal OAuth2User principal) {
+        return ResponseEntity.ok().body(videoService.searchVideo(name, principal == null ? null : principal.getName()));
     }
 
     @Operation(
@@ -149,5 +161,21 @@ public class VideosController {
             @AuthenticationPrincipal OAuth2User principal) {
         boolean liked = videoService.likeVideo(principal.getName(), videoId);
         return ResponseEntity.ok(liked);
+    }
+
+    @Operation(
+            summary = "Unlike a video",
+            description = "Removes the authenticated user's like from a video. Returns true when the video is no longer liked by the user."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Unlike processed successfully"),
+            @ApiResponse(responseCode = "404", description = "User or Video not found", content = @Content)
+    })
+    @DeleteMapping("/{id}/likes")
+    public ResponseEntity<Boolean> unlikeVideo(
+            @Parameter(description = "Unique UUID of the video to unlike", example = "123e4567-e89b-12d3-a456-426614174000", required = true)
+            @PathVariable("id") UUID videoId,
+            @AuthenticationPrincipal OAuth2User principal) {
+        return ResponseEntity.ok(videoService.unlikeVideo(principal.getName(), videoId));
     }
 }

@@ -6,6 +6,7 @@ export interface AuthContextValue {
   isLoading: boolean;
   isAuthenticated: boolean;
   error: string | null;
+  updateUser: (updates: Partial<CurrentUser>) => void;
   refresh: () => Promise<void>;
   logout: () => Promise<void>;
 }

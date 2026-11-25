@@ -26,8 +26,8 @@ s3_client = boto3.client(
 )
 
 
-@router.get("/thumbnails/{fid}")
-async def get_thumbnail(fid: str) -> StreamingResponse:
+@router.get("/images/{fid}")
+async def get_image(fid: str) -> StreamingResponse:
     try:
         result = s3_client.get_object(Bucket="protube", Key=f"{fid}")
 
@@ -35,15 +35,15 @@ async def get_thumbnail(fid: str) -> StreamingResponse:
         error = exc.response.get("Error", {})
 
         if error.get("Code") in {"NoSuchKey", "NotFound"} or exc.response.get("ResponseMetadata", {}).get("HTTPStatusCode") == 404:
-            raise HTTPException(status_code=404, detail="Thumbnail not found") from exc
+            raise HTTPException(status_code=404, detail="Image not found") from exc
         
         raise HTTPException(
-            status_code=502, detail="Unable to retrieve thumbnail from storage"
+            status_code=502, detail="Unable to retrieve image from storage"
         ) from exc
     
     except BotoCoreError as exc:
         raise HTTPException(
-            status_code=502, detail="Unable to retrieve thumbnail from storage"
+            status_code=502, detail="Unable to retrieve image from storage"
         ) from exc
 
     body = result["Body"]
@@ -57,8 +57,8 @@ async def get_thumbnail(fid: str) -> StreamingResponse:
     return StreamingResponse(stream(), media_type="image/webp")
 
 
-@router.post("/thumbnails", status_code=201)
-def post_thumbnail(file: UploadFile = File(...)) -> dict[str, str]:
+@router.post("/images", status_code=201)
+def post_image(file: UploadFile = File(...)) -> dict[str, str]:
     webp = BytesIO()
     try:
         with Image.open(file.file) as source:
@@ -74,14 +74,14 @@ def post_thumbnail(file: UploadFile = File(...)) -> dict[str, str]:
     try:
         s3_client.put_object(
             Bucket="protube",
-            Key=fid,
+            Key=f"{fid}",
             Body=webp,
             ContentType="image/webp",
         )
 
     except (ClientError, BotoCoreError) as exc:
         raise HTTPException(
-            status_code=502, detail="Unable to store thumbnail"
+            status_code=502, detail="Unable to store image"
         ) from exc
 
     return {"fid": fid}

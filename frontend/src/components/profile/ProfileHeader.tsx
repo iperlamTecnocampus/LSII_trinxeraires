@@ -3,6 +3,7 @@ import { Calendar03Icon, Edit02Icon } from '@hugeicons/core-free-icons';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { getImageUrl } from '@/lib/fileApi';
 
 import { ProfileStats } from './ProfileStats';
 import { formatDate } from './format';
@@ -19,23 +20,26 @@ interface ProfileHeaderProps {
 
 export function ProfileHeader({ profile, onEdit }: ProfileHeaderProps) {
   const navigate = useNavigate();
+  const bannerSrc = getImageUrl(profile.bannerFid);
+  const pictureSrc = getImageUrl(profile.pictureFid);
 
   return (
     <header>
       <div className="relative aspect-[3/1] w-full overflow-hidden rounded-2xl bg-muted sm:aspect-[4/1]">
-        {/* Assumint que el backend no té banner per ara, hi deixem un fons genèric o gradient */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-muted to-primary/10" />
+        {bannerSrc && (
+          <img
+            src={bannerSrc}
+            alt={`${profile.displayName || profile.userName || 'User'} banner`}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-primary/10" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/70 to-transparent" />
       </div>
 
       <div className="relative -mt-12 flex flex-col gap-5 px-2 sm:-mt-16 sm:px-6 md:flex-row md:items-end">
         <Avatar className="size-24 shrink-0 ring-4 ring-background sm:size-36">
-          {/* Assegura't de concatenar la teva URL base d'imatges aquí si el pictureFid només és un ID */}
-          <AvatarImage
-            src={`/api/files/${profile.pictureFid}`}
-            alt={profile.displayName || profile.userName}
-            className="object-cover"
-          />
+          <AvatarImage src={pictureSrc} alt={profile.displayName || profile.userName} className="object-cover" />
 
           <AvatarFallback>{(profile.displayName || profile.userName)?.slice(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>

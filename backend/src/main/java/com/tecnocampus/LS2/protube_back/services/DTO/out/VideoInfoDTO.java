@@ -20,8 +20,8 @@ public record VideoInfoDTO(
         List<CategoryDTO> categories,
         List<CommentDTO> comments,
         Long likes,
-        Long views
-
+        Long views,
+        boolean likedByCurrentUser
 
 ) {
 }
