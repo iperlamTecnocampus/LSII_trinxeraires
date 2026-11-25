@@ -10,6 +10,7 @@ import { Profile } from './pages/Profile';
 import { UploadPage } from './pages/UploadPage';
 import { VideoPlayback } from './pages/VideoPlayback';
 import { VideoStudioPage } from './pages/VideoStudioPage';
+import { SearchResults } from './pages/SearchResults';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
               <Routes>
                 <Route index element={<Home />} />
                 <Route path="/about" element={<Home />} />
+                <Route path="/search" element={<SearchResults />} />
 
                 <Route
                   path="/profile"
