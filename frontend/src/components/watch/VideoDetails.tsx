@@ -2,11 +2,12 @@ import { useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import type { components } from '@/api-schema.d.ts';
 import { $api } from '@/lib/api';
+import { SubscriptionButton } from '@/components/SubscriptionButton';
 
 import { formatCount } from './format';
 
+import type { components } from '@/api-schema.d.ts';
 type VideoInfoDTO = components['schemas']['VideoInfoDTO'];
 
 interface VideoDetailsProps {
@@ -14,25 +15,19 @@ interface VideoDetailsProps {
 }
 
 export function VideoDetails({ video }: VideoDetailsProps) {
-  const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
 
   const authorUsername = video.author?.userName;
-  const { data: authorData } = $api.useQuery(
-    'get',
-    '/api/users/{username}',
-    {
-      params: {
-        path: {
-          username: authorUsername ?? '',
-        },
+  const authorQuery = {
+    params: {
+      path: {
+        username: authorUsername ?? '',
       },
     },
-    {
-      enabled: Boolean(authorUsername),
-    }
-  );
-
+  };
+  const { data: authorData, isLoading: isAuthorLoading } = $api.useQuery('get', '/api/users/{username}', authorQuery, {
+    enabled: Boolean(authorUsername),
+  });
   const channelName = video.author?.displayName || video.author?.userName || 'Unknown Channel';
   const avatarUrl = video.author?.pictureFid || 'https://picsum.photos/256';
   const avatarFallback = channelName.charAt(0).toUpperCase();
@@ -56,14 +51,7 @@ export function VideoDetails({ video }: VideoDetailsProps) {
             <p className="text-sm text-muted-foreground">{formatCount(subscriberCount)} subscribers</p>
           </div>
 
-          <Button
-            type="button"
-            variant={isSubscribed ? 'secondary' : 'default'}
-            className="ml-2 rounded-full"
-            onClick={() => setIsSubscribed((value) => !value)}
-          >
-            {isSubscribed ? 'Subscribed' : 'Subscribe'}
-          </Button>
+          {authorUsername && <SubscriptionButton username={authorUsername} disabled={isAuthorLoading} />}
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
