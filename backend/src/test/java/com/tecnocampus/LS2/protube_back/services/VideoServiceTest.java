@@ -2,6 +2,7 @@ package com.tecnocampus.LS2.protube_back.services;
 
 import com.tecnocampus.LS2.protube_back.model.User;
 import com.tecnocampus.LS2.protube_back.model.Video;
+import com.tecnocampus.LS2.protube_back.model.Comment;
 import com.tecnocampus.LS2.protube_back.persistence.CommentRepository;
 import com.tecnocampus.LS2.protube_back.persistence.CategoryRepository;
 import com.tecnocampus.LS2.protube_back.persistence.UserRepository;
@@ -9,6 +10,8 @@ import com.tecnocampus.LS2.protube_back.persistence.VideoRepository;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.EditVideoDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoInfoDTO;
 import com.tecnocampus.LS2.protube_back.services.exceptions.VideoNotFoundException;
+import com.tecnocampus.LS2.protube_back.services.exceptions.CommentNotFoundException;
+import com.tecnocampus.LS2.protube_back.services.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -50,6 +53,8 @@ class VideoServiceTest {
     private String username;
     private User author;
     private Video sampleVideo;
+    private Comment sampleComment;
+    private Long commentId;
 
     @BeforeEach
     void setUp() {
@@ -66,6 +71,9 @@ class VideoServiceTest {
         sampleVideo.setThumbnailFid("thumb_fid_1");
         sampleVideo.setUploadedAt(LocalDateTime.now());
         ReflectionTestUtils.setField(sampleVideo, "uuid", videoId);
+        sampleComment = new Comment("Nice video", author, sampleVideo);
+        commentId = 1L;
+        ReflectionTestUtils.setField(sampleComment, "id", commentId);
     }
 
     // =========================================================================
@@ -82,7 +90,7 @@ class VideoServiceTest {
 
             when(videoRepository.findVideoByname(searchQuery)).thenReturn(List.of(sampleVideo));
 
-            List<VideoInfoDTO> result = videoService.searchVideo(searchQuery);
+            List<VideoInfoDTO> result = videoService.searchVideo(searchQuery, username);
 
             assertNotNull(result);
             assertEquals(1, result.size());
@@ -101,7 +109,7 @@ class VideoServiceTest {
 
             when(videoRepository.findVideoByname(searchQuery)).thenReturn(Collections.emptyList());
 
-            List<VideoInfoDTO> result = videoService.searchVideo(searchQuery);
+            List<VideoInfoDTO> result = videoService.searchVideo(searchQuery, username);
 
             assertNotNull(result);
             assertTrue(result.isEmpty());
@@ -122,7 +130,7 @@ class VideoServiceTest {
         void getVideos_ReturnsList() {
             when(videoRepository.findAll()).thenReturn(List.of(sampleVideo));
 
-            List<VideoInfoDTO> result = videoService.getVideos();
+            List<VideoInfoDTO> result = videoService.getVideos(username);
 
             assertEquals(1, result.size());
             assertEquals(videoId, result.get(0).videoId());
@@ -134,11 +142,30 @@ class VideoServiceTest {
         void getVideoInfo_Success() {
             when(videoRepository.findById(videoId)).thenReturn(Optional.of(sampleVideo));
 
-            VideoInfoDTO result = videoService.getVideoInfo(videoId);
+            when(userRepository.hasLiked(username, videoId)).thenReturn(true);
+
+            VideoInfoDTO result = videoService.getVideoInfo(videoId, username);
 
             assertNotNull(result);
             assertEquals(videoId, result.videoId());
+            assertTrue(result.likedByCurrentUser());
             verify(videoRepository, times(1)).findById(videoId);
+            verify(userRepository).hasLiked(username, videoId);
+        }
+
+        @Test
+        void getVideoInfoMapsCommentLikeCountAndCurrentUserState() {
+            sampleVideo.addComment(sampleComment);
+            author.addLikedComment(sampleComment);
+            when(videoRepository.findById(videoId)).thenReturn(Optional.of(sampleVideo));
+            when(userRepository.hasLiked(username, videoId)).thenReturn(false);
+            when(userRepository.hasLikedComment(username, commentId)).thenReturn(true);
+
+            VideoInfoDTO result = videoService.getVideoInfo(videoId, username);
+
+            assertEquals(1L, result.comments().get(0).likes());
+            assertTrue(result.comments().get(0).likedByCurrentUser());
+            verify(userRepository).hasLikedComment(username, commentId);
         }
 
         @Test
@@ -146,7 +173,7 @@ class VideoServiceTest {
         void getVideoInfo_NotFound_ThrowsException() {
             when(videoRepository.findById(videoId)).thenReturn(Optional.empty());
 
-            assertThrows(VideoNotFoundException.class, () -> videoService.getVideoInfo(videoId));
+            assertThrows(VideoNotFoundException.class, () -> videoService.getVideoInfo(videoId, username));
         }
 
         @Test
@@ -200,13 +227,135 @@ class VideoServiceTest {
         void likeVideo_Success() {
             when(userRepository.findById(username)).thenReturn(Optional.of(author));
             when(videoRepository.findById(videoId)).thenReturn(Optional.of(sampleVideo));
-            when(userRepository.hasLiked(username, videoId)).thenReturn(true);
+            when(userRepository.hasLiked(username, videoId)).thenReturn(false, true);
 
             boolean liked = videoService.likeVideo(username, videoId);
 
             assertTrue(liked);
             verify(userRepository, times(1)).save(author);
             verify(videoRepository, times(1)).save(sampleVideo);
+            verify(userRepository, times(2)).hasLiked(username, videoId);
+        }
+
+        @Test
+        @DisplayName("likeVideo no debe guardar un like que ya existe")
+        void likeVideo_AlreadyLiked() {
+            when(userRepository.findById(username)).thenReturn(Optional.of(author));
+            when(videoRepository.findById(videoId)).thenReturn(Optional.of(sampleVideo));
+            when(userRepository.hasLiked(username, videoId)).thenReturn(true);
+
+            boolean liked = videoService.likeVideo(username, videoId);
+
+            assertTrue(liked);
+            verify(userRepository, never()).save(any(User.class));
+            verify(videoRepository, never()).save(any(Video.class));
+        }
+
+        @Test
+        void unlikeVideoRemovesLikeFromBothCollections() {
+            author.addLikedVideo(sampleVideo);
+            when(userRepository.findById(username)).thenReturn(Optional.of(author));
+            when(videoRepository.findById(videoId)).thenReturn(Optional.of(sampleVideo));
+            when(userRepository.hasLiked(username, videoId)).thenReturn(true, false);
+
+            assertTrue(videoService.unlikeVideo(username, videoId));
+
+            assertTrue(author.getLikedVideos().isEmpty());
+            assertTrue(sampleVideo.getLikes().isEmpty());
+            verify(userRepository).save(author);
+            verify(videoRepository).save(sampleVideo);
+            verify(userRepository, times(2)).hasLiked(username, videoId);
+        }
+
+        @Test
+        void unlikeVideoIsIdempotentWhenVideoIsNotLiked() {
+            when(userRepository.findById(username)).thenReturn(Optional.of(author));
+            when(videoRepository.findById(videoId)).thenReturn(Optional.of(sampleVideo));
+            when(userRepository.hasLiked(username, videoId)).thenReturn(false);
+
+            assertTrue(videoService.unlikeVideo(username, videoId));
+
+            verify(userRepository, never()).save(any(User.class));
+            verify(videoRepository, never()).save(any(Video.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("Tests para dar like a comentarios")
+    class LikeCommentServiceTests {
+
+        @Test
+        void likeCommentAddsLikeAndReturnsTrue() {
+            when(userRepository.findById(username)).thenReturn(Optional.of(author));
+            when(commentRepository.findById(commentId)).thenReturn(Optional.of(sampleComment));
+            when(userRepository.hasLikedComment(username, commentId)).thenReturn(false, true);
+
+            assertTrue(videoService.likeComment(username, commentId));
+
+            assertEquals(1, author.getLikedComments().size());
+            assertEquals(1, sampleComment.getLikes().size());
+            verify(userRepository).save(author);
+            verify(commentRepository).save(sampleComment);
+            verify(userRepository, times(2)).hasLikedComment(username, commentId);
+        }
+
+        @Test
+        void likeCommentDoesNotAddDuplicateLike() {
+            when(userRepository.findById(username)).thenReturn(Optional.of(author));
+            when(commentRepository.findById(commentId)).thenReturn(Optional.of(sampleComment));
+            when(userRepository.hasLikedComment(username, commentId)).thenReturn(true);
+
+            assertTrue(videoService.likeComment(username, commentId));
+
+            assertTrue(author.getLikedComments().isEmpty());
+            assertTrue(sampleComment.getLikes().isEmpty());
+            verify(userRepository, never()).save(any(User.class));
+            verify(commentRepository, never()).save(any(Comment.class));
+        }
+
+        @Test
+        void unlikeCommentRemovesLikeFromBothCollections() {
+            author.addLikedComment(sampleComment);
+            when(userRepository.findById(username)).thenReturn(Optional.of(author));
+            when(commentRepository.findById(commentId)).thenReturn(Optional.of(sampleComment));
+            when(userRepository.hasLikedComment(username, commentId)).thenReturn(true, false);
+
+            assertTrue(videoService.unlikeComment(username, commentId));
+
+            assertTrue(author.getLikedComments().isEmpty());
+            assertTrue(sampleComment.getLikes().isEmpty());
+            verify(userRepository).save(author);
+            verify(commentRepository).save(sampleComment);
+            verify(userRepository, times(2)).hasLikedComment(username, commentId);
+        }
+
+        @Test
+        void unlikeCommentIsIdempotentWhenCommentIsNotLiked() {
+            when(userRepository.findById(username)).thenReturn(Optional.of(author));
+            when(commentRepository.findById(commentId)).thenReturn(Optional.of(sampleComment));
+            when(userRepository.hasLikedComment(username, commentId)).thenReturn(false);
+
+            assertTrue(videoService.unlikeComment(username, commentId));
+
+            verify(userRepository, never()).save(any(User.class));
+            verify(commentRepository, never()).save(any(Comment.class));
+        }
+
+        @Test
+        void likeCommentThrowsIfUserDoesNotExist() {
+            when(userRepository.findById(username)).thenReturn(Optional.empty());
+
+            assertThrows(UserNotFoundException.class, () -> videoService.likeComment(username, commentId));
+            verifyNoInteractions(commentRepository);
+        }
+
+        @Test
+        void likeCommentThrowsIfCommentDoesNotExist() {
+            when(userRepository.findById(username)).thenReturn(Optional.of(author));
+            when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
+
+            assertThrows(CommentNotFoundException.class, () -> videoService.likeComment(username, commentId));
+            verify(userRepository, never()).hasLikedComment(anyString(), anyLong());
         }
     }
 }

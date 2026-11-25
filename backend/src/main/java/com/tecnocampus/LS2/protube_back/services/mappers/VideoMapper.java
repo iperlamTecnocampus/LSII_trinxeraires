@@ -3,13 +3,13 @@ package com.tecnocampus.LS2.protube_back.services.mappers;
 import com.tecnocampus.LS2.protube_back.model.Category;
 import com.tecnocampus.LS2.protube_back.model.Video;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateVideoDTO;
+import com.tecnocampus.LS2.protube_back.services.DTO.out.CommentDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoInfoDTO;
 
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class VideoMapper {
@@ -25,6 +25,18 @@ public class VideoMapper {
     }
 
     public VideoInfoDTO toDTO(Video video) {
+        return toDTO(video, false);
+    }
+
+    public VideoInfoDTO toDTO(Video video, boolean likedByCurrentUser) {
+        if (video == null) return null;
+        List<CommentDTO> comments = video.getComments() != null
+                ? video.getComments().stream().map(commentMapper::toDTO).toList()
+                : Collections.emptyList();
+        return toDTO(video, likedByCurrentUser, comments);
+    }
+
+    public VideoInfoDTO toDTO(Video video, boolean likedByCurrentUser, List<CommentDTO> comments) {
         if (video == null) return null;
 
         return new VideoInfoDTO(
@@ -36,10 +48,10 @@ public class VideoMapper {
                 video.getUploadedAt(),
                 videoUserMapper.toDTO(video.getAuthor()),
                 video.getCategories() != null ? video.getCategories().stream().map(categoryMapper::toDTO).toList() : Collections.emptyList(),
-                video.getComments() != null ?
-                        video.getComments().stream().map(commentMapper::toDTO).toList() : Collections.emptyList(),
+                comments != null ? comments : Collections.emptyList(),
                 video.getLikes() != null ? (long) video.getLikes().size() : 0L,
-                video.getViews() != null ? (long) video.getViews().size() : 0L
+                video.getViews() != null ? (long) video.getViews().size() : 0L,
+                likedByCurrentUser
         );
     }
 

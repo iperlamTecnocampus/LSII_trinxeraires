@@ -45,8 +45,11 @@ public class User {
     @OneToMany(mappedBy = "author", cascade = CascadeType.REMOVE)
     private Set<Video> videos = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     private Set<Like> likedVideos = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+    private Set<LikeComment> likedComments = new HashSet<>();
 
     public User() {
 
@@ -169,6 +172,36 @@ public class User {
     }
 
     public void removeLikedVideo(Video video) {
-        video.getLikes().removeIf(like -> like.getUser().equals(this));
+        Set<Like> likesToRemove = new HashSet<>();
+        likedVideos.removeIf(like -> {
+            boolean belongsToVideo = like.getVideo() == video;
+            if (belongsToVideo) likesToRemove.add(like);
+            return belongsToVideo;
+        });
+        video.getLikes().removeAll(likesToRemove);
+    }
+
+    public Set<LikeComment> getLikedComments() {
+        return likedComments;
+    }
+
+    public void setLikedComments(Set<LikeComment> likedComments) {
+        this.likedComments = likedComments;
+    }
+
+    public void addLikedComment(Comment comment) {
+        LikeComment like = new LikeComment(this, comment);
+        this.likedComments.add(like);
+        comment.addLike(like);
+    }
+
+    public void removeLikedComment(Comment comment) {
+        Set<LikeComment> likesToRemove = new HashSet<>();
+        likedComments.removeIf(like -> {
+            boolean belongsToComment = like.getComment() == comment;
+            if (belongsToComment) likesToRemove.add(like);
+            return belongsToComment;
+        });
+        comment.getLikes().removeAll(likesToRemove);
     }
 }

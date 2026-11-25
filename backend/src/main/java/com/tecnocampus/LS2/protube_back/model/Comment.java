@@ -2,6 +2,9 @@ package com.tecnocampus.LS2.protube_back.model;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "comments")
 public class Comment {
@@ -20,6 +23,9 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "video_uuid", nullable = false)
     private Video video;
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private Set<LikeComment> likes = new HashSet<>();
 
     public Comment(String comment, User user, Video video) {
         this.comment = comment;
@@ -57,5 +63,23 @@ public class Comment {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Set<LikeComment> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Set<LikeComment> likes) {
+        this.likes = likes;
+    }
+
+    public void addLike(LikeComment like) {
+        this.likes.add(like);
+        like.setComment(this);
+    }
+
+    public void removeLike(LikeComment like) {
+        this.likes.remove(like);
+        like.setComment(null);
     }
 }

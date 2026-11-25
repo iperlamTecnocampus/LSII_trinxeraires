@@ -66,7 +66,11 @@ export interface paths {
      * @description Registers a like from a user on a specific video. Returns true if the user has liked the video.
      */
     post: operations['likeVideo'];
-    delete?: never;
+    /**
+     * Unlike a video
+     * @description Removes the authenticated user's like from a video.
+     */
+    delete: operations['unlikeVideo'];
     options?: never;
     head?: never;
     patch?: never;
@@ -87,6 +91,30 @@ export interface paths {
      */
     post: operations['commentVideo'];
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/comments/{id}/likes': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Like a comment
+     * @description Registers a like from the authenticated user on a comment. Repeated likes do not create duplicates.
+     */
+    post: operations['likeComment'];
+    /**
+     * Unlike a comment
+     * @description Removes the authenticated user's like from a comment.
+     */
+    delete: operations['unlikeComment'];
     options?: never;
     head?: never;
     patch?: never;
@@ -283,6 +311,9 @@ export interface components {
       comment?: string;
       /** Format: int64 */
       id?: number;
+      /** Format: int64 */
+      likes?: number;
+      likedByCurrentUser?: boolean;
     };
     VideoInfoDTO: {
       /** Format: uuid */
@@ -300,6 +331,7 @@ export interface components {
       likes?: number;
       /** Format: int64 */
       views?: number;
+      likedByCurrentUser?: boolean;
     };
     VideoUserDTO: {
       pictureFid?: string;
@@ -526,6 +558,96 @@ export interface operations {
         };
       };
       /** @description User or Video not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  unlikeVideo: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Unique UUID of the video to unlike */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Unlike processed successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': boolean;
+        };
+      };
+      /** @description User or Video not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  likeComment: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID of the comment being liked */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Like registered successfully (returns true) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': boolean;
+        };
+      };
+      /** @description User or comment not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  unlikeComment: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID of the comment to unlike */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Unlike processed successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': boolean;
+        };
+      };
+      /** @description User or comment not found */
       404: {
         headers: {
           [name: string]: unknown;
