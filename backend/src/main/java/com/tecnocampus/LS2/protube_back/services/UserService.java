@@ -61,6 +61,18 @@ public class UserService {
         return userRepository.isSubscribed(subscriberUsername, subscribedUsername);
     }
 
+    @Transactional
+    public void unsubscribeFromUser(String subscriberUsername, String subscribedUsername) {
+        User subscriber = userRepository.findById(subscriberUsername)
+                .orElseThrow(() -> new UserNotFoundException("Subscriber user not found"));
+        User subscribed = userRepository.findById(subscribedUsername)
+                .orElseThrow(() -> new UserNotFoundException("Subscribed user not found"));
+
+        subscriber.removeSubscription(subscribed);
+        userRepository.save(subscriber);
+        userRepository.save(subscribed);
+    }
+
     public UserDTO editUserProfile(String currentUsername, EditUserDTO dto) {
         User user = userRepository.findById(currentUsername)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));

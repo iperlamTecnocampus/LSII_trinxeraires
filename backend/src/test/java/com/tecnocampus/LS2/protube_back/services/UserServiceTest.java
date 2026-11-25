@@ -70,6 +70,47 @@ class UserServiceTest {
         verify(userRepository).findSubscriptionsByUsername(username);
     }
 
+    @Test
+    @DisplayName("unsubscribeFromUser removes the subscription from both sides")
+    void unsubscribeFromUserRemovesSubscription() {
+        User subscriber = new User(username, email);
+        User subscribed = new User("channel", "channel@example.com");
+        subscriber.addSubscription(subscribed);
+        when(userRepository.findById(username)).thenReturn(Optional.of(subscriber));
+        when(userRepository.findById("channel")).thenReturn(Optional.of(subscribed));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        userService.unsubscribeFromUser(username, "channel");
+
+        assertFalse(subscriber.getSubscribedTo().contains(subscribed));
+        assertFalse(subscribed.getSubscribers().contains(subscriber));
+        verify(userRepository).save(subscriber);
+        verify(userRepository).save(subscribed);
+    }
+
+    @Test
+    @DisplayName("unsubscribeFromUser throws when the subscriber does not exist")
+    void unsubscribeFromUserThrowsWhenSubscriberIsMissing() {
+        when(userRepository.findById(username)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> userService.unsubscribeFromUser(username, "channel"));
+
+        verify(userRepository, never()).save(any(User.class));
+        verify(userRepository, never()).findById("channel");
+    }
+
+    @Test
+    @DisplayName("unsubscribeFromUser throws when the channel does not exist")
+    void unsubscribeFromUserThrowsWhenChannelIsMissing() {
+        User subscriber = new User(username, email);
+        when(userRepository.findById(username)).thenReturn(Optional.of(subscriber));
+        when(userRepository.findById("channel")).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> userService.unsubscribeFromUser(username, "channel"));
+
+        verify(userRepository, never()).save(any(User.class));
+    }
+
     // =========================================================================
     // METHOD: createUser
     // =========================================================================
