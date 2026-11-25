@@ -12,6 +12,7 @@ import { VideoPlayback } from './pages/VideoPlayback';
 import { VideoStudioPage } from './pages/VideoStudioPage';
 import { SearchResults } from './pages/SearchResults';
 import { LikedVideos } from './pages/LikedVideos';
+import { EditVideoPage } from './pages/EditVideoPage';
 
 function App() {
   return (
@@ -29,11 +30,29 @@ function App() {
                 <Route index element={<Home />} />
                 <Route path="/about" element={<Home />} />
                 <Route path="/search" element={<SearchResults />} />
+
+                <Route
+                  path="/studio"
+                  element={
+                    <RequireAuth>
+                      <VideoStudioPage />
+                    </RequireAuth>
+                  }
+                />
+
+                <Route
+                  path="/studio/videos/:videoId/edit"
+                  element={
+                    <RequireAuth>
+                      <EditVideoPage />
+                    </RequireAuth>
+                  }
+                />
+
                 <Route
                   path="/liked"
                   element={
                     <RequireAuth>
-                      {' '}
                       <LikedVideos />
                     </RequireAuth>
                   }
@@ -58,14 +77,7 @@ function App() {
                     </RequireAuth>
                   }
                 />
-                <Route
-                  path="/studio"
-                  element={
-                    <RequireAuth>
-                      <VideoStudioPage />
-                    </RequireAuth>
-                  }
-                />
+
                 <Route path="/watch/:videoId" element={<VideoPlayback />} />
               </Routes>
             </Layout>
