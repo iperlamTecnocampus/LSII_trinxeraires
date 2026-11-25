@@ -1,9 +1,12 @@
 package com.tecnocampus.LS2.protube_back.model;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.OneToMany;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,6 +25,7 @@ class UserTest {
         assertEmptyRelation(user, "subscribedTo");
         assertEmptyRelation(user, "subscribers");
         assertEmptyRelation(user, "videos");
+        assertEmptyRelation(user, "likedComments");
     }
 
     @Test
@@ -45,6 +49,14 @@ class UserTest {
 
         assertSame(joinDate, fieldValue(user, "joinDate"));
         assertEquals("Alice A.", fieldValue(user, "displayName"));
+    }
+
+    @Test
+    void likedVideosCascadePersistAndMerge() throws Exception {
+        OneToMany mapping = User.class.getDeclaredField("likedVideos").getAnnotation(OneToMany.class);
+
+        assertTrue(Arrays.asList(mapping.cascade()).contains(CascadeType.PERSIST));
+        assertTrue(Arrays.asList(mapping.cascade()).contains(CascadeType.MERGE));
     }
 
     private void assertEmptyRelation(User user, String fieldName) throws Exception {

@@ -7,16 +7,19 @@ import { SubscriptionButton } from '@/components/SubscriptionButton';
 
 import { formatCount } from './format';
 import { getImageUrl } from '@/lib/fileApi';
+import { LikeButton } from './LikeButton';
 
 import type { components } from '@/api-schema.d.ts';
 type VideoInfoDTO = components['schemas']['VideoInfoDTO'];
 
 interface VideoDetailsProps {
   video: VideoInfoDTO;
+  onLikeChanged?: () => void;
 }
 
-export function VideoDetails({ video }: VideoDetailsProps) {
-  const [isLiked, setIsLiked] = useState(false);
+export function VideoDetails({ video, onLikeChanged }: VideoDetailsProps) {
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const videoId = video.videoId ?? '';
 
   const authorUsername = video.author?.userName;
   const authorQuery = {
@@ -56,14 +59,12 @@ export function VideoDetails({ video }: VideoDetailsProps) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant={isLiked ? 'default' : 'secondary'}
-            className="rounded-full"
-            onClick={() => setIsLiked((value) => !value)}
-          >
-            Like · {formatCount(baseLikes + (isLiked ? 1 : 0))}
-          </Button>
+          <LikeButton
+            videoId={videoId}
+            likes={baseLikes}
+            likedByCurrentUser={Boolean(video.likedByCurrentUser)}
+            onLikeChanged={onLikeChanged}
+          />
 
           <Button type="button" variant="secondary" className="rounded-full">
             Share

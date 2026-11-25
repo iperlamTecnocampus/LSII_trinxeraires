@@ -13,6 +13,7 @@ import com.tecnocampus.LS2.protube_back.services.DTO.in.EditVideoDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.CommentDTO;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.VideoInfoDTO;
 import com.tecnocampus.LS2.protube_back.services.exceptions.CategoryNotFoundException;
+import com.tecnocampus.LS2.protube_back.services.exceptions.CommentNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.exceptions.UserNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.exceptions.VideoNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.mappers.CategoryMapper;
@@ -21,6 +22,7 @@ import com.tecnocampus.LS2.protube_back.services.mappers.VideoMapper;
 import com.tecnocampus.LS2.protube_back.services.mappers.VideoUserMapper;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -46,8 +48,8 @@ public class VideoService {
         this.videoMapper = new VideoMapper(videoUserMapper, commentMapper, categoryMapper);
 
     }
-    public List<VideoInfoDTO> getVideos() {
-        return videoRepository.findAll().stream().map(video -> videoMapper.toDTO(video)).toList();
+    public List<VideoInfoDTO> getVideos(String currentUsername) {
+        return videoRepository.findAll().stream().map(video -> toDTO(video, currentUsername)).toList();
     }
 
     public void deleteVideoById(UUID id, String currentUsername) {
@@ -57,9 +59,9 @@ public class VideoService {
     }
 
     //fetch info video
-    public VideoInfoDTO getVideoInfo(UUID id) {
+    public VideoInfoDTO getVideoInfo(UUID id, String currentUsername) {
         Video video = videoRepository.findById(id).orElseThrow(() -> new VideoNotFoundException("Video not found"));
-        return videoMapper.toDTO(video);
+        return toDTO(video, currentUsername);
     }
 
     public VideoInfoDTO createVideo(CreateVideoDTO dto, String currentUsername) {
@@ -79,7 +81,7 @@ public class VideoService {
                 .orElseThrow(() -> new UserNotFoundException("Author not found"));
         video.setAuthor(author);
         videoRepository.save(video);
-        return videoMapper.toDTO(video);
+        return toDTO(video, currentUsername);
     }
 
     //edit title and description
@@ -89,7 +91,7 @@ public class VideoService {
         video.setTitle(dto.title() != null ? dto.title() : video.getTitle());
         video.setDescription(dto.description() != null ? dto.description() : video.getDescription());
         videoRepository.save(video);
-        return videoMapper.toDTO(video);
+        return toDTO(video, currentUsername);
     }
 
 
@@ -109,8 +111,9 @@ public class VideoService {
         return video.getComments().stream().map(comment -> commentMapper.toDTO(comment)).toList();
     }
 
-    public List<VideoInfoDTO> searchVideo(String name) {
-        List<VideoInfoDTO> videos = videoRepository.findVideoByname(name).stream().map(video -> videoMapper.toDTO(video)).toList();
+    public List<VideoInfoDTO> searchVideo(String name, String currentUsername) {
+        List<VideoInfoDTO> videos = videoRepository.findVideoByname(name).stream()
+                .map(video -> toDTO(video, currentUsername)).toList();
         System.out.println(videos);
         return videos;
     }
@@ -119,6 +122,10 @@ public class VideoService {
         User user = userRepository.findById(userName).orElseThrow(() -> new UserNotFoundException("User not found"));
         Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException("Video not found"));
 
+        if (userRepository.hasLiked(userName, videoId)) {
+            return true;
+        }
+
         user.addLikedVideo(video);
 
         userRepository.save(user);
@@ -126,9 +133,75 @@ public class VideoService {
         return userRepository.hasLiked(userName, videoId);
     }
 
+    @Transactional
+    public boolean unlikeVideo(String userName, UUID videoId) {
+        User user = userRepository.findById(userName).orElseThrow(() -> new UserNotFoundException("User not found"));
+        Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException("Video not found"));
+
+        if (userRepository.hasLiked(userName, videoId)) {
+            user.removeLikedVideo(video);
+            userRepository.save(user);
+            videoRepository.save(video);
+        }
+
+        return !userRepository.hasLiked(userName, videoId);
+    }
+
+    public boolean likeComment(String userName, Long commentId) {
+        User user = userRepository.findById(userName)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("Comment not found"));
+
+        if (userRepository.hasLikedComment(userName, commentId)) {
+            return true;
+        }
+
+        user.addLikedComment(comment);
+        userRepository.save(user);
+        commentRepository.save(comment);
+        return userRepository.hasLikedComment(userName, commentId);
+    }
+
+    @Transactional
+    public boolean unlikeComment(String userName, Long commentId) {
+        User user = userRepository.findById(userName)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("Comment not found"));
+
+        if (userRepository.hasLikedComment(userName, commentId)) {
+            user.removeLikedComment(comment);
+            userRepository.save(user);
+            commentRepository.save(comment);
+        }
+
+        return !userRepository.hasLikedComment(userName, commentId);
+    }
+
     private static void ensureOwner(Video video, String currentUsername) {
         if (video.getAuthor() == null || !video.getAuthor().getUsername().equals(currentUsername)) {
             throw new AccessDeniedException("Only the video owner can modify this video.");
         }
+    }
+
+    private VideoInfoDTO toDTO(Video video, String currentUsername) {
+        boolean likedByCurrentUser = currentUsername != null
+                && userRepository.hasLiked(currentUsername, video.getUuid());
+        List<CommentDTO> comments = toCommentDTOs(video, currentUsername);
+        return videoMapper.toDTO(video, likedByCurrentUser, comments);
+    }
+
+    private List<CommentDTO> toCommentDTOs(Video video, String currentUsername) {
+        if (video.getComments() == null) {
+            return List.of();
+        }
+        if (currentUsername == null) {
+            return video.getComments().stream().map(commentMapper::toDTO).toList();
+        }
+        return video.getComments().stream()
+                .map(comment -> commentMapper.toDTO(comment,
+                        userRepository.hasLikedComment(currentUsername, comment.getId())))
+                .toList();
     }
 }
