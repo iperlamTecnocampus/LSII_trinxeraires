@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { AtIcon, Calendar03Icon, PlayIcon, ThumbsUpIcon, UserGroupIcon, Video01Icon } from '@hugeicons/core-free-icons';
 
@@ -11,6 +12,8 @@ interface ProfileAboutProps {
 }
 
 export function ProfileAbout({ profile }: ProfileAboutProps) {
+  const { t } = useTranslation();
+
   // Calculem les estadístiques basant-nos en els vídeos de l'usuari (si en té)
   const totalViews = profile.videos?.reduce((acc, vid) => acc + (vid.views || 0), 0) || 0;
   const totalLikes = profile.videos?.reduce((acc, vid) => acc + (vid.likes || 0), 0) || 0;
@@ -18,14 +21,17 @@ export function ProfileAbout({ profile }: ProfileAboutProps) {
 
   const details = [
     {
+      id: 'username',
       icon: AtIcon,
       label: `@${profile.userName}`,
     },
     profile.joinDate && {
+      id: 'joinDate',
       icon: Calendar03Icon,
-      label: `Joined ${formatDate(profile.joinDate)}`,
+      label: t('profile.about.joined', { date: formatDate(profile.joinDate) }),
     },
   ].filter(Boolean) as {
+    id: string;
     icon: typeof AtIcon;
     label: string;
     href?: string;
@@ -33,23 +39,27 @@ export function ProfileAbout({ profile }: ProfileAboutProps) {
 
   const stats = [
     {
+      id: 'subscribers',
       icon: UserGroupIcon,
-      label: 'Subscribers',
+      label: t('profile.about.subscribers'),
       value: profile.suscribers || 0,
     },
     {
+      id: 'views',
       icon: PlayIcon,
-      label: 'Total views',
+      label: t('profile.about.totalViews'),
       value: totalViews,
     },
     {
+      id: 'videos',
       icon: Video01Icon,
-      label: 'Videos',
+      label: t('profile.about.videos'),
       value: videoCount,
     },
     {
+      id: 'likes',
       icon: ThumbsUpIcon,
-      label: 'Likes received',
+      label: t('profile.about.likesReceived'),
       value: totalLikes,
     },
   ];
@@ -58,20 +68,20 @@ export function ProfileAbout({ profile }: ProfileAboutProps) {
     <div className="grid gap-10 lg:grid-cols-[1fr_320px]">
       <div className="space-y-8">
         <section>
-          <h2 className="mb-3 text-lg font-bold">Description</h2>
+          <h2 className="mb-3 text-lg font-bold">{t('profile.about.description')}</h2>
 
           {/* Mostrem la descripció del backend, o un missatge per defecte */}
           <p className="max-w-prose leading-relaxed text-muted-foreground">
-            {profile.description || 'Aquest usuari encara no ha escrit cap descripció.'}
+            {profile.description || t('profile.about.noDescription')}
           </p>
         </section>
 
         <section>
-          <h2 className="mb-3 text-lg font-bold">Details</h2>
+          <h2 className="mb-3 text-lg font-bold">{t('profile.about.details')}</h2>
 
           <ul className="space-y-3">
             {details.map((detail) => (
-              <li key={detail.label} className="flex items-center gap-3 text-sm">
+              <li key={detail.id} className="flex items-center gap-3 text-sm">
                 <HugeiconsIcon icon={detail.icon} size={18} className="text-muted-foreground" />
 
                 {detail.href ? (
@@ -88,11 +98,11 @@ export function ProfileAbout({ profile }: ProfileAboutProps) {
       </div>
 
       <aside>
-        <h2 className="mb-3 text-lg font-bold">Stats</h2>
+        <h2 className="mb-3 text-lg font-bold">{t('profile.about.stats')}</h2>
 
         <ul className="divide-y divide-border rounded-2xl border bg-card">
           {stats.map((stat) => (
-            <li key={stat.label} className="flex items-center gap-3 px-4 py-3.5">
+            <li key={stat.id} className="flex items-center gap-3 px-4 py-3.5">
               <span className="flex size-9 items-center justify-center rounded-full bg-primary/15 text-primary">
                 <HugeiconsIcon icon={stat.icon} size={18} />
               </span>

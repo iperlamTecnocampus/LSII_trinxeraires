@@ -15,6 +15,17 @@
       "pictureHint": "Haz clic en la imagen para subir una nueva.",
       "displayName": "Nombre visible",
       "description": "Descripción"
+    },
+    "about": {
+      "description": "Descripción",
+      "noDescription": "Este usuario todavía no ha escrito ninguna descripción.",
+      "details": "Detalles",
+      "joined": "Se unió el {{date}}",
+      "stats": "Estadísticas",
+      "subscribers": "Suscriptores",
+      "totalViews": "Visualizaciones totales",
+      "videos": "Vídeos",
+      "likesReceived": "Me gusta recibidos"
     }
   }
 }

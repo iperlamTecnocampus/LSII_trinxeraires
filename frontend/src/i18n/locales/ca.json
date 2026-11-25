@@ -15,6 +15,17 @@
       "pictureHint": "Fes clic a la imatge per pujar-ne una de nova.",
       "displayName": "Nom visible",
       "description": "Descripció"
+    },
+    "about": {
+      "description": "Descripció",
+      "noDescription": "Aquest usuari encara no ha escrit cap descripció.",
+      "details": "Detalls",
+      "joined": "S'hi va unir el {{date}}",
+      "stats": "Estadístiques",
+      "subscribers": "Subscriptors",
+      "totalViews": "Visualitzacions totals",
+      "videos": "Vídeos",
+      "likesReceived": "M'agrada rebuts"
     }
   }
 }

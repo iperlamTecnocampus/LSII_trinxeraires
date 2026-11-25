@@ -15,6 +15,17 @@
       "pictureHint": "Click the image to upload a new one.",
       "displayName": "Display name",
       "description": "Description"
+    },
+    "about": {
+      "description": "Description",
+      "noDescription": "This user hasn't written a description yet.",
+      "details": "Details",
+      "joined": "Joined {{date}}",
+      "stats": "Stats",
+      "subscribers": "Subscribers",
+      "totalViews": "Total views",
+      "videos": "Videos",
+      "likesReceived": "Likes received"
     }
   }
 }
