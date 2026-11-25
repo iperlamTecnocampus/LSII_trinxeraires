@@ -113,7 +113,7 @@ export function AppSidebar() {
             <SidebarGroup>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton render={<Link to="/subscriptions" />}>
+                  <SidebarMenuButton>
                     Subscriptions
                     <HugeiconsIcon icon={ChevronRightIcon} strokeWidth={2} />
                   </SidebarMenuButton>
