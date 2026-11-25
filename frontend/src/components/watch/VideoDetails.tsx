@@ -8,6 +8,7 @@ import { SubscriptionButton } from '@/components/SubscriptionButton';
 import { formatCount } from './format';
 import { getImageUrl } from '@/lib/fileApi';
 import { LikeButton } from './LikeButton';
+import { ShareVideoDialog } from './ShareVideoDialog';
 
 import type { components } from '@/api-schema.d.ts';
 type VideoInfoDTO = components['schemas']['VideoInfoDTO'];
@@ -20,6 +21,7 @@ interface VideoDetailsProps {
 export function VideoDetails({ video, onLikeChanged }: VideoDetailsProps) {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const videoId = video.videoId ?? '';
+  const videoUrl = `${window.location.origin}/watch/${encodeURIComponent(videoId)}`;
 
   const authorUsername = video.author?.userName;
   const authorQuery = {
@@ -66,9 +68,7 @@ export function VideoDetails({ video, onLikeChanged }: VideoDetailsProps) {
             onLikeChanged={onLikeChanged}
           />
 
-          <Button type="button" variant="secondary" className="rounded-full">
-            Share
-          </Button>
+          <ShareVideoDialog videoUrl={videoUrl} />
 
           <Button type="button" variant="secondary" className="rounded-full">
             Save
