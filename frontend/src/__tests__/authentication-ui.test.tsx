@@ -177,10 +177,10 @@ describe('authentication navigation', () => {
     expect(screen.getByRole('button', { name: 'Checking session…' })).toBeDisabled();
   });
 
-  it('shows the session profile image, dropdown, and private sidebar entries while logged in', async () => {
+  it('does not use the OAuth profile URL, and shows the dropdown and private sidebar entries while logged in', async () => {
     renderNavigation(signedInAuth);
 
-    expect(screen.getByRole('img', { name: 'Alice' })).toHaveAttribute('src', 'https://example.com/alice.png');
+    expect(screen.getByRole('img', { name: 'Alice' })).not.toHaveAttribute('src');
     expect(screen.getByText('Liked videos')).toBeInTheDocument();
     expect(screen.getByText('Your videos')).toBeInTheDocument();
     expect(screen.getByText('Subscriptions')).toBeInTheDocument();
