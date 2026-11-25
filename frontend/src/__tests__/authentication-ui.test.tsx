@@ -171,6 +171,12 @@ describe('authentication navigation', () => {
     expect(screen.queryByRole('img', { name: 'Alice' })).not.toBeInTheDocument();
   });
 
+  it('shows a disabled session-check button while authentication is loading', () => {
+    renderNavigation({ ...signedOutAuth, isLoading: true });
+
+    expect(screen.getByRole('button', { name: 'Checking session…' })).toBeDisabled();
+  });
+
   it('shows the session profile image, dropdown, and private sidebar entries while logged in', async () => {
     renderNavigation(signedInAuth);
 

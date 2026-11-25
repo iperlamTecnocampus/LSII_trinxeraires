@@ -27,8 +27,10 @@ export function VideoCard({
   channelName = video?.author?.displayName || video?.author?.userName || 'Username',
   views = video?.views !== undefined ? `${formatCount(video.views)} views` : '5k',
   uploadedAt = video?.uploadedAt ? timeAgo(video.uploadedAt) : '12h ago',
-  thumbnail = getEnv().FILE_API_BASE_URL + '/images/' + video?.thumbnailFid || 'https://picsum.photos/640/360',
-  avatar = getImageUrl(video.author?.pictureFid) || 'https://picsum.photos/256',
+  thumbnail = video?.thumbnailFid
+    ? `${getEnv().FILE_API_BASE_URL}/images/${video.thumbnailFid}`
+    : 'https://picsum.photos/640/360',
+  avatar = getImageUrl(video?.author?.pictureFid) || null,
   to = video?.videoId ? `/watch/${video.videoId}` : '/',
   variant = 'grid',
 }: VideoCardProps) {

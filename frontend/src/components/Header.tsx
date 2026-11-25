@@ -22,7 +22,7 @@ import type { CurrentUser } from '@/lib/api';
 function AvatarMenu({ user }: { user: CurrentUser }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const avatarSrc = getImageUrl(user.pictureFid);
+  const avatarSrc = getImageUrl(user.pictureFid) || null;
 
   return (
     <DropdownMenu>

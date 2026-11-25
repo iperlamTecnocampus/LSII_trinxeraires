@@ -10,6 +10,10 @@ jest.mock('react-router', () => ({
   Link: ({ children, to }: { children: ReactNode; to: string }) => <a href={to}>{children}</a>,
 }));
 
+jest.mock('@/utils/Env', () => ({
+  getEnv: () => ({ FILE_API_BASE_URL: 'https://files.example' }),
+}));
+
 describe('VideoGrid', () => {
   it('renders placeholder cards when no video list is provided', () => {
     render(<VideoGrid />);
@@ -40,6 +44,15 @@ describe('VideoGrid', () => {
     expect(screen.getByRole('link', { name: /testing react/i })).toHaveAttribute('href', '/watch/video-123');
     expect(screen.getByText('Ana')).toBeInTheDocument();
     expect(screen.getByText(/1\.3K views/)).toBeInTheDocument();
+  });
+
+  it('uses the file API for a video thumbnail', () => {
+    render(<VideoGrid videos={[{ videoId: 'video-123', thumbnailFid: 'thumbnail-123' }]} />);
+
+    expect(screen.getByRole('img', { name: 'Good video title without clickbait' })).toHaveAttribute(
+      'src',
+      'https://files.example/images/thumbnail-123'
+    );
   });
 });
 
