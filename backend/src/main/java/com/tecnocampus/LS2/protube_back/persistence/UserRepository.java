@@ -21,6 +21,9 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query("select l.video from User u join u.likedVideos l where u.username = :userName")
     List<Video> findLikedVideosByUsername(@Param("userName") String userName);
 
+    @Query("select count(l) > 0 from User u join u.likedComments l where u.username = :userName and l.comment.id = :commentId")
+    boolean hasLikedComment(@Param("userName") String userName, @Param("commentId") Long commentId);
+
     @Query("select count(u) > 0 from User u join u.subscribedTo s where u.username = :subscriber and s.username = :subscribed")
     boolean isSubscribed(@Param("subscriber") String subscriber, @Param("subscribed") String subscribed);
 

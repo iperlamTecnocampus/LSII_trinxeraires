@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { apiFetch } from '@/lib/api';
 import { useAuth } from '@/auth/useAuth';
 
+import { CommentLikeButton } from './CommentLikeButton';
 import { formatCount } from './format';
 import type { Comment } from './types';
 
@@ -16,14 +17,15 @@ interface CommentsSectionProps {
   commentCount: number;
   videoId?: string;
   onCommentAdded?: () => void;
+  onLikeChanged?: () => void;
 }
 
 interface CommentItemProps {
   comment: Comment;
+  onLikeChanged?: () => void;
 }
 
-function CommentItem({ comment }: CommentItemProps) {
-  const [isLiked, setIsLiked] = useState(false);
+function CommentItem({ comment, onLikeChanged }: CommentItemProps) {
   const [showReplies, setShowReplies] = useState(false);
 
   return (
@@ -43,19 +45,12 @@ function CommentItem({ comment }: CommentItemProps) {
         <p className="mt-1 text-sm leading-relaxed">{comment.text}</p>
 
         <div className="mt-2 flex items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-8 px-2"
-            onClick={() => setIsLiked((value) => !value)}
-          >
-            Like · {formatCount(comment.likes + (isLiked ? 1 : 0))}
-          </Button>
-
-          <Button type="button" variant="ghost" size="sm" className="h-8 px-2">
-            Reply
-          </Button>
+          <CommentLikeButton
+            commentId={comment.id}
+            likes={comment.likes}
+            likedByCurrentUser={comment.likedByCurrentUser}
+            onLikeChanged={onLikeChanged}
+          />
         </div>
 
         {comment.replies && comment.replies.length > 0 && (
@@ -75,7 +70,7 @@ function CommentItem({ comment }: CommentItemProps) {
             {showReplies && (
               <div className="mt-3 flex flex-col gap-4 border-l pl-4">
                 {comment.replies.map((reply) => (
-                  <CommentItem key={reply.id} comment={reply} />
+                  <CommentItem key={reply.id} comment={reply} onLikeChanged={onLikeChanged} />
                 ))}
               </div>
             )}
@@ -86,7 +81,13 @@ function CommentItem({ comment }: CommentItemProps) {
   );
 }
 
-export function CommentsSection({ comments, commentCount, videoId, onCommentAdded }: CommentsSectionProps) {
+export function CommentsSection({
+  comments,
+  commentCount,
+  videoId,
+  onCommentAdded,
+  onLikeChanged,
+}: CommentsSectionProps) {
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -188,7 +189,7 @@ export function CommentsSection({ comments, commentCount, videoId, onCommentAdde
 
       <div className="mt-8 flex flex-col gap-6">
         {comments.map((comment) => (
-          <CommentItem key={comment.id} comment={comment} />
+          <CommentItem key={comment.id} comment={comment} onLikeChanged={onLikeChanged} />
         ))}
       </div>
     </section>
