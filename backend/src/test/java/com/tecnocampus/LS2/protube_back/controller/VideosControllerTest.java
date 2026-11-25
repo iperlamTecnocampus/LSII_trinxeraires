@@ -132,17 +132,17 @@ class VideosControllerTest {
         verify(videoService).commentVideo(SESSION_USERNAME, videoId, "Nice video");
     }
 
+       
     @Test
-    void likeUsesAuthenticatedPrincipal() throws Exception {
-        when(videoService.likeVideo(SESSION_USERNAME, videoId)).thenReturn(true);
+        void likedVideosUsesAuthenticatedPrincipal() throws Exception {
+        when(videoService.getLikedVideos(SESSION_USERNAME)).thenReturn(List.of());
 
-        mockMvc.perform(post("/api/videos/{id}/likes", videoId)
-                        .with(authentication(authenticatedUser(SESSION_USERNAME)))
-                        .with(csrf()))
+        mockMvc.perform(get("/api/videos/liked")
+                        .with(authentication(authenticatedUser(SESSION_USERNAME))))
                 .andExpect(status().isOk());
 
-        verify(videoService).likeVideo(SESSION_USERNAME, videoId);
-    }
+        verify(videoService).getLikedVideos(SESSION_USERNAME);
+        }
 
     @Test
     void unlikeUsesAuthenticatedPrincipal() throws Exception {

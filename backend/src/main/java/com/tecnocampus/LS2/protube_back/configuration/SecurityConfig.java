@@ -36,6 +36,9 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/h2-console/**"
                         ).permitAll()
+                        
+                        .requestMatchers(HttpMethod.GET, "/api/videos/liked").authenticated()
+
                         .requestMatchers(HttpMethod.GET,
                                 "/",
                                 "/api/hello",

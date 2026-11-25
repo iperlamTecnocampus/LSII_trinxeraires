@@ -51,6 +51,12 @@ public class VideoService {
     public List<VideoInfoDTO> getVideos(String currentUsername) {
         return videoRepository.findAll().stream().map(video -> toDTO(video, currentUsername)).toList();
     }
+    public List<VideoInfoDTO> getLikedVideos(String userName) {
+    return userRepository.findLikedVideosByUsername(userName)
+            .stream()
+            .map(video -> videoMapper.toDTO(video))
+            .toList();
+    }
 
     public void deleteVideoById(UUID id, String currentUsername) {
         Video video = videoRepository.findById(id).orElseThrow(() -> new VideoNotFoundException("Video not found"));

@@ -226,6 +226,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/videos/liked': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get liked videos
+     * @description Retrieves all videos liked by the currently authenticated user.
+     */
+    get: operations['getLikedVideos'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/users/{username}': {
     parameters: {
       query?: never;
@@ -381,8 +401,8 @@ export interface components {
       pictureUrl?: string;
     };
     CsrfToken: {
-      token?: string;
       parameterName?: string;
+      token?: string;
       headerName?: string;
     };
     CsrfTokenDTO: {
@@ -917,6 +937,26 @@ export interface operations {
     requestBody?: never;
     responses: {
       /** @description Search results successfully retrieved */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          '*/*': components['schemas']['VideoInfoDTO'][];
+        };
+      };
+    };
+  };
+  getLikedVideos: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Liked videos successfully retrieved */
       200: {
         headers: {
           [name: string]: unknown;

@@ -11,6 +11,7 @@ import { UploadPage } from './pages/UploadPage';
 import { VideoPlayback } from './pages/VideoPlayback';
 import { VideoStudioPage } from './pages/VideoStudioPage';
 import { SearchResults } from './pages/SearchResults';
+import { LikedVideos } from './pages/LikedVideos';
 
 function App() {
   return (
@@ -28,6 +29,15 @@ function App() {
                 <Route index element={<Home />} />
                 <Route path="/about" element={<Home />} />
                 <Route path="/search" element={<SearchResults />} />
+                <Route
+                  path="/liked"
+                  element={
+                    <RequireAuth>
+                      {' '}
+                      <LikedVideos />
+                    </RequireAuth>
+                  }
+                />
 
                 <Route
                   path="/profile"
