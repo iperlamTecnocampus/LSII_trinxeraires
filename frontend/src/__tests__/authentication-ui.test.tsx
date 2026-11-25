@@ -20,6 +20,31 @@ jest.mock('react-router', () => {
   };
 });
 
+jest.mock('@/lib/api', () => ({
+  $api: {
+    useQuery: jest.fn(() => ({
+      data: {
+        subscribedTo: [
+          {
+            userName: 'bob',
+            displayName: 'Bob',
+            pictureFid: 'bob-profile-picture',
+          },
+          {
+            displayName: 'User without username',
+          },
+        ],
+      },
+      isLoading: false,
+      error: null,
+    })),
+  },
+}));
+
+jest.mock('@/lib/fileApi', () => ({
+  getImageUrl: (fid?: string | null) => (fid ? `/api/files/${fid}` : undefined),
+}));
+
 jest.mock('@/components/ui/avatar', () => {
   const React = jest.requireActual<typeof import('react')>('react');
   return {
@@ -184,6 +209,10 @@ describe('authentication navigation', () => {
     expect(screen.getByText('Liked videos')).toBeInTheDocument();
     expect(screen.getByText('Your videos')).toBeInTheDocument();
     expect(screen.getByText('Subscriptions')).toBeInTheDocument();
+
+    expect(screen.getByText('Bob')).toBeInTheDocument();
+
+    expect(screen.getByRole('img', { name: '@bob' })).toHaveAttribute('src', '/api/files/bob-profile-picture');
 
     fireEvent.click(screen.getByRole('img', { name: 'Alice' }));
     expect(await screen.findByText('Your channel')).toBeInTheDocument();
