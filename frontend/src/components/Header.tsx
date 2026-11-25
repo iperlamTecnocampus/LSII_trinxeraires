@@ -16,13 +16,28 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/auth/useAuth';
-import { getEnv } from '@/utils/Env';
+import { getImageUrl } from '@/lib/fileApi';
 import type { CurrentUser } from '@/lib/api';
+import { $api } from '@/lib/api';
 
 function AvatarMenu({ user }: { user: CurrentUser }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const avatarSrc = user.pictureUrl || (user.pictureFid ? `${getEnv().MEDIA_BASE_URL}/${user.pictureFid}` : undefined);
+  const { data: profile } = $api.useQuery(
+    'get',
+    '/api/users/{username}',
+    {
+      params: {
+        path: {
+          username: user.userName ?? '',
+        },
+      },
+    },
+    {
+      enabled: Boolean(user.userName),
+    }
+  );
+  const avatarSrc = getImageUrl(profile?.pictureFid);
 
   return (
     <DropdownMenu>
