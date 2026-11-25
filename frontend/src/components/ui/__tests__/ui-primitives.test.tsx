@@ -7,12 +7,7 @@ import {
   AvatarGroupCount,
   AvatarImage,
 } from '@/components/ui/avatar';
-import {
-  ButtonGroup,
-  ButtonGroupSeparator,
-  ButtonGroupText,
-  buttonGroupVariants,
-} from '@/components/ui/button-group';
+import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText, buttonGroupVariants } from '@/components/ui/button-group';
 import { Separator } from '@/components/ui/separator';
 
 describe('avatar primitives', () => {
@@ -83,10 +78,7 @@ describe('button group primitives', () => {
       </ButtonGroup>
     );
 
-    expect(screen.getByRole('group', { name: 'Video actions' })).toHaveAttribute(
-      'data-orientation',
-      'vertical'
-    );
+    expect(screen.getByRole('group', { name: 'Video actions' })).toHaveAttribute('data-orientation', 'vertical');
     expect(screen.getByTestId('custom-text')).toHaveAttribute('data-slot', 'button-group-text');
     expect(screen.getByTestId('group-separator')).toHaveAttribute('data-orientation', 'horizontal');
     expect(screen.getByTestId('default-group-separator')).toHaveAttribute('data-orientation', 'vertical');

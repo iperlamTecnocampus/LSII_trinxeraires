@@ -17,6 +17,10 @@ jest.mock('@/lib/api', () => ({
   },
 }));
 
+jest.mock('@/components/SubscriptionButton', () => ({
+  SubscriptionButton: () => null,
+}));
+
 jest.mock('@/components/ui/avatar', () => {
   const React = jest.requireActual<typeof import('react')>('react');
   return {
