@@ -83,6 +83,7 @@ export function Profile({ username: propUsername }: ProfileProps) {
         profile={profile}
         // Pass the loading state to disable the button while saving
         isSaving={editProfileMutation.isPending}
+        saveError={editProfileMutation.isError ? 'Could not save your profile. Please try again.' : null}
         onSave={(updatedProfile) => {
           // Build the payload matching the EditUserDTO schema
           const payload: EditUserDTO = {
