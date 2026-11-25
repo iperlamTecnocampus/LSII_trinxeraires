@@ -31,6 +31,20 @@ class CommentMapperTest {
         assertEquals("Great video!", dto.comment());
         assertNotNull(dto.author());
         assertEquals("johndoe", dto.author().userName());
+        assertEquals(0L, dto.likes());
+        assertEquals(false, dto.likedByCurrentUser());
+    }
+
+    @Test
+    void toDtoMapsCommentLikeCountAndCurrentUserState() {
+        User user = new User("johndoe", "john@example.com");
+        Comment comment = new Comment("Great video!", user, new Video());
+        comment.addLike(new com.tecnocampus.LS2.protube_back.model.LikeComment(user, comment));
+
+        CommentDTO dto = mapper.toDTO(comment, true);
+
+        assertEquals(1L, dto.likes());
+        assertEquals(true, dto.likedByCurrentUser());
     }
 
     @Test

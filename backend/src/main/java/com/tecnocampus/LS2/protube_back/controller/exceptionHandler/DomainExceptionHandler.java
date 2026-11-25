@@ -2,6 +2,7 @@ package com.tecnocampus.LS2.protube_back.controller.exceptionHandler;
 
 import com.tecnocampus.LS2.protube_back.services.exceptions.UserNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.exceptions.VideoNotFoundException;
+import com.tecnocampus.LS2.protube_back.services.exceptions.CommentNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.exceptions.UserAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -27,6 +28,15 @@ public class DomainExceptionHandler{
     public ProblemDetail handleVideoNotFoundException(VideoNotFoundException ex) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
         pd.setTitle("Video Not Found");
+        pd.setProperty("timestamp", Instant.now());
+        return pd;
+    }
+
+    @ExceptionHandler(CommentNotFoundException.class)
+    @ResponseBody
+    public ProblemDetail handleCommentNotFoundException(CommentNotFoundException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        pd.setTitle("Comment Not Found");
         pd.setProperty("timestamp", Instant.now());
         return pd;
     }
