@@ -6,6 +6,7 @@ import { $api } from '@/lib/api';
 import { SubscriptionButton } from '@/components/SubscriptionButton';
 
 import { formatCount } from './format';
+import { getImageUrl } from '@/lib/fileApi';
 
 import type { components } from '@/api-schema.d.ts';
 type VideoInfoDTO = components['schemas']['VideoInfoDTO'];
@@ -29,7 +30,7 @@ export function VideoDetails({ video }: VideoDetailsProps) {
     enabled: Boolean(authorUsername),
   });
   const channelName = video.author?.displayName || video.author?.userName || 'Unknown Channel';
-  const avatarUrl = video.author?.pictureFid || 'https://picsum.photos/256';
+  const avatarUrl = getImageUrl(video.author?.pictureFid) || 'https://picsum.photos/256';
   const avatarFallback = channelName.charAt(0).toUpperCase();
   const subscriberCount = authorData?.suscribers ?? 0;
   const baseLikes = video.likes ?? 0;

@@ -18,26 +18,11 @@ import {
 import { useAuth } from '@/auth/useAuth';
 import { getImageUrl } from '@/lib/fileApi';
 import type { CurrentUser } from '@/lib/api';
-import { $api } from '@/lib/api';
 
 function AvatarMenu({ user }: { user: CurrentUser }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const { data: profile } = $api.useQuery(
-    'get',
-    '/api/users/{username}',
-    {
-      params: {
-        path: {
-          username: user.userName ?? '',
-        },
-      },
-    },
-    {
-      enabled: Boolean(user.userName),
-    }
-  );
-  const avatarSrc = getImageUrl(profile?.pictureFid);
+  const avatarSrc = getImageUrl(user.pictureFid);
 
   return (
     <DropdownMenu>

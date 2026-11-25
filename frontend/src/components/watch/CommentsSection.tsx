@@ -10,6 +10,7 @@ import { useAuth } from '@/auth/useAuth';
 
 import { formatCount } from './format';
 import type { Comment } from './types';
+import { getImageUrl } from '@/lib/fileApi';
 
 interface CommentsSectionProps {
   comments: Comment[];
@@ -29,7 +30,7 @@ function CommentItem({ comment }: CommentItemProps) {
   return (
     <div className="flex gap-3">
       <Avatar className="h-10 w-10 shrink-0">
-        <AvatarImage src={comment.avatar} alt={comment.username} />
+        <AvatarImage src={getImageUrl(comment.avatar)} alt={comment.username} />
         <AvatarFallback>{comment.username.charAt(1).toUpperCase()}</AvatarFallback>
       </Avatar>
 
@@ -150,7 +151,7 @@ export function CommentsSection({ comments, commentCount, videoId, onCommentAdde
       ) : isAuthenticated ? (
         <div className="mt-5 flex gap-3">
           <Avatar className="h-10 w-10 shrink-0">
-            <AvatarImage src={user?.pictureUrl} alt={user?.displayName || 'Current user'} />
+            <AvatarImage src={getImageUrl(user?.pictureFid)} alt={user?.displayName || 'Current user'} />
             <AvatarFallback>{(user?.displayName || user?.userName || 'You').slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
 

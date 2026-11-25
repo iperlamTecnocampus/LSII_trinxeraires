@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { timeAgo } from '../utils/format';
 import { formatCount } from './watch/format';
 import { getEnv } from '@/utils/Env';
+import { getImageUrl } from '@/lib/fileApi';
 
 import type { components } from '@/api-schema.d.ts';
 type VideoInfoDTO = components['schemas']['VideoInfoDTO'];
@@ -27,7 +28,7 @@ export function VideoCard({
   views = video?.views !== undefined ? `${formatCount(video.views)} views` : '5k',
   uploadedAt = video?.uploadedAt ? timeAgo(video.uploadedAt) : '12h ago',
   thumbnail = getEnv().FILE_API_BASE_URL + '/images/' + video?.thumbnailFid || 'https://picsum.photos/640/360',
-  avatar = video?.author?.pictureFid || 'https://picsum.photos/256',
+  avatar = getImageUrl(video.author?.pictureFid) || 'https://picsum.photos/256',
   to = video?.videoId ? `/watch/${video.videoId}` : '/',
   variant = 'grid',
 }: VideoCardProps) {

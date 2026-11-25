@@ -46,13 +46,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
   }, []);
 
+  const updateUser = useCallback((updates: Partial<CurrentUser>) => {
+    setUser((currentUser) => (currentUser ? { ...currentUser, ...updates } : currentUser));
+  }, []);
+
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
   const value = useMemo(
-    () => ({ user, isLoading, isAuthenticated: user !== null, error, refresh, logout }),
-    [user, isLoading, error, refresh, logout]
+    () => ({ user, isLoading, isAuthenticated: user !== null, error, updateUser, refresh, logout }),
+    [user, isLoading, error, updateUser, refresh, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

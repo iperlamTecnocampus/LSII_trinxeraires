@@ -17,7 +17,7 @@ interface ProfileProps {
 
 export function Profile({ username: propUsername }: ProfileProps) {
   const { username: urlUsername } = useParams<{ username: string }>();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, updateUser } = useAuth();
   const targetUsername = urlUsername || propUsername || currentUser?.userName;
   const [editing, setEditing] = useState(false);
 
@@ -44,7 +44,11 @@ export function Profile({ username: propUsername }: ProfileProps) {
 
   // 2. Define the mutation using $api to perform the PUT request
   const editProfileMutation = $api.useMutation('put', '/api/users/me', {
-    onSuccess: () => {
+    onSuccess: (updatedProfile) => {
+      updateUser({
+        pictureFid: updatedProfile.pictureFid,
+        displayName: updatedProfile.displayName,
+      });
       setEditing(false); // Close the modal
       refetch(); // Force React Query to fetch the updated user data
     },
