@@ -56,6 +56,16 @@ class VideoMapperTest {
         assertEquals("1", dto.categories().get(0).id());
         assertEquals(0L, dto.likes());
         assertEquals(0L, dto.views());
+        assertEquals(false, dto.likedByCurrentUser());
+    }
+
+    @Test
+    void toDtoMapsCurrentUserLikeState() {
+        Video video = new Video("Video Title", "Video Description", new User("creator", "creator@example.com"));
+
+        VideoInfoDTO dto = mapper.toDTO(video, true);
+
+        assertEquals(true, dto.likedByCurrentUser());
     }
 
     @Test
