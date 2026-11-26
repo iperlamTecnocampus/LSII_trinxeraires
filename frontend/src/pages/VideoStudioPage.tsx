@@ -36,13 +36,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import {
-  mockVideos,
-  type StudioVideo,
-  type VideoStatus,
-  type VideoVisibility,
-} from '@/data/studioVideos';
-
+import { mockVideos, type StudioVideo, type VideoStatus, type VideoVisibility } from '@/data/studioVideos';
 
 const compactNumber = new Intl.NumberFormat('en', {
   notation: 'compact',
@@ -130,7 +124,7 @@ export function VideoStudioPage() {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end">
-         <DropdownMenuItem onClick={() => navigate(`/studio/videos/${video.id}/edit`)}>
+          <DropdownMenuItem onClick={() => navigate(`/studio/videos/${video.id}/edit`)}>
             <HugeiconsIcon icon={PencilEdit01Icon} size={16} />
             Edit details
           </DropdownMenuItem>

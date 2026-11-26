@@ -34,9 +34,7 @@ export function EditVideoPage() {
   const [description, setDescription] = useState(video?.description ?? '');
   const [category, setCategory] = useState(video?.category ?? '');
   const [language, setLanguage] = useState(video?.language ?? 'English');
-  const [visibility, setVisibility] = useState<'public' | 'unlisted' | 'private'>(
-    video?.visibility ?? 'public'
-  );
+  const [visibility, setVisibility] = useState<'public' | 'unlisted' | 'private'>(video?.visibility ?? 'public');
 
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -62,9 +60,7 @@ export function EditVideoPage() {
       <header className="mb-8">
         <h1 className="text-2xl font-semibold">Edit video</h1>
 
-        <p className="mt-1 text-sm text-muted-foreground">
-          Update your video information
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">Update your video information</p>
       </header>
 
       <div className="flex flex-col gap-8">
@@ -94,9 +90,7 @@ export function EditVideoPage() {
             <div className="mb-4">
               <h3 className="font-semibold">Current thumbnail</h3>
 
-              <p className="text-sm text-muted-foreground">
-                Change the image displayed for this video.
-              </p>
+              <p className="text-sm text-muted-foreground">Change the image displayed for this video.</p>
             </div>
 
             {!thumbnailFile && (
@@ -118,32 +112,18 @@ export function EditVideoPage() {
 
         <Card>
           <CardContent className="pt-6">
-            <VisibilitySelector
-              value={visibility}
-              onChange={setVisibility}
-            />
+            <VisibilitySelector value={visibility} onChange={setVisibility} />
           </CardContent>
         </Card>
 
-        {error && (
-          <p className="text-sm text-destructive">
-            {error}
-          </p>
-        )}
+        {error && <p className="text-sm text-destructive">{error}</p>}
 
         <div className="flex justify-end gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate('/studio')}
-          >
+          <Button type="button" variant="outline" onClick={() => navigate('/studio')}>
             Cancel
           </Button>
 
-          <Button
-            type="button"
-            onClick={handleSave}
-          >
+          <Button type="button" onClick={handleSave}>
             Save changes
           </Button>
         </div>
