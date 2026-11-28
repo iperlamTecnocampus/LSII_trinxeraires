@@ -10,6 +10,7 @@ import com.tecnocampus.LS2.protube_back.persistence.UserRepository;
 import com.tecnocampus.LS2.protube_back.persistence.VideoRepository;
 import com.tecnocampus.LS2.protube_back.services.DTO.in.CreateVideoDTO;
 import com.tecnocampus.LS2.protube_back.services.exceptions.CategoryNotFoundException;
+import com.tecnocampus.LS2.protube_back.services.exceptions.CommentNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.exceptions.UserNotFoundException;
 import com.tecnocampus.LS2.protube_back.services.exceptions.VideoNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -132,5 +133,63 @@ class VideoServiceCreateAndCommentTest {
         assertThrows(VideoNotFoundException.class,
                 () -> service.commentVideo("alice", videoId, "Hello"));
         verifyNoInteractions(comments);
+    }
+
+    @Test
+    void createsOneLevelReplyAndIncludesItUnderTheRootComment() {
+        Video video = new Video("Song", "Description", author);
+        ReflectionTestUtils.setField(video, "uuid", videoId);
+        Comment root = new Comment("Root comment", author, video);
+        ReflectionTestUtils.setField(root, "id", 17L);
+        video.addComment(root);
+        when(users.findById("alice")).thenReturn(Optional.of(author));
+        when(comments.findById(17L)).thenReturn(Optional.of(root));
+
+        assertTrue(service.replyToComment("alice", 17L, "  A reply  "));
+
+        Comment reply = root.getReplies().iterator().next();
+        assertEquals("A reply", reply.getComment());
+        assertSame(root, reply.getParentComment());
+        assertSame(video, reply.getVideo());
+        assertTrue(video.getComments().contains(reply));
+        verify(comments).save(reply);
+
+        ReflectionTestUtils.setField(reply, "id", 18L);
+        when(comments.findById(18L)).thenReturn(Optional.of(reply));
+        when(users.hasLikedComment("alice", 18L)).thenReturn(false, true);
+        assertTrue(service.likeComment("alice", 18L));
+        assertEquals(1, reply.getLikes().size());
+
+        when(videos.findById(videoId)).thenReturn(Optional.of(video));
+        var mappedRoot = service.getCommentsByVideoId(videoId).get(0);
+        assertEquals("Root comment", mappedRoot.comment());
+        assertEquals(1, mappedRoot.replies().size());
+        assertEquals("A reply", mappedRoot.replies().get(0).comment());
+        assertTrue(mappedRoot.replies().get(0).replies().isEmpty());
+    }
+
+    @Test
+    void rejectsRepliesToRepliesAndEmptyReplies() {
+        Video video = new Video("Song", "Description", author);
+        Comment root = new Comment("Root", author, video);
+        Comment reply = new Comment("Reply", author, video);
+        root.addReply(reply);
+        when(users.findById("alice")).thenReturn(Optional.of(author));
+        when(comments.findById(1L)).thenReturn(Optional.of(root));
+        when(comments.findById(2L)).thenReturn(Optional.of(reply));
+
+        assertThrows(IllegalArgumentException.class, () -> service.replyToComment("alice", 2L, "Nested"));
+        assertThrows(IllegalArgumentException.class, () -> service.replyToComment("alice", 1L, "  "));
+        verify(comments, never()).save(any(Comment.class));
+    }
+
+    @Test
+    void replyRejectsMissingUserOrComment() {
+        when(users.findById("missing")).thenReturn(Optional.empty());
+        assertThrows(UserNotFoundException.class, () -> service.replyToComment("missing", 1L, "Reply"));
+        when(users.findById("alice")).thenReturn(Optional.of(author));
+        when(comments.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(CommentNotFoundException.class, () -> service.replyToComment("alice", 1L, "Reply"));
+        verify(comments, never()).save(any(Comment.class));
     }
 }

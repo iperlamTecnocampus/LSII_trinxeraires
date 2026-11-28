@@ -6,6 +6,8 @@ import com.tecnocampus.LS2.protube_back.model.Video;
 import com.tecnocampus.LS2.protube_back.services.DTO.out.CommentDTO;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class CommentMapper {
 
@@ -20,6 +22,10 @@ public class CommentMapper {
     }
 
     public CommentDTO toDTO(Comment comment, boolean likedByCurrentUser) {
+        return toDTO(comment, likedByCurrentUser, List.of());
+    }
+
+    public CommentDTO toDTO(Comment comment, boolean likedByCurrentUser, List<CommentDTO> replies) {
         if (comment == null) return null;
 
         return new CommentDTO(
@@ -27,7 +33,8 @@ public class CommentMapper {
                 comment.getComment(),
                 comment.getId(),
                 comment.getLikes() != null ? (long) comment.getLikes().size() : 0L,
-                likedByCurrentUser
+                likedByCurrentUser,
+                replies == null ? List.of() : replies
         );
     }
 
