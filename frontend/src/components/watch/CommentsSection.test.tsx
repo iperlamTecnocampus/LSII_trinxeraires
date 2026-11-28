@@ -91,15 +91,15 @@ beforeEach(() => {
   });
 });
 
-describe('CommentsSection comment likes', () => {
-  it('posts a like once, updates the count, and removes the Reply button', async () => {
+describe('CommentsSection comment engagement', () => {
+  it('posts a like once, updates the count, and offers replies on root comments', async () => {
     mockMutateAsync.mockResolvedValue(true);
     const onLikeChanged = jest.fn();
 
     render(<CommentsSection comments={comments} commentCount={1} videoId="video-123" onLikeChanged={onLikeChanged} />);
 
     const likeButton = screen.getByRole('button', { name: 'Like · 5' });
-    expect(screen.queryByRole('button', { name: 'Reply' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Reply' })).toBeInTheDocument();
     fireEvent.click(likeButton);
 
     await waitFor(() => {
@@ -244,13 +244,13 @@ describe('CommentsSection comment likes', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Checking your session…');
   });
 
-  it('can expand and collapse existing replies without rendering a Reply action', () => {
+  it('can expand and collapse replies and does not allow replying to a reply', () => {
     render(
       <CommentsSection
         comments={[
           {
             ...comments[0],
-            replies: [{ ...comments[0], id: '456', username: 'Bob', text: 'Thanks!' }],
+            replies: [{ ...comments[0], id: '456', username: 'Bob', text: 'Thanks!', likes: 2 }],
           },
         ]}
         commentCount={1}
@@ -260,9 +260,37 @@ describe('CommentsSection comment likes', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'View 1 reply' }));
     expect(screen.getByText('Thanks!')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Reply' })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Reply' })).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Like · 2' })).toBeEnabled();
 
     fireEvent.click(screen.getByRole('button', { name: 'Hide replies' }));
     expect(screen.queryByText('Thanks!')).not.toBeInTheDocument();
+  });
+
+  it('posts a reply to the root comment and refreshes comments', async () => {
+    jest.mocked(apiFetch).mockResolvedValue({
+      status: 200,
+      ok: true,
+      json: async () => true,
+    } as Response);
+    const onCommentAdded = jest.fn();
+
+    render(
+      <CommentsSection comments={comments} commentCount={1} videoId="video-123" onCommentAdded={onCommentAdded} />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reply' }));
+    fireEvent.change(screen.getByPlaceholderText('Add a reply...'), { target: { value: '  Thanks!  ' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Post reply' }));
+
+    await waitFor(() => {
+      expect(apiFetch).toHaveBeenCalledWith('/api/comments/123/replies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: 'Thanks!',
+      });
+      expect(onCommentAdded).toHaveBeenCalledTimes(1);
+      expect(screen.queryByPlaceholderText('Add a reply...')).not.toBeInTheDocument();
+    });
   });
 });
