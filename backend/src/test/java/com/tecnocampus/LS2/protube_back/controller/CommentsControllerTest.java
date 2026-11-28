@@ -23,6 +23,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(value = CommentsController.class, properties = "pro_tube.frontend.url=http://localhost:5173")
@@ -75,6 +76,30 @@ class CommentsControllerTest {
     @Test
     void unlikingCommentRequiresAuthentication() throws Exception {
         mockMvc.perform(delete("/api/comments/{id}/likes", COMMENT_ID)
+                        .with(csrf()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void replyUsesAuthenticatedPrincipalAndPlainTextBody() throws Exception {
+        when(videoService.replyToComment(SESSION_USERNAME, COMMENT_ID, "A reply")).thenReturn(true);
+
+        mockMvc.perform(post("/api/comments/{id}/replies", COMMENT_ID)
+                        .contentType("text/plain")
+                        .content("A reply")
+                        .with(authentication(authenticatedUser(SESSION_USERNAME)))
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+        verify(videoService).replyToComment(SESSION_USERNAME, COMMENT_ID, "A reply");
+    }
+
+    @Test
+    void replyingRequiresAuthentication() throws Exception {
+        mockMvc.perform(post("/api/comments/{id}/replies", COMMENT_ID)
+                        .contentType("text/plain")
+                        .content("A reply")
                         .with(csrf()))
                 .andExpect(status().isUnauthorized());
     }

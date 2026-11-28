@@ -4,8 +4,14 @@ import { RelatedVideos } from '@/components/watch/RelatedVideos';
 import { VideoDescription } from '@/components/watch/VideoDescription';
 import { VideoDetails } from '@/components/watch/VideoDetails';
 import { VideoPlayerCmp } from '@/components/watch/VideoPlayerCmp';
+import type { Comment } from '@/components/watch/types';
+import type { components } from '@/api-schema';
 
 import { $api } from '../lib/api';
+
+type ApiComment = NonNullable<components['schemas']['VideoInfoDTO']['comments']>[number] & {
+  replies?: ApiComment[];
+};
 
 export function VideoPlayback() {
   const { videoId } = useParams<{ videoId: string }>();
@@ -49,15 +55,18 @@ export function VideoPlayback() {
     );
   }
 
-  const comments = (video.comments ?? []).map((c) => ({
-    id: String(c.id ?? ''),
-    username: c.author?.displayName || c.author?.userName || 'Anonymous',
-    avatar: c.author?.pictureFid || 'https://picsum.photos/256',
-    text: c.comment ?? '',
+  const mapComment: (comment: ApiComment) => Comment = (comment) => ({
+    id: String(comment.id ?? ''),
+    username: comment.author?.displayName || comment.author?.userName || 'Anonymous',
+    avatar: comment.author?.pictureFid || 'https://picsum.photos/256',
+    text: comment.comment ?? '',
     createdAt: '',
-    likes: c.likes ?? 0,
-    likedByCurrentUser: Boolean(c.likedByCurrentUser),
-  }));
+    likes: comment.likes ?? 0,
+    likedByCurrentUser: Boolean(comment.likedByCurrentUser),
+    replies: (comment.replies ?? []).map(mapComment),
+  });
+  const comments = ((video.comments ?? []) as ApiComment[]).map(mapComment);
+  const commentCount = comments.reduce((count, comment) => count + 1 + (comment.replies?.length ?? 0), 0);
 
   return (
     <div className="mx-auto w-full max-w-[1600px] px-4 py-6">
@@ -80,7 +89,7 @@ export function VideoPlayback() {
 
           <CommentsSection
             comments={comments}
-            commentCount={comments.length}
+            commentCount={commentCount}
             videoId={videoId}
             onCommentAdded={() => {
               refetch();

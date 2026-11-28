@@ -23,11 +23,15 @@ interface CommentsSectionProps {
 
 interface CommentItemProps {
   comment: Comment;
+  isAuthenticated: boolean;
   onLikeChanged?: () => void;
+  onReplyAdded?: () => void;
+  isReply?: boolean;
 }
 
-function CommentItem({ comment, onLikeChanged }: CommentItemProps) {
+function CommentItem({ comment, isAuthenticated, onLikeChanged, onReplyAdded, isReply = false }: CommentItemProps) {
   const [showReplies, setShowReplies] = useState(false);
+  const [showReplyForm, setShowReplyForm] = useState(false);
 
   return (
     <div className="flex gap-3">
@@ -52,9 +56,30 @@ function CommentItem({ comment, onLikeChanged }: CommentItemProps) {
             likedByCurrentUser={comment.likedByCurrentUser}
             onLikeChanged={onLikeChanged}
           />
+          {!isReply && isAuthenticated && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="px-2 font-semibold"
+              onClick={() => setShowReplyForm((value) => !value)}
+            >
+              {showReplyForm ? 'Cancel reply' : 'Reply'}
+            </Button>
+          )}
         </div>
 
-        {comment.replies && comment.replies.length > 0 && (
+        {showReplyForm && !isReply && (
+          <ReplyComposer
+            commentId={comment.id}
+            onReplyAdded={() => {
+              setShowReplyForm(false);
+              onReplyAdded?.();
+            }}
+          />
+        )}
+
+        {!isReply && comment.replies && comment.replies.length > 0 && (
           <div className="mt-2">
             <Button
               type="button"
@@ -71,12 +96,87 @@ function CommentItem({ comment, onLikeChanged }: CommentItemProps) {
             {showReplies && (
               <div className="mt-3 flex flex-col gap-4 border-l pl-4">
                 {comment.replies.map((reply) => (
-                  <CommentItem key={reply.id} comment={reply} onLikeChanged={onLikeChanged} />
+                  <CommentItem
+                    key={reply.id}
+                    comment={reply}
+                    isAuthenticated={isAuthenticated}
+                    isReply
+                    onLikeChanged={onLikeChanged}
+                  />
                 ))}
               </div>
             )}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+interface ReplyComposerProps {
+  commentId: string;
+  onReplyAdded: () => void;
+}
+
+function ReplyComposer({ commentId, onReplyAdded }: ReplyComposerProps) {
+  const [reply, setReply] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  async function handleSubmitReply() {
+    const text = reply.trim();
+    if (!text || isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      const response = await apiFetch(`/api/comments/${encodeURIComponent(commentId)}/replies`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: text,
+      });
+
+      if (response.status === 401) {
+        navigate('/login');
+        return;
+      }
+      if (!response.ok) {
+        throw new Error(`Reply failed (${response.status}).`);
+      }
+      if ((await response.json()) === true) {
+        setReply('');
+        onReplyAdded();
+      }
+    } catch (error) {
+      console.error('Failed to post reply:', error);
+      setSubmitError(error instanceof Error ? error.message : 'Failed to post reply.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="mt-3">
+      <Textarea
+        value={reply}
+        onChange={(event) => setReply(event.target.value)}
+        placeholder="Add a reply..."
+        className="min-h-16 resize-none"
+      />
+      {submitError && (
+        <p className="mt-2 text-sm text-destructive" role="alert">
+          {submitError}
+        </p>
+      )}
+      <div className="mt-2 flex justify-end">
+        <Button type="button" disabled={!reply.trim() || isSubmitting} onClick={handleSubmitReply}>
+          {isSubmitting ? 'Replying…' : 'Post reply'}
+        </Button>
       </div>
     </div>
   );
@@ -190,7 +290,21 @@ export function CommentsSection({
 
       <div className="mt-8 flex flex-col gap-6">
         {comments.map((comment) => (
-          <CommentItem key={comment.id} comment={comment} onLikeChanged={onLikeChanged} />
+          <CommentItem
+            key={comment.id}
+            comment={comment}
+            isAuthenticated={isAuthenticated}
+            onLikeChanged={onLikeChanged}
+            onReplyAdded={() => {
+              if (onCommentAdded) {
+                onCommentAdded();
+              } else {
+                queryClient.invalidateQueries({
+                  queryKey: ['get', '/api/videos/{id}', { params: { path: { id: activeVideoId } } }],
+                });
+              }
+            }}
+          />
         ))}
       </div>
     </section>

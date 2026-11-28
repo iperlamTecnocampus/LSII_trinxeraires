@@ -112,9 +112,30 @@ public class VideoService {
         return videoRepository.existCommentByIdAndVideoId(savedComment.getId(), video.getUuid());
     }
 
+    @Transactional
+    public boolean replyToComment(String userName, Long commentId, String replyText) {
+        if (replyText == null || replyText.isBlank()) {
+            throw new IllegalArgumentException("Reply cannot be empty.");
+        }
+
+        User user = userRepository.findById(userName)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        Comment parentComment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("Comment not found"));
+        if (parentComment.getParentComment() != null) {
+            throw new IllegalArgumentException("Replies to replies are not allowed.");
+        }
+
+        Comment reply = new Comment(replyText.trim(), user, parentComment.getVideo());
+        parentComment.addReply(reply);
+        parentComment.getVideo().addComment(reply);
+        commentRepository.save(reply);
+        return true;
+    }
+
     public List<CommentDTO> getCommentsByVideoId(UUID videoId) {
         Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoNotFoundException("Video not found"));
-        return video.getComments().stream().map(comment -> commentMapper.toDTO(comment)).toList();
+        return toCommentDTOs(video, null);
     }
 
     public List<VideoInfoDTO> searchVideo(String name, String currentUsername) {
@@ -202,12 +223,24 @@ public class VideoService {
         if (video.getComments() == null) {
             return List.of();
         }
-        if (currentUsername == null) {
-            return video.getComments().stream().map(commentMapper::toDTO).toList();
-        }
         return video.getComments().stream()
-                .map(comment -> commentMapper.toDTO(comment,
-                        userRepository.hasLikedComment(currentUsername, comment.getId())))
+                .filter(comment -> comment.getParentComment() == null)
+                .map(comment -> toCommentDTO(comment, currentUsername))
                 .toList();
+    }
+
+    private CommentDTO toCommentDTO(Comment comment, String currentUsername) {
+        boolean likedByCurrentUser = currentUsername != null
+                && userRepository.hasLikedComment(currentUsername, comment.getId());
+        List<CommentDTO> replies = comment.getReplies() == null
+                ? List.of()
+                : comment.getReplies().stream()
+                        .map(reply -> commentMapper.toDTO(
+                                reply,
+                                currentUsername != null
+                                        && userRepository.hasLikedComment(currentUsername, reply.getId()),
+                                List.of()))
+                        .toList();
+        return commentMapper.toDTO(comment, likedByCurrentUser, replies);
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,24 @@ public class CommentsController {
 
     public CommentsController(VideoService videoService) {
         this.videoService = videoService;
+    }
+
+    @Operation(
+            summary = "Reply to a top-level comment",
+            description = "Creates a one-level reply. Replies cannot be replied to."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reply saved successfully"),
+            @ApiResponse(responseCode = "400", description = "Empty reply or target is already a reply", content = @Content),
+            @ApiResponse(responseCode = "404", description = "User or comment not found", content = @Content)
+    })
+    @PostMapping("/{id}/replies")
+    public ResponseEntity<Boolean> replyToComment(
+            @Parameter(description = "ID of the top-level comment", required = true)
+            @PathVariable("id") Long commentId,
+            @RequestBody String reply,
+            @AuthenticationPrincipal OAuth2User principal) {
+        return ResponseEntity.ok(videoService.replyToComment(principal.getName(), commentId, reply));
     }
 
     @Operation(

@@ -24,6 +24,13 @@ public class Comment {
     @JoinColumn(name = "video_uuid", nullable = false)
     private Video video;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_comment_id")
+    private Comment parentComment;
+
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private Set<Comment> replies = new HashSet<>();
+
     @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<LikeComment> likes = new HashSet<>();
 
@@ -81,5 +88,34 @@ public class Comment {
     public void removeLike(LikeComment like) {
         this.likes.remove(like);
         like.setComment(null);
+    }
+
+    public Comment getParentComment() {
+        return parentComment;
+    }
+
+    public void setParentComment(Comment parentComment) {
+        this.parentComment = parentComment;
+    }
+
+    public Set<Comment> getReplies() {
+        return replies;
+    }
+
+    public void setReplies(Set<Comment> replies) {
+        this.replies = replies;
+    }
+
+    public void addReply(Comment reply) {
+        if (parentComment != null) {
+            throw new IllegalArgumentException("Replies to replies are not allowed.");
+        }
+        this.replies.add(reply);
+        reply.setParentComment(this);
+    }
+
+    public void removeReply(Comment reply) {
+        this.replies.remove(reply);
+        reply.setParentComment(null);
     }
 }
